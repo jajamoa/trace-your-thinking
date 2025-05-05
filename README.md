@@ -1,5 +1,7 @@
 # Trace Your Thinking
 
+![TYT Banner](assets/tyt_banner.png)
+
 A sophisticated interview collection and analysis tool designed for research studies, focusing on capturing and analyzing thought processes.
 
 ## Overview
