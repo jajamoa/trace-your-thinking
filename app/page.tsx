@@ -1,0 +1,135 @@
+"use client"
+
+import type React from "react"
+
+import { useState, useEffect } from "react"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { useRouter } from "next/navigation"
+import { motion } from "framer-motion"
+import { ArrowRight } from "lucide-react"
+import GridBackground from "@/components/GridBackground"
+import { z } from "zod"
+import { useStore } from "@/lib/store"
+
+// Schema for Prolific ID validation
+const prolificSchema = z.object({
+  id: z.string().min(4, "Prolific ID must be at least 4 characters").max(24),
+})
+
+export default function Home() {
+  const router = useRouter()
+  const [prolificId, setProlificId] = useState("")
+  const [error, setError] = useState("")
+  const { setProlificId: setStoreProlificId, prolificId: existingProlificId, sessionStatus } = useStore()
+
+  useEffect(() => {
+    // If user already has a Prolific ID and session is completed, go to thank you page
+    if (existingProlificId && sessionStatus === "completed") {
+      router.push("/thank-you")
+      return
+    }
+
+    // If user already has a Prolific ID and session is in progress, go to interview page
+    if (existingProlificId && sessionStatus === "in_progress") {
+      router.push("/interview")
+      return
+    }
+
+    // If there's an existing Prolific ID, pre-fill the input
+    if (existingProlificId) {
+      setProlificId(existingProlificId)
+    }
+  }, [existingProlificId, router, sessionStatus])
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+
+    try {
+      // Validate the Prolific ID
+      prolificSchema.parse({ id: prolificId })
+
+      // Store the ID in localStorage
+      localStorage.setItem("prolificId", prolificId)
+
+      // Store in the global state
+      setStoreProlificId(prolificId)
+
+      // Navigate to the interview page
+      router.push("/interview")
+    } catch (err) {
+      if (err instanceof z.ZodError) {
+        setError(err.errors[0].message)
+      } else {
+        setError("Please enter a valid Prolific ID")
+      }
+    }
+  }
+
+  return (
+    <main className="relative min-h-screen overflow-hidden">
+      {/* Grid Background */}
+      <div className="absolute inset-0 z-0 bg-[#f5f2eb]">
+        <GridBackground />
+      </div>
+
+      {/* Content */}
+      <div className="container relative z-10 mx-auto px-4 py-24 flex flex-col items-center justify-center min-h-screen">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, ease: [0.4, 0, 0.2, 1] }}
+          className="text-center max-w-3xl mx-auto"
+        >
+          <h1 className="text-5xl md:text-6xl font-light mb-4 tracking-tight">
+            Trace Your <span className="font-normal text-blue-600">Thinking</span>
+          </h1>
+
+          <p className="text-lg md:text-xl text-gray-600 mb-12 max-w-xl mx-auto leading-relaxed">
+            We're building a map of public reasoning — your perspective matters.
+          </p>
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2, duration: 0.5 }}
+            className="bg-white p-8 rounded-3xl shadow-subtle max-w-md mx-auto border border-[#e0ddd5]"
+          >
+            <h2 className="text-2xl font-light mb-6">Welcome</h2>
+
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <div className="space-y-2">
+                <label htmlFor="prolificId" className="block text-sm font-medium text-gray-700">
+                  Please enter your Prolific ID
+                </label>
+                <Input
+                  id="prolificId"
+                  type="text"
+                  value={prolificId}
+                  onChange={(e) => {
+                    setProlificId(e.target.value)
+                    setError("")
+                  }}
+                  placeholder="e.g. 5f8d7e6c9b2a1c3d4e5f6g7h"
+                  className="bg-[#f5f2eb] border-[#e0ddd5] focus:ring-blue-400"
+                />
+                {error && <p className="text-red-500 text-sm">{error}</p>}
+              </div>
+
+              <motion.div whileTap={{ scale: 0.96 }} transition={{ duration: 0.2, ease: [0.4, 0, 0.2, 1] }}>
+                <Button
+                  type="submit"
+                  size="lg"
+                  className="bg-[#333333] hover:bg-[#222222] text-white px-8 py-6 text-base rounded-full shadow-subtle transition-all duration-300 w-full"
+                >
+                  Start Interview
+                  <ArrowRight className="ml-2 h-5 w-5" />
+                </Button>
+              </motion.div>
+            </form>
+          </motion.div>
+        </motion.div>
+      </div>
+    </main>
+  )
+}
