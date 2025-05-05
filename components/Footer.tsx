@@ -1,6 +1,5 @@
 "use client"
 
-import Image from "next/image"
 import { useMemo } from "react"
 import Link from "next/link"
 
@@ -32,11 +31,9 @@ export default function Footer({ showLogo = true, showAboutLink = false }: Foote
       </div>
       {showLogo && (
         <div className="opacity-70 hover:opacity-100 transition-opacity">
-          <Image
+          <img
             src="/mit-logo.svg"
             alt="MIT Logo"
-            width={60}
-            height={30}
             className="h-6 w-auto"
           />
         </div>

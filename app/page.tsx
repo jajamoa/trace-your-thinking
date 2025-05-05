@@ -12,6 +12,8 @@ import GridBackground from "@/components/GridBackground"
 import { z } from "zod"
 import { useStore } from "@/lib/store"
 import Footer from "@/components/Footer"
+import MobileRedirect from "@/components/MobileRedirect"
+import useDeviceDetect from "@/hooks/useDeviceDetect"
 
 // Schema for Prolific ID validation
 const prolificSchema = z.object({
@@ -23,8 +25,12 @@ export default function Home() {
   const [prolificId, setProlificId] = useState("")
   const [error, setError] = useState("")
   const { setProlificId: setStoreProlificId, prolificId: existingProlificId, sessionStatus } = useStore()
+  const { isMobile } = useDeviceDetect()
 
   useEffect(() => {
+    // Skip redirects on mobile devices
+    if (isMobile) return
+    
     // If user already has a Prolific ID and session is completed, go to thank you page
     if (existingProlificId && sessionStatus === "completed") {
       router.push("/thank-you")
@@ -41,7 +47,7 @@ export default function Home() {
     if (existingProlificId) {
       setProlificId(existingProlificId)
     }
-  }, [existingProlificId, router, sessionStatus])
+  }, [existingProlificId, router, sessionStatus, isMobile])
 
   const validateInput = (value: string) => {
     setProlificId(value)
@@ -77,6 +83,12 @@ export default function Home() {
     }
   }
 
+  // If on mobile, show the mobile-specific content
+  if (isMobile) {
+    return <MobileRedirect />
+  }
+
+  // Desktop view
   return (
     <main className="relative min-h-screen overflow-hidden">
       {/* Grid Background */}
