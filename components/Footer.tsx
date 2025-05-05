@@ -8,7 +8,7 @@ interface FooterProps {
 }
 
 export default function Footer({ showLogo = true }: FooterProps) {
-  // 获取当前年份
+  // Get current year
   const currentYear = useMemo(() => new Date().getFullYear(), [])
   
   return (
