@@ -148,7 +148,7 @@ export default function Home() {
         </motion.div>
       </div>
 
-      <Footer />
+      <Footer showAboutLink={true} />
     </main>
   )
 }
