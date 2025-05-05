@@ -10,6 +10,7 @@ import { useStore } from "@/lib/store"
 import { toast } from "@/components/ui/use-toast"
 import ProlificIdBadge from "@/components/ProlificIdBadge"
 import { Input } from "@/components/ui/input"
+import Footer from "@/components/Footer"
 import {
   Dialog,
   DialogContent,
@@ -203,41 +204,43 @@ export default function ReviewPage() {
   }
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 12 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.12, ease: [0.4, 0, 0.2, 1] }}
-      className="container mx-auto px-4 py-16 max-w-3xl relative"
-    >
-      <div className="flex items-center justify-between mb-10">
-        <h1 className="text-3xl font-light tracking-tight text-[#333333]">Review Your Thinking</h1>
-        <ProlificIdBadge />
-      </div>
-
-      {emptyAnswers.length > 0 && (
-        <div className="mb-6 p-4 bg-amber-50 border border-amber-200 rounded-lg flex items-center gap-3">
-          <AlertTriangle className="h-5 w-5 text-amber-500 flex-shrink-0" />
-          <div className="text-sm text-amber-800">
-            Please complete all answers before submitting. You have {emptyAnswers.length} unanswered question(s).
-          </div>
+    <div className="min-h-screen relative bg-[#f5f2eb]">
+      <motion.div
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.12, ease: [0.4, 0, 0.2, 1] }}
+        className="container mx-auto px-4 py-16 max-w-3xl relative"
+      >
+        <div className="flex items-center justify-between mb-10">
+          <h1 className="text-3xl font-light tracking-tight text-[#333333]">Review Your Thinking</h1>
+          <ProlificIdBadge />
         </div>
-      )}
 
-      <TranscriptEditor highlightEmptyAnswers={emptyAnswers} />
+        {emptyAnswers.length > 0 && (
+          <div className="mb-6 p-4 bg-amber-50 border border-amber-200 rounded-lg flex items-center gap-3">
+            <AlertTriangle className="h-5 w-5 text-amber-500 flex-shrink-0" />
+            <div className="text-sm text-amber-800">
+              Please complete all answers before submitting. You have {emptyAnswers.length} unanswered question(s).
+            </div>
+          </div>
+        )}
 
-      <div className="mt-10 flex justify-center">
-        <motion.div whileTap={{ scale: 0.96 }}>
-          <Button
-            onClick={handleSubmitClick}
-            size="lg"
-            disabled={isSubmitting}
-            className="bg-[#333333] hover:bg-[#222222] text-white rounded-full shadow-subtle"
-          >
-            {isSubmitting ? "Submitting..." : "Submit Interview"}
-            <Send className="ml-2 h-4 w-4" />
-          </Button>
-        </motion.div>
-      </div>
+        <TranscriptEditor highlightEmptyAnswers={emptyAnswers} />
+
+        <div className="mt-10 flex justify-center">
+          <motion.div whileTap={{ scale: 0.96 }}>
+            <Button
+              onClick={handleSubmitClick}
+              size="lg"
+              disabled={isSubmitting}
+              className="bg-[#333333] hover:bg-[#222222] text-white rounded-full shadow-subtle"
+            >
+              {isSubmitting ? "Submitting..." : "Submit Interview"}
+              <Send className="ml-2 h-4 w-4" />
+            </Button>
+          </motion.div>
+        </div>
+      </motion.div>
 
       {/* Prolific ID Confirmation Dialog */}
       <Dialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
@@ -343,6 +346,8 @@ export default function ReviewPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </motion.div>
+      
+      <Footer />
+    </div>
   )
 }

@@ -9,6 +9,7 @@ import { useStore } from "@/lib/store"
 import { mockWebSocketConnection } from "@/lib/ws"
 import ElegantProgressBar from "@/components/ElegantProgressBar"
 import ProlificIdBadge from "@/components/ProlificIdBadge"
+import Footer from "@/components/Footer"
 
 export default function InterviewPage() {
   const router = useRouter()
@@ -188,7 +189,7 @@ export default function InterviewPage() {
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.12, ease: [0.4, 0, 0.2, 1] }}
-      className="flex h-screen overflow-hidden bg-[#f5f2eb]"
+      className="flex h-screen overflow-hidden bg-[#f5f2eb] relative"
     >
       <div className="flex-1 flex flex-col max-w-4xl mx-auto w-full">
         <div className="sticky top-0 z-10 bg-[#f5f2eb]/80 backdrop-blur-lg pt-6 px-4">
@@ -209,6 +210,8 @@ export default function InterviewPage() {
         </div>
         <AnswerInput onSendMessage={handleSendMessage} />
       </div>
+      
+      <Footer showLogo={false} />
     </motion.div>
   )
 }

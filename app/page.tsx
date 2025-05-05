@@ -11,6 +11,7 @@ import { ArrowRight, AlertCircle } from "lucide-react"
 import GridBackground from "@/components/GridBackground"
 import { z } from "zod"
 import { useStore } from "@/lib/store"
+import Footer from "@/components/Footer"
 
 // Schema for Prolific ID validation
 const prolificSchema = z.object({
@@ -146,6 +147,8 @@ export default function Home() {
           </motion.div>
         </motion.div>
       </div>
+
+      <Footer />
     </main>
   )
 }
