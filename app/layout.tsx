@@ -11,9 +11,36 @@ const inter = Inter({
 })
 
 export const metadata: Metadata = {
-  title: "ACH Collector | MIT Media Lab",
-  description: "A polished interview collection tool for research studies",
-    generator: 'v0.dev'
+  title: "Trace Your Thinking",
+  description: "A sophisticated interview collection and analysis tool for research studies",
+  generator: 'Next.js',
+  icons: {
+    icon: [
+      { url: '/favicon.ico' },
+      { url: '/icon.png', type: 'image/png' },
+    ],
+    apple: [
+      { url: '/apple-touch-icon.png' },
+    ],
+  },
+  openGraph: {
+    title: 'Trace Your Thinking',
+    description: 'A sophisticated interview collection and analysis tool for research studies',
+    images: [
+      {
+        url: '/og-image.png',
+        width: 1200,
+        height: 630,
+        alt: 'Trace Your Thinking',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Trace Your Thinking',
+    description: 'A sophisticated interview collection and analysis tool for research studies',
+    images: ['/og-image.png'],
+  },
 }
 
 export default function RootLayout({

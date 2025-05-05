@@ -140,21 +140,23 @@ export default function TranscriptEditor({ highlightEmptyAnswers = [] }: Transcr
                   isHighlighted ? "bg-amber-50 hover:bg-amber-100" : ""
                 }`}
               >
-                <div className="flex items-center gap-3 w-full">
+                <div className="flex items-start gap-3 w-full">
                   <div
-                    className={`flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-xs font-medium ${
+                    className={`flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-xs font-medium mt-0.5 ${
                       isHighlighted ? "bg-amber-300 text-amber-800" : "bg-[#e0ddd5] text-gray-700"
                     }`}
                   >
                     {index + 1}
                   </div>
-                  <div className="font-light flex-grow">{pair.question}</div>
-                  {isEmpty && (
-                    <div className="flex-shrink-0 text-amber-500 flex items-center gap-1 text-xs font-medium">
-                      <AlertCircle className="h-4 w-4" />
-                      <span>Required</span>
-                    </div>
-                  )}
+                  <div className="flex flex-col gap-1 flex-grow pr-6">
+                    <div className="font-light">{pair.question}</div>
+                    {isEmpty && (
+                      <div className="text-amber-500 flex items-center gap-1 text-xs font-medium">
+                        <AlertCircle className="h-3.5 w-3.5" />
+                        <span>Required</span>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </AccordionTrigger>
               <AccordionContent
@@ -170,15 +172,9 @@ export default function TranscriptEditor({ highlightEmptyAnswers = [] }: Transcr
                         ? "bg-amber-50 border-amber-300 focus:ring-amber-400"
                         : "bg-[#f5f2eb] border-[#e0ddd5] focus:ring-blue-400"
                     }`}
-                    placeholder="Enter your answer..."
+                    placeholder={isEmpty ? "This question requires an answer" : "Enter your answer..."}
                     aria-label={`Answer to question ${index + 1}`}
                   />
-                  {isEmpty && (
-                    <div className="mt-2 text-amber-600 text-sm flex items-center gap-2">
-                      <AlertCircle className="h-4 w-4" />
-                      <span>Please provide an answer to this question</span>
-                    </div>
-                  )}
                 </div>
               </AccordionContent>
             </AccordionItem>

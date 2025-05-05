@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { useRouter } from "next/navigation"
 import { motion } from "framer-motion"
-import { ArrowRight } from "lucide-react"
+import { ArrowRight, AlertCircle } from "lucide-react"
 import GridBackground from "@/components/GridBackground"
 import { z } from "zod"
 import { useStore } from "@/lib/store"
@@ -41,6 +41,16 @@ export default function Home() {
       setProlificId(existingProlificId)
     }
   }, [existingProlificId, router, sessionStatus])
+
+  const validateInput = (value: string) => {
+    setProlificId(value)
+    
+    if (value.length > 0 && value.length < 4) {
+      setError("Prolific ID must be at least 4 characters")
+    } else {
+      setError("")
+    }
+  }
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -106,21 +116,27 @@ export default function Home() {
                   id="prolificId"
                   type="text"
                   value={prolificId}
-                  onChange={(e) => {
-                    setProlificId(e.target.value)
-                    setError("")
-                  }}
+                  onChange={(e) => validateInput(e.target.value)}
                   placeholder="e.g. 5f8d7e6c9b2a1c3d4e5f6g7h"
-                  className="bg-[#f5f2eb] border-[#e0ddd5] focus:ring-blue-400"
+                  className={`bg-[#f5f2eb] border-[#e0ddd5] focus:ring-blue-400 ${
+                    error ? "border-red-300 focus:ring-red-400" : ""
+                  }`}
+                  minLength={4}
                 />
-                {error && <p className="text-red-500 text-sm">{error}</p>}
+                {error && (
+                  <div className="flex items-center gap-2 text-red-500 text-sm mt-1">
+                    <AlertCircle className="h-4 w-4" />
+                    <span>{error}</span>
+                  </div>
+                )}
               </div>
 
               <motion.div whileTap={{ scale: 0.96 }} transition={{ duration: 0.2, ease: [0.4, 0, 0.2, 1] }}>
                 <Button
                   type="submit"
                   size="lg"
-                  className="bg-[#333333] hover:bg-[#222222] text-white px-8 py-6 text-base rounded-full shadow-subtle transition-all duration-300 w-full"
+                  disabled={prolificId.length < 4 || Boolean(error)}
+                  className="bg-[#333333] hover:bg-[#222222] text-white px-8 py-6 text-base rounded-full shadow-subtle transition-all duration-300 w-full disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Start Interview
                   <ArrowRight className="ml-2 h-5 w-5" />
