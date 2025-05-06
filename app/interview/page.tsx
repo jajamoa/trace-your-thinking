@@ -217,11 +217,10 @@ export default function InterviewPage() {
       
       // Important: Use a flag to prevent double-adding the next question 
       // markQuestionAsAnswered will trigger moveToNextQuestion, which already adds the next question
-      // We need to remember what the last question was to avoid duplicating it
       const currentIndex = currentQuestionIndex;
       
       // Mark this question as answered - this updates the store progress state
-      // This will also trigger moveToNextQuestion which might add the next question message
+      // This will also trigger moveToNextQuestion which will add the next question message
       markQuestionAsAnswered(currentQuestion.id)
       
       // Log updated progress after marking question as answered
@@ -272,47 +271,13 @@ export default function InterviewPage() {
       console.log("Saving session to database...")
       saveSession()
 
-      // Get next question - but only add it if currentQuestionIndex has changed
-      // This prevents duplicating the question when moveToNextQuestion has already added it
+      // Get next question after markQuestionAsAnswered has been called
       const nextQuestion = getNextQuestion()
-      if (nextQuestion && currentIndex === currentQuestionIndex) {
-        console.log(`Next question: ${nextQuestion.id} - "${nextQuestion.shortText}"`)
-        
-        // Check if the last message in the current message list is already the next question
-        const lastMessage = messages.length > 0 ? messages[messages.length - 1] : null;
-        const isNextQuestionAlreadyAdded = 
-          lastMessage && 
-          lastMessage.role === 'bot' && 
-          !lastMessage.loading && 
-          lastMessage.text === nextQuestion.question;
-          
-        // Only add a new bot message if the next question hasn't been added yet
-        if (!isNextQuestionAlreadyAdded) {
-          // First add bot message with loading state - uses a completely empty message
-          const nextMessageId = uuidv4()
-          addMessage({
-            id: nextMessageId,
-            role: "bot",
-            text: "",
-            loading: true,
-          })
-          
-          // Update immediately with almost no delay
-          // Important: Must pass a new object reference to trigger proper re-render
-          setTimeout(() => {
-            updateMessage(nextMessageId, (message) => ({
-              ...message,
-              text: nextQuestion.question,
-              loading: false
-            }))
-          }, 10) // Nearly immediate update
-        }
-        
-        // Update current question ID
-        setCurrentQuestionId(nextQuestion.id)
-      } else if (nextQuestion) {
-        // If currentQuestionIndex changed, moveToNextQuestion already added the next question
-        // Just update currentQuestionId
+      
+      // MODIFIED: Remove the code that adds bot messages, since moveToNextQuestion already does this
+      // Just update the currentQuestionId if we have a next question
+      if (nextQuestion) {
+        console.log(`Next question ready: ${nextQuestion.id} - "${nextQuestion.shortText}"`)
         setCurrentQuestionId(nextQuestion.id)
       } else {
         // All questions answered, redirect to review
