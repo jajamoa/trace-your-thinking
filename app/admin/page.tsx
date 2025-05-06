@@ -1,6 +1,12 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { redirect } from 'next/navigation';
 import { cookies } from 'next/headers';
+import dynamic from 'next/dynamic';
+
+// Dynamically import client components without ssr: false
+const AdminSessions = dynamic(() => import('@/components/admin/AdminSessions'));
+const AdminQuestions = dynamic(() => import('@/components/admin/AdminQuestions'));
+const AdminSystemStatus = dynamic(() => import('@/components/admin/AdminSystemStatus'));
 
 export default async function AdminPage() {
   // Simple cookie check for server rendering
@@ -49,24 +55,15 @@ export default async function AdminPage() {
         </TabsList>
         
         <TabsContent value="sessions" className="bg-white rounded-lg p-6 shadow-sm">
-          <div className="text-center py-8">
-            <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-gray-800"></div>
-            <p className="mt-2">Loading session data...</p>
-          </div>
+          <AdminSessions />
         </TabsContent>
         
         <TabsContent value="questions" className="bg-white rounded-lg p-6 shadow-sm">
-          <div className="text-center py-8">
-            <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-gray-800"></div>
-            <p className="mt-2">Loading question data...</p>
-          </div>
+          <AdminQuestions />
         </TabsContent>
         
         <TabsContent value="system" className="bg-white rounded-lg p-6 shadow-sm">
-          <div className="text-center py-8">
-            <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-gray-800"></div>
-            <p className="mt-2">Loading system status...</p>
-          </div>
+          <AdminSystemStatus />
         </TabsContent>
       </Tabs>
     </div>

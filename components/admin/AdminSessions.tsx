@@ -1,5 +1,5 @@
 'use client';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { 
   Table, 
   TableBody, 
@@ -18,9 +18,15 @@ import {
   DialogTitle, 
   DialogFooter 
 } from "@/components/ui/dialog";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { AlertCircle, CheckCircle, Trash, Search, RefreshCw, Edit } from "lucide-react";
+import { AlertCircle, CheckCircle, Trash, Search, RefreshCw, Edit, Copy, MoveHorizontal } from "lucide-react";
 import Link from 'next/link';
 
 type SessionStatus = 'in_progress' | 'completed' | 'abandoned';
@@ -36,6 +42,7 @@ interface Session {
   createdAt: string;
   updatedAt: string;
   completedAt?: string;
+  order?: number; // For drag-and-drop ordering
 }
 
 export default function AdminSessions() {
@@ -45,6 +52,9 @@ export default function AdminSessions() {
   const [searchTerm, setSearchTerm] = useState('');
   const [confirmSession, setConfirmSession] = useState<Session | null>(null);
   const [actionType, setActionType] = useState<'delete' | 'reset' | 'complete' | null>(null);
+  const [draggingSession, setDraggingSession] = useState<Session | null>(null);
+  const [dragOverSession, setDragOverSession] = useState<Session | null>(null);
+  const [showOrderControls, setShowOrderControls] = useState(false);
 
   const fetchSessions = async () => {
     setLoading(true);
@@ -52,7 +62,12 @@ export default function AdminSessions() {
       const response = await fetch('/api/admin/sessions');
       if (!response.ok) throw new Error('Failed to fetch session data');
       const data = await response.json();
-      setSessions(data.sessions);
+      // Add order property to sessions if not already present
+      const orderedSessions = data.sessions.map((session: Session, index: number) => ({
+        ...session,
+        order: session.order || index
+      }));
+      setSessions(orderedSessions);
     } catch (err: any) {
       setError(err.message || 'Unable to load session data');
       console.error('Session fetch error:', err);
@@ -88,7 +103,7 @@ export default function AdminSessions() {
     return session.id.includes(searchTerm) || 
            session.prolificId.includes(searchTerm) ||
            session.status.includes(searchTerm);
-  });
+  }).sort((a, b) => (a.order || 0) - (b.order || 0));
 
   const getStatusBadge = (status: SessionStatus) => {
     switch(status) {
@@ -107,6 +122,80 @@ export default function AdminSessions() {
     return new Date(dateString).toLocaleString('en-US');
   };
 
+  const copyToClipboard = (text: string) => {
+    navigator.clipboard.writeText(text)
+      .then(() => {
+        // Could show a toast notification here
+        console.log('Copied to clipboard');
+      })
+      .catch(err => {
+        console.error('Failed to copy: ', err);
+      });
+  };
+
+  // Drag and drop handlers
+  const handleDragStart = (session: Session) => {
+    setDraggingSession(session);
+  };
+
+  const handleDragOver = (e: React.DragEvent, session: Session) => {
+    e.preventDefault();
+    if (draggingSession?.id !== session.id) {
+      setDragOverSession(session);
+    }
+  };
+
+  const handleDrop = async (e: React.DragEvent, targetSession: Session) => {
+    e.preventDefault();
+    if (!draggingSession || draggingSession.id === targetSession.id) return;
+
+    // Update the order in UI immediately
+    const updatedSessions = [...sessions];
+    const sourceIndex = updatedSessions.findIndex(s => s.id === draggingSession.id);
+    const targetIndex = updatedSessions.findIndex(s => s.id === targetSession.id);
+    
+    if (sourceIndex !== -1 && targetIndex !== -1) {
+      // Remove the source session
+      const [movedSession] = updatedSessions.splice(sourceIndex, 1);
+      // Insert it at the target position
+      updatedSessions.splice(targetIndex, 0, movedSession);
+      
+      // Update order values
+      const reorderedSessions = updatedSessions.map((session, index) => ({
+        ...session,
+        order: index
+      }));
+      
+      setSessions(reorderedSessions);
+      
+      // Persist the order change via API
+      try {
+        const response = await fetch('/api/admin/sessions/reorder', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ sessions: reorderedSessions }),
+        });
+        
+        if (!response.ok) {
+          throw new Error('Failed to persist session order');
+        }
+      } catch (err) {
+        console.error('Failed to save session order:', err);
+        // Could add error state or toast notification here
+      }
+    }
+    
+    setDraggingSession(null);
+    setDragOverSession(null);
+  };
+
+  const handleDragEnd = () => {
+    setDraggingSession(null);
+    setDragOverSession(null);
+  };
+
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
@@ -120,6 +209,15 @@ export default function AdminSessions() {
             title="Refresh"
           >
             <RefreshCw className="h-4 w-4" />
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setShowOrderControls(!showOrderControls)}
+            className="ml-4"
+          >
+            <MoveHorizontal className="h-4 w-4 mr-2" />
+            {showOrderControls ? 'Hide Order Controls' : 'Show Order Controls'}
           </Button>
         </div>
         <div className="relative">
@@ -140,6 +238,14 @@ export default function AdminSessions() {
         </div>
       )}
 
+      {showOrderControls && (
+        <div className="bg-blue-50 p-4 mb-4 rounded-md">
+          <p className="text-blue-800 text-sm">
+            <strong>Drag and Drop Mode Enabled:</strong> You can now drag sessions to reorder them. Drag a row and drop it in the desired position.
+          </p>
+        </div>
+      )}
+
       {loading ? (
         <div className="text-center py-10">
           <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-gray-800"></div>
@@ -150,78 +256,146 @@ export default function AdminSessions() {
           {searchTerm ? 'No matching sessions' : 'No session data available'}
         </div>
       ) : (
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>ID</TableHead>
-              <TableHead>Prolific ID</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>Progress</TableHead>
-              <TableHead>Created At</TableHead>
-              <TableHead>Updated At</TableHead>
-              <TableHead>Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {filteredSessions.map((session) => (
-              <TableRow key={session.id}>
-                <TableCell className="font-mono">{session.id.substring(0, 8)}...</TableCell>
-                <TableCell>{session.prolificId}</TableCell>
-                <TableCell>{getStatusBadge(session.status)}</TableCell>
-                <TableCell>
-                  {session.progress.current} / {session.progress.total}
-                </TableCell>
-                <TableCell>{formatDate(session.createdAt)}</TableCell>
-                <TableCell>{formatDate(session.updatedAt)}</TableCell>
-                <TableCell>
-                  <div className="flex space-x-1">
-                    <Button 
-                      variant="ghost" 
-                      size="icon"
-                      asChild
-                    >
-                      <Link href={`/admin/sessions/${session.id}`}>
-                        <Edit className="h-4 w-4" />
-                      </Link>
-                    </Button>
-                    <Button 
-                      variant="ghost" 
-                      size="icon" 
-                      onClick={() => {
-                        setConfirmSession(session);
-                        setActionType('reset');
-                      }}
-                    >
-                      <RefreshCw className="h-4 w-4" />
-                    </Button>
-                    {session.status !== 'completed' && (
+        <div className="overflow-x-auto">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                {showOrderControls && <TableHead className="w-10">#</TableHead>}
+                <TableHead>ID</TableHead>
+                <TableHead>Prolific ID</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead>Progress</TableHead>
+                <TableHead>Created At</TableHead>
+                <TableHead>Updated At</TableHead>
+                <TableHead>Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {filteredSessions.map((session, index) => (
+                <TableRow 
+                  key={session.id}
+                  draggable={showOrderControls}
+                  onDragStart={() => showOrderControls && handleDragStart(session)}
+                  onDragOver={(e) => showOrderControls && handleDragOver(e, session)}
+                  onDrop={(e) => showOrderControls && handleDrop(e, session)}
+                  onDragEnd={handleDragEnd}
+                  className={`
+                    ${draggingSession?.id === session.id ? 'opacity-50 bg-gray-100' : ''}
+                    ${dragOverSession?.id === session.id ? 'border-t-2 border-blue-500' : ''}
+                    ${showOrderControls ? 'cursor-move' : ''}
+                  `}
+                >
+                  {showOrderControls && <TableCell>{index + 1}</TableCell>}
+                  <TableCell>
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <div className="flex items-center">
+                            <span className="font-mono">
+                              {session.id.length > 15 
+                                ? `${session.id.substring(0, 7)}...${session.id.substring(session.id.length - 7)}`
+                                : session.id}
+                            </span>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-6 w-6 ml-1"
+                              onClick={() => copyToClipboard(session.id)}
+                            >
+                              <Copy className="h-3 w-3" />
+                            </Button>
+                          </div>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p className="font-mono">{session.id}</p>
+                          <p className="text-xs mt-1">Click to copy full ID</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </TableCell>
+                  <TableCell>
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <div className="flex items-center">
+                            <span>
+                              {session.prolificId.length > 10 
+                                ? `${session.prolificId.substring(0, 4)}...${session.prolificId.substring(session.prolificId.length - 4)}`
+                                : session.prolificId}
+                            </span>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-6 w-6 ml-1"
+                              onClick={() => copyToClipboard(session.prolificId)}
+                            >
+                              <Copy className="h-3 w-3" />
+                            </Button>
+                          </div>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>{session.prolificId}</p>
+                          <p className="text-xs mt-1">Click to copy full Prolific ID</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </TableCell>
+                  <TableCell>{getStatusBadge(session.status)}</TableCell>
+                  <TableCell>
+                    {session.progress.current + 1} / {session.progress.total}
+                  </TableCell>
+                  <TableCell>{formatDate(session.createdAt)}</TableCell>
+                  <TableCell>{formatDate(session.updatedAt)}</TableCell>
+                  <TableCell>
+                    <div className="flex space-x-1">
+                      <Button 
+                        variant="ghost" 
+                        size="icon"
+                        asChild
+                      >
+                        <Link href={`/admin/sessions/${session.id}`}>
+                          <Edit className="h-4 w-4" />
+                        </Link>
+                      </Button>
                       <Button 
                         variant="ghost" 
                         size="icon" 
                         onClick={() => {
                           setConfirmSession(session);
-                          setActionType('complete');
+                          setActionType('reset');
                         }}
                       >
-                        <CheckCircle className="h-4 w-4" />
+                        <RefreshCw className="h-4 w-4" />
                       </Button>
-                    )}
-                    <Button 
-                      variant="ghost" 
-                      size="icon" 
-                      onClick={() => {
-                        setConfirmSession(session);
-                        setActionType('delete');
-                      }}
-                    >
-                      <Trash className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+                      {session.status !== 'completed' && (
+                        <Button 
+                          variant="ghost" 
+                          size="icon" 
+                          onClick={() => {
+                            setConfirmSession(session);
+                            setActionType('complete');
+                          }}
+                        >
+                          <CheckCircle className="h-4 w-4" />
+                        </Button>
+                      )}
+                      <Button 
+                        variant="ghost" 
+                        size="icon" 
+                        onClick={() => {
+                          setConfirmSession(session);
+                          setActionType('delete');
+                        }}
+                      >
+                        <Trash className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
       )}
 
       {/* Confirmation Dialog */}
@@ -242,8 +416,30 @@ export default function AdminSessions() {
           
           {confirmSession && (
             <div className="py-4">
-              <p><strong>Session ID:</strong> {confirmSession.id}</p>
-              <p><strong>Prolific ID:</strong> {confirmSession.prolificId}</p>
+              <div className="flex items-center">
+                <p><strong>Session ID:</strong></p>
+                <p className="font-mono ml-2">{confirmSession.id}</p>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-6 w-6 ml-1"
+                  onClick={() => copyToClipboard(confirmSession.id)}
+                >
+                  <Copy className="h-3 w-3" />
+                </Button>
+              </div>
+              <div className="flex items-center">
+                <p><strong>Prolific ID:</strong></p>
+                <p className="ml-2">{confirmSession.prolificId}</p>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-6 w-6 ml-1"
+                  onClick={() => copyToClipboard(confirmSession.prolificId)}
+                >
+                  <Copy className="h-3 w-3" />
+                </Button>
+              </div>
               <p><strong>Current Status:</strong> {confirmSession.status}</p>
             </div>
           )}

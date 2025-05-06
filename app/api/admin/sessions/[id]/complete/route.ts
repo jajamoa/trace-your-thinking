@@ -17,8 +17,8 @@ const verifyAdmin = async () => {
   return null; // Verification successful
 };
 
-// Get single session details
-export async function GET(
+// POST - Mark a session as completed
+export async function POST(
   req: NextRequest,
   context: { params: { id: string } }
 ) {
@@ -33,8 +33,8 @@ export async function GET(
     // Connect to database
     await connectToDatabase();
     
-    // Find session by ID
-    const session = await Session.findOne({ id }).lean();
+    // Find and update the session
+    const session = await Session.findOne({ id });
     
     if (!session) {
       return NextResponse.json(
@@ -43,11 +43,22 @@ export async function GET(
       );
     }
     
-    return NextResponse.json({ session });
+    // Update the session
+    session.status = 'completed';
+    session.completedAt = new Date();
+    session.updatedAt = new Date();
+    
+    await session.save();
+    
+    return NextResponse.json({ 
+      success: true,
+      message: 'Session marked as completed',
+      session
+    });
   } catch (error: any) {
-    console.error('Error fetching session details:', error);
+    console.error('Error marking session as completed:', error);
     return NextResponse.json(
-      { error: `Failed to fetch session details: ${error.message}` },
+      { error: `Failed to mark session as completed: ${error.message}` },
       { status: 500 }
     );
   }

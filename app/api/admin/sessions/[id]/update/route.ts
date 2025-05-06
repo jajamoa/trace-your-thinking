@@ -17,8 +17,8 @@ const verifyAdmin = async () => {
   return null; // Verification successful
 };
 
-// Get single session details
-export async function GET(
+// POST - Update session content
+export async function POST(
   req: NextRequest,
   context: { params: { id: string } }
 ) {
@@ -28,13 +28,17 @@ export async function GET(
 
   const params = await context.params;
   const { id } = params;
-
+  
   try {
+    // Get request body
+    const body = await req.json();
+    const { qaPairs } = body;
+    
     // Connect to database
     await connectToDatabase();
     
-    // Find session by ID
-    const session = await Session.findOne({ id }).lean();
+    // Find the session
+    const session = await Session.findOne({ id });
     
     if (!session) {
       return NextResponse.json(
@@ -43,11 +47,23 @@ export async function GET(
       );
     }
     
-    return NextResponse.json({ session });
+    // Update session content
+    if (qaPairs && Array.isArray(qaPairs)) {
+      session.qaPairs = qaPairs;
+    }
+    
+    session.updatedAt = new Date();
+    await session.save();
+    
+    return NextResponse.json({ 
+      success: true,
+      message: 'Session updated successfully',
+      session
+    });
   } catch (error: any) {
-    console.error('Error fetching session details:', error);
+    console.error('Error updating session:', error);
     return NextResponse.json(
-      { error: `Failed to fetch session details: ${error.message}` },
+      { error: `Failed to update session: ${error.message}` },
       { status: 500 }
     );
   }

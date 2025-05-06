@@ -39,6 +39,7 @@ export interface ISession extends Document {
   createdAt: Date;
   updatedAt: Date;
   completedAt?: Date;
+  order?: number; // For drag-and-drop ordering
 }
 
 // Schema for Message objects
@@ -83,7 +84,8 @@ const SessionSchema = new Schema({
   currentQuestionIndex: { type: Number, default: 0 },
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now },
-  completedAt: { type: Date }
+  completedAt: { type: Date },
+  order: { type: Number } // For drag-and-drop ordering
 });
 
 // Check if model already exists (for hot reloading in development)

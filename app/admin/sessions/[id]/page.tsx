@@ -29,7 +29,7 @@ interface Session {
 
 export default function SessionDetailPage({ params }: { params: { id: string } }) {
   const router = useRouter();
-  const sessionId = params.id;
+  const [sessionId, setSessionId] = useState<string>(params.id);
   
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
@@ -54,8 +54,14 @@ export default function SessionDetailPage({ params }: { params: { id: string } }
   };
 
   useEffect(() => {
-    fetchSession();
+    if (sessionId) {
+      fetchSession();
+    }
   }, [sessionId]);
+
+  useEffect(() => {
+    setSessionId(params.id);
+  }, [params.id]);
 
   const handleSaveChanges = async () => {
     try {
@@ -138,7 +144,7 @@ export default function SessionDetailPage({ params }: { params: { id: string } }
                   <p><strong>Status:</strong> {session.status}</p>
                 </div>
                 <div>
-                  <p><strong>Progress:</strong> {session.progress.current} / {session.progress.total}</p>
+                  <p><strong>Progress:</strong> {session.progress.current + 1} / {session.progress.total}</p>
                   <p><strong>Created At:</strong> {formatDate(session.createdAt)}</p>
                   <p><strong>Completed At:</strong> {formatDate(session.completedAt)}</p>
                 </div>

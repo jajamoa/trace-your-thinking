@@ -17,8 +17,8 @@ const verifyAdmin = async () => {
   return null; // Verification successful
 };
 
-// Get single session details
-export async function GET(
+// POST - Reset a session to initial state
+export async function POST(
   req: NextRequest,
   context: { params: { id: string } }
 ) {
@@ -33,8 +33,8 @@ export async function GET(
     // Connect to database
     await connectToDatabase();
     
-    // Find session by ID
-    const session = await Session.findOne({ id }).lean();
+    // Find and update the session
+    const session = await Session.findOne({ id });
     
     if (!session) {
       return NextResponse.json(
@@ -43,11 +43,32 @@ export async function GET(
       );
     }
     
-    return NextResponse.json({ session });
+    // Reset the session
+    session.status = 'in_progress';
+    session.progress = { current: 0, total: session.progress.total || 0 };
+    session.currentQuestionIndex = 0;
+    session.completedAt = undefined;
+    session.updatedAt = new Date();
+    
+    // Clear answers but keep questions
+    if (session.qaPairs && Array.isArray(session.qaPairs)) {
+      session.qaPairs = session.qaPairs.map((pair: any) => ({
+        ...pair,
+        answer: ''
+      }));
+    }
+    
+    await session.save();
+    
+    return NextResponse.json({ 
+      success: true,
+      message: 'Session reset successfully',
+      session
+    });
   } catch (error: any) {
-    console.error('Error fetching session details:', error);
+    console.error('Error resetting session:', error);
     return NextResponse.json(
-      { error: `Failed to fetch session details: ${error.message}` },
+      { error: `Failed to reset session: ${error.message}` },
       { status: 500 }
     );
   }

@@ -4,7 +4,7 @@ import connectToDatabase from '@/lib/mongodb';
 import Session from '@/models/Session';
 
 // Admin authentication middleware function
-const verifyAdmin = async (req: NextRequest) => {
+const verifyAdmin = async () => {
   // Use a simpler cookie checking approach
   const cookieStore = await cookies();
   const adminCookie = cookieStore.get('admin_authenticated');
@@ -17,26 +17,41 @@ const verifyAdmin = async (req: NextRequest) => {
   return null; // Verification successful
 };
 
-// Get all sessions
-export async function GET(req: NextRequest) {
+// POST - Delete a session
+export async function POST(
+  req: NextRequest,
+  context: { params: { id: string } }
+) {
   // Verify admin authentication
-  const authError = await verifyAdmin(req);
+  const authError = await verifyAdmin();
   if (authError) return authError;
+
+  const params = await context.params;
+  const { id } = params;
 
   try {
     // Connect to database
     await connectToDatabase();
     
-    // Get all sessions, sorted by creation date in descending order
-    const sessions = await Session.find({})
-      .sort({ createdAt: -1 })
-      .lean();
+    // Find and delete the session
+    const session = await Session.findOneAndDelete({ id });
     
-    return NextResponse.json({ sessions });
+    if (!session) {
+      return NextResponse.json(
+        { error: 'Session not found' },
+        { status: 404 }
+      );
+    }
+    
+    return NextResponse.json({ 
+      success: true,
+      message: 'Session deleted successfully',
+      sessionId: id
+    });
   } catch (error: any) {
-    console.error('Error fetching sessions:', error);
+    console.error('Error deleting session:', error);
     return NextResponse.json(
-      { error: `Failed to fetch sessions: ${error.message}` },
+      { error: `Failed to delete session: ${error.message}` },
       { status: 500 }
     );
   }
