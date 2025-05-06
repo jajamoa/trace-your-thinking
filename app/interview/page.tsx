@@ -10,6 +10,7 @@ import { mockWebSocketConnection } from "@/lib/ws"
 import ElegantProgressBar from "@/components/ElegantProgressBar"
 import ProlificIdBadge from "@/components/ProlificIdBadge"
 import Footer from "@/components/Footer"
+import { logStoreState, setupStoreLogger } from "@/lib/debug-store"
 
 // Debounce function to prevent too frequent calls
 const debounce = (fn: Function, ms = 1000) => {
@@ -41,12 +42,20 @@ export default function InterviewPage() {
     markQuestionAsAnswered
   } = useStore()
 
+  // 在组件挂载时输出调试信息
+  useEffect(() => {
+    console.log("==== Component mounted, outputting Store state ====")
+    logStoreState()
+    setupStoreLogger()  // Setup automatic logging of state changes
+  }, [])
+
   // Reference to track the last saved state
   const lastSavedQAPairsRef = useRef<string>("")
   
   // Create a debounced version of saveSession function
   const debouncedSaveSession = useRef(
     debounce(() => {
+      console.log("Executing debouncedSaveSession")
       saveSession()
     }, 2000)
   ).current
@@ -56,10 +65,16 @@ export default function InterviewPage() {
     // Serialize current QAPairs for comparison
     const currentQAPairsString = JSON.stringify(qaPairs)
     
+    console.log("conditionalSave - Current qaPairs:", currentQAPairsString)
+    console.log("conditionalSave - Previously saved qaPairs:", lastSavedQAPairsRef.current)
+    
     // Only save when QAPairs have changed
     if (currentQAPairsString !== lastSavedQAPairsRef.current) {
+      console.log("qaPairs change detected, preparing to save")
       lastSavedQAPairsRef.current = currentQAPairsString
       debouncedSaveSession()
+    } else {
+      console.log("qaPairs unchanged, skipping save")
     }
   }
 

@@ -8,22 +8,37 @@ interface MessageBubbleProps {
   role: "user" | "bot"
   text: string
   loading?: boolean
+  isLatestMessage?: boolean
 }
 
-export default function MessageBubble({ role, text, loading = false }: MessageBubbleProps) {
+export default function MessageBubble({ 
+  role, 
+  text, 
+  loading = false,
+  isLatestMessage = false 
+}: MessageBubbleProps) {
   const [displayText, setDisplayText] = useState(text)
-  const [showCursor, setShowCursor] = useState(loading)
+  const [showCursor, setShowCursor] = useState(loading && isLatestMessage)
 
   // Handle typing animation for bot messages
   useEffect(() => {
-    if (role === "bot" && loading) {
-      setShowCursor(true)
-      setDisplayText(text)
-    } else if (role === "bot" && text !== displayText) {
-      setDisplayText(text)
+    // If message is not the latest bot message, always hide cursor
+    if (!isLatestMessage) {
       setShowCursor(false)
+      return;
     }
-  }, [role, text, loading, displayText])
+    
+    // Only proceed with cursor logic for the latest bot message
+    if (role === "bot") {
+      if (loading) {
+        setShowCursor(true)
+        setDisplayText(text)
+      } else if (text !== displayText) {
+        setDisplayText(text)
+        setShowCursor(false)
+      }
+    }
+  }, [role, text, loading, displayText, isLatestMessage])
 
   return (
     <div className={cn("flex", role === "user" ? "justify-end" : "justify-start")}>

@@ -300,60 +300,106 @@ export const useStore = create<StoreState>()(
 
       saveSession: async () => {
         const state = get()
+        console.log("==== saveSession execution started ====")
+        console.log("Current sessionId:", state.sessionId)
+        console.log("Current prolificId:", state.prolificId)
+        console.log("Current qaPairs count:", state.qaPairs.length)
+        console.log("Current pendingQuestions count:", state.pendingQuestions.length)
+        console.log("Current sessionStatus:", state.sessionStatus)
 
         try {
           // First check the server's session status before making updates
           if (state.sessionId) {
-            // Check current session status from the server
-            await get().checkSessionStatus()
+            console.log("Existing sessionId found, checking if session exists")
+            // Check if session exists on server
+            const checkResponse = await fetch(`/api/sessions/${state.sessionId}`, {
+              method: "GET",
+            });
             
-            // Get the potentially updated state after status check
-            const updatedState = get()
-            
-            // If session is completed, don't update it further
-            if (updatedState.sessionStatus === "completed") {
-              console.log("Session is already completed, skipping update")
-              return
-            }
-            
-            // Update existing session
-            const response = await fetch(`/api/sessions/${state.sessionId}`, {
-              method: "PUT",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify({
-                prolificId: updatedState.prolificId,
-                qaPairs: updatedState.qaPairs,
-                pendingQuestions: updatedState.pendingQuestions,
-                status: updatedState.sessionStatus
-              }),
-            })
-          } else {
-            // Create new session
-            const response = await fetch("/api/sessions", {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify({
-                prolificId: state.prolificId,
-                qaPairs: state.qaPairs,
-                pendingQuestions: state.pendingQuestions,
-                status: state.sessionStatus
-              }),
-            })
-
-            const data = await response.json()
-            if (data.sessionId) {
-              set({ sessionId: data.sessionId })
+            console.log("Session check response status:", checkResponse.status)
+            // If session not found (404), clear sessionId and try to create a new one
+            if (checkResponse.status === 404) {
+              console.log("Session not found on server (404), will create a new session")
+              // Clear the invalid sessionId but keep other data
+              set({ sessionId: null });
+              // Let the code continue to create a new session with existing data
+            } else {
+              // Session exists, proceed with checking status and updating
+              console.log("Session exists, checking session status")
+              await get().checkSessionStatus();
               
-              // Check session status after creating a new session
-              await get().checkSessionStatus()
+              // Get the potentially updated state after status check
+              const updatedState = get();
+              console.log("sessionStatus after status check:", updatedState.sessionStatus)
+              
+              // If session is completed, don't update it further
+              if (updatedState.sessionStatus === "completed") {
+                console.log("Session is completed, skipping update")
+                return;
+              }
+              
+              // Only attempt PUT if session exists and is not completed
+              if (updatedState.sessionId) {
+                console.log("Attempting to update existing session")
+                // Update existing session
+                const response = await fetch(`/api/sessions/${updatedState.sessionId}`, {
+                  method: "PUT",
+                  headers: {
+                    "Content-Type": "application/json",
+                  },
+                  body: JSON.stringify({
+                    prolificId: updatedState.prolificId,
+                    qaPairs: updatedState.qaPairs,
+                    pendingQuestions: updatedState.pendingQuestions,
+                    status: updatedState.sessionStatus
+                  }),
+                });
+                
+                console.log("Update session response status:", response.status)
+                // If PUT fails with 404, clear sessionId for next save attempt
+                if (response.status === 404) {
+                  console.log("PUT failed - session not found, clearing sessionId")
+                  set({ sessionId: null });
+                } else {
+                  console.log("Session update successful")
+                }
+                
+                // We've already handled the existing session case, so return
+                return;
+              }
             }
           }
+          
+          // Code reaches here if no sessionId OR session was not found
+          console.log("No sessionId or session not found, creating new session")
+          // Create new session
+          const response = await fetch("/api/sessions", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              prolificId: state.prolificId,
+              qaPairs: state.qaPairs,
+              pendingQuestions: state.pendingQuestions,
+              status: state.sessionStatus
+            }),
+          });
+
+          console.log("Create session response status:", response.status)
+          const data = await response.json();
+          if (data.sessionId) {
+            console.log("Received new sessionId:", data.sessionId)
+            set({ sessionId: data.sessionId });
+            
+            // Check session status after creating a new session
+            console.log("Checking status of newly created session")
+            await get().checkSessionStatus();
+          }
         } catch (error) {
-          console.error("Failed to save session:", error)
+          console.error("Failed to save session:", error);
+        } finally {
+          console.log("==== saveSession execution completed ====")
         }
       },
 
@@ -371,6 +417,17 @@ export const useStore = create<StoreState>()(
               if (data.status && data.status !== state.sessionStatus) {
                 console.log(`Updating session status from ${state.sessionStatus} to ${data.status}`)
                 set({ sessionStatus: data.status })
+              }
+            } else if (response.status === 404) {
+              // If session not found (404), treat as "return to home" action
+              console.log("Session not found on server, resetting state and redirecting to home")
+              
+              // Reset all data including prolificId
+              get().resetStore()
+              
+              // Force reload to return to home page
+              if (typeof window !== 'undefined') {
+                window.location.href = "/"
               }
             }
           }

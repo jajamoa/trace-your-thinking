@@ -2,6 +2,25 @@ import { NextResponse } from "next/server"
 import connectToDatabase from "../../../lib/mongodb"
 import Session from "../../../models/Session"
 
+// Initial questions that should be loaded if not provided
+const initialQuestions = [
+  {
+    id: "q1",
+    text: "Could you describe your current research focus and how it relates to the broader field?",
+    shortText: "Research focus",
+  },
+  {
+    id: "q2",
+    text: "Could you elaborate on the methodologies you're using in your current project?",
+    shortText: "Methodologies",
+  },
+  {
+    id: "q3",
+    text: "What challenges have you encountered in your research, and how have you addressed them?",
+    shortText: "Challenges",
+  },
+];
+
 export async function GET(request: Request) {
   try {
     await connectToDatabase()
@@ -46,17 +65,41 @@ export async function POST(request: Request) {
     // Generate a unique session ID with timestamp and random string
     const sessionId = `session_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`
 
+    // Use provided questions or default to initial questions
+    const questions = body.questions || initialQuestions;
+    
+    // For a new session, pendingQuestions is initially all questions
+    const pendingQuestions = body.pendingQuestions || [...questions];
+    
+    // For a new session, qaPairs might be empty or just have questions with no answers
+    let qaPairs = body.qaPairs || [];
+    
+    // If qaPairs is empty but we have questions, we should initialize qaPairs
+    // with empty answers for each question (this ensures DB structure is consistent)
+    if (qaPairs.length === 0 && questions.length > 0) {
+      qaPairs = questions.map((q: { id: string; text: string; shortText: string }) => ({
+        id: q.id,
+        question: q.text,
+        answer: ""
+      }));
+    }
+    
+    // Set progress based on how many questions are pending vs. total
+    const progress = {
+      current: questions.length - pendingQuestions.length,
+      total: questions.length
+    };
+
     // Create a new session with all fields from store.ts
     const newSession = new Session({
       id: sessionId,
       prolificId: body.prolificId,
-      qaPairs: body.qaPairs || [],
-      // Add the new data structure fields
-      pendingQuestions: body.pendingQuestions || [],
-      questions: body.questions || [],
-      status: body.status || "in_progress",
-      // Keep this for backward compatibility
-      currentQuestionIndex: body.currentQuestionIndex || 0,
+      messages: body.messages || [],
+      qaPairs: qaPairs,
+      pendingQuestions: pendingQuestions,
+      questions: questions,
+      progress: progress,
+      sessionStatus: body.sessionStatus || "in_progress",
       metadata: body.metadata || {}
     })
 

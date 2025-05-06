@@ -10,6 +10,7 @@ import { useStore } from "@/lib/store"
  * 1. Checking session status on each page load
  * 2. Redirecting users based on session state
  * 3. Ensuring session status is the primary determining factor for page routing
+ * 4. Resetting state and redirecting to home if session not found on server (404)
  */
 export default function SessionCheck() {
   const router = useRouter()
@@ -17,6 +18,12 @@ export default function SessionCheck() {
   const { prolificId, sessionStatus, sessionId, checkSessionStatus } = useStore()
 
   useEffect(() => {
+    // Always check session status first if we have a sessionId
+    // This will handle 404 cases and reset state as needed
+    if (sessionId) {
+      checkSessionStatus();
+    }
+
     // Skip for these paths which handle their own session logic
     const ignorePaths = ["/thank-you", "/about"]
     if (ignorePaths.includes(pathname)) {
@@ -45,19 +52,15 @@ export default function SessionCheck() {
       }
     }
 
-    // If we have a sessionId, periodically check the latest session status from the server
-    if (sessionId) {
-      // Check status immediately when the component mounts
-      checkSessionStatus()
-      
-      // Set up interval for periodic checks (every 30 seconds)
-      const intervalId = setInterval(() => {
+    // Set up interval for periodic checks (every 30 seconds)
+    const intervalId = setInterval(() => {
+      if (sessionId) {
         checkSessionStatus()
-      }, 30000)
-      
-      // Clear interval on unmount
-      return () => clearInterval(intervalId)
-    }
+      }
+    }, 30000)
+    
+    // Clear interval on unmount
+    return () => clearInterval(intervalId)
   }, [pathname, prolificId, router, sessionStatus, sessionId, checkSessionStatus])
 
   // This component doesn't render anything visible

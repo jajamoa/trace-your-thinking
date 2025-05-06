@@ -3,68 +3,121 @@
 // npm install --save-dev @types/mongoose
 
 import mongoose, { Schema, Document } from 'mongoose';
-import { Question } from '@/lib/store';
 
-export interface IQAPair {
-  id: string;
-  question: string;
-  answer: string;
-  timestamp?: Date;
-}
-
-// Interface for Question objects stored in pendingQuestions
+// Question interface - must match store.ts exactly
 export interface IQuestion {
   id: string;
   text: string;
   shortText: string;
 }
 
+// QA Pair interface - must match store.ts exactly
+export interface IQAPair {
+  id: string;
+  question: string;
+  answer: string;
+}
+
+// Progress interface
+export interface IProgress {
+  current: number;
+  total: number;
+}
+
+// Session document interface for MongoDB
 export interface ISession extends Document {
+  // Unique identifiers
   id: string;
   prolificId: string;
+  
+  // Core data - exactly matching store.ts
+  messages: Array<{
+    id: string;
+    role: "user" | "bot";
+    text: string;
+    loading?: boolean;
+  }>;
   qaPairs: IQAPair[];
-  pendingQuestions: IQuestion[]; // Added to match store.ts
-  questions: IQuestion[]; // Master list of all questions
+  pendingQuestions: IQuestion[];
+  questions: IQuestion[];
+  
+  // Status and progress
+  progress: IProgress;
+  sessionStatus: 'in_progress' | 'completed';
+  
+  // Timestamps
   createdAt: Date;
   updatedAt: Date;
-  status: 'in_progress' | 'completed' | 'reviewed';
-  currentQuestionIndex?: number; // Kept for backward compatibility
+  completedAt?: Date;
+  
+  // Legacy field (kept for backward compatibility)
+  currentQuestionIndex?: number;
+  
+  // Optional metadata
   metadata?: Record<string, any>;
 }
 
-const QAPairSchema = new Schema({
+// Schema for Message objects
+const MessageSchema = new Schema({
   id: { type: String, required: true },
-  question: { type: String, required: true },
-  answer: { type: String, default: '' },
-  timestamp: { type: Date, default: Date.now }
+  role: { type: String, enum: ['user', 'bot'], required: true },
+  text: { type: String, required: true },
+  loading: { type: Boolean }
 });
 
-// Schema for Question objects
+// Schema for Question objects - must match store.ts
 const QuestionSchema = new Schema({
   id: { type: String, required: true },
   text: { type: String, required: true },
   shortText: { type: String, required: true }
 });
 
+// Schema for QA Pair objects - must match store.ts
+const QAPairSchema = new Schema({
+  id: { type: String, required: true },
+  question: { type: String, required: true },
+  answer: { type: String, default: '' }
+});
+
+// Schema for Progress
+const ProgressSchema = new Schema({
+  current: { type: Number, default: 0 },
+  total: { type: Number, default: 0 }
+});
+
+// Main Session schema
 const SessionSchema = new Schema({
+  // Unique identifiers
   id: { type: String, required: true, unique: true },
   prolificId: { type: String, required: true, index: true },
+  
+  // Core data structures
+  messages: [MessageSchema],
   qaPairs: [QAPairSchema],
-  // Added pendingQuestions to store questions that haven't been answered yet
   pendingQuestions: [QuestionSchema],
-  // Master list of all questions for this session
   questions: [QuestionSchema],
-  createdAt: { type: Date, default: Date.now },
-  updatedAt: { type: Date, default: Date.now },
-  status: { 
+  
+  // Status and progress
+  progress: { type: ProgressSchema, default: { current: 0, total: 0 } },
+  sessionStatus: { 
     type: String, 
-    enum: ['in_progress', 'completed', 'reviewed'], 
+    enum: ['in_progress', 'completed'], 
     default: 'in_progress' 
   },
-  // Retained for backward compatibility
+  
+  // Timestamps
+  createdAt: { type: Date, default: Date.now },
+  updatedAt: { type: Date, default: Date.now },
+  completedAt: { type: Date },
+  
+  // Legacy fields (for backward compatibility)
   currentQuestionIndex: { type: Number, default: 0 },
+  
+  // Additional metadata
   metadata: { type: Map, of: Schema.Types.Mixed }
-}, { timestamps: true });
+}, { 
+  timestamps: true 
+});
 
 // Check if model already exists (for hot reloading in development)
 export default mongoose.models.Session || mongoose.model<ISession>('Session', SessionSchema); 

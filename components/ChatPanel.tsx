@@ -23,6 +23,17 @@ export default function ChatPanel() {
 
   // Get the last user message
   const lastUserMessage = [...messages].reverse().find((m) => m.role === "user")
+  
+  // Find the last bot message that is still loading (if any)
+  const lastLoadingBotMessage = [...messages].reverse().find(
+    (m) => m.role === "bot" && m.loading === true
+  )
+  
+  // If there's a loading bot message, it's the latest one to show cursor
+  // Otherwise, find the most recent bot message
+  const lastBotMessageId = lastLoadingBotMessage 
+    ? lastLoadingBotMessage.id 
+    : [...messages].reverse().find((m) => m.role === "bot")?.id
 
   const handleEditStart = (message: (typeof messages)[0]) => {
     setEditingMessageId(message.id)
@@ -84,7 +95,12 @@ export default function ChatPanel() {
               </div>
             ) : (
               <>
-                <MessageBubble role={message.role} text={message.text} loading={message.loading} />
+                <MessageBubble 
+                  role={message.role} 
+                  text={message.text} 
+                  loading={message.loading} 
+                  isLatestMessage={message.role === "bot" && message.id === lastBotMessageId}
+                />
 
                 {/* Edit button for the last user message */}
                 {message.role === "user" && message.id === lastUserMessage?.id && !editingMessageId && (

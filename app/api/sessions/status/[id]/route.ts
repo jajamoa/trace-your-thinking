@@ -23,7 +23,7 @@ export async function GET(
 
     return NextResponse.json({
       sessionId: session.id,
-      status: session.status,
+      status: session.sessionStatus,
       updatedAt: session.updatedAt
     })
   } catch (error) {
@@ -60,21 +60,32 @@ export async function PATCH(
       return NextResponse.json({ error: "Session not found" }, { status: 404 })
     }
 
+    // Prepare update object - map 'status' to 'sessionStatus'
+    const updateData: {
+      sessionStatus: string;
+      updatedAt: Date;
+      completedAt?: Date;
+    } = {
+      sessionStatus: body.status,
+      updatedAt: new Date()
+    };
+    
+    // If completing the session, add completedAt timestamp
+    if (body.status === 'completed') {
+      updateData.completedAt = new Date();
+    }
+
     // Update only the session status
     const updatedSession = await Session.findOneAndUpdate(
       { id: sessionId },
-      { 
-        status: body.status,
-        updatedAt: new Date(),
-        ...(body.status === "completed" ? { completedAt: new Date() } : {})
-      },
+      updateData,
       { new: true }
     )
 
     return NextResponse.json({
       success: true,
       sessionId: updatedSession.id,
-      status: updatedSession.status,
+      status: updatedSession.sessionStatus,
       updatedAt: updatedSession.updatedAt
     })
   } catch (error) {
