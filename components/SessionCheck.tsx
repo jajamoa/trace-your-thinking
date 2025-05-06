@@ -107,7 +107,7 @@ export default function SessionCheck() {
         
         // Instead we'll use a more reliable approach: new sessions always get an immediate check
         console.log("On interview page with session, performing immediate status check")
-        safeCheckSessionStatus()
+          safeCheckSessionStatus()
       }
       
       // If we don't have a prolificId but we're on the interview page, something's wrong

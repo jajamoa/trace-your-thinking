@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server"
 import connectToDatabase from "../../../lib/mongodb"
 import Session from "../../../models/Session"
-import { Question } from "@/lib/store"
+import { QAPair } from "@/lib/store"
 
 /**
  * API endpoint to add a new question to a session
@@ -19,17 +19,18 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Session ID is required" }, { status: 400 })
     }
     
-    if (!question || !question.text || !question.shortText) {
+    if (!question || !question.question || !question.shortText) {
       return NextResponse.json({ 
-        error: "Question must include text and shortText fields" 
+        error: "Question must include question text and shortText fields" 
       }, { status: 400 })
     }
     
     // Generate an ID for the new question
-    const newQuestion: Question = {
+    const newQAPair: QAPair = {
       id: `q${Date.now()}`,
-      text: question.text,
-      shortText: question.shortText
+      question: question.question,
+      shortText: question.shortText,
+      answer: ""
     }
     
     // Find the session
@@ -39,13 +40,12 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Session not found" }, { status: 404 })
     }
     
-    // Add the new question to the questions and pendingQuestions arrays
+    // Add the new question to the qaPairs array
     const updatedSession = await Session.findOneAndUpdate(
       { id: sessionId },
       { 
         $push: { 
-          questions: newQuestion,
-          pendingQuestions: newQuestion
+          qaPairs: newQAPair
         },
         $set: {
           updatedAt: new Date()
@@ -54,9 +54,19 @@ export async function POST(request: Request) {
       { new: true }
     )
     
+    // Also update the progress.total value to include the new question
+    await Session.findOneAndUpdate(
+      { id: sessionId },
+      {
+        $set: {
+          "progress.total": (session.qaPairs || []).length + 1
+        }
+      }
+    )
+    
     return NextResponse.json({
       success: true,
-      question: newQuestion,
+      qaPair: newQAPair,
       session: updatedSession
     })
     
@@ -89,9 +99,10 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: "Session not found" }, { status: 404 })
     }
     
+    // Return all QA pairs and current question index
     return NextResponse.json({
-      questions: session.questions || [],
-      pendingQuestions: session.pendingQuestions || []
+      qaPairs: session.qaPairs || [],
+      currentQuestionIndex: session.currentQuestionIndex || 0
     })
     
   } catch (error) {

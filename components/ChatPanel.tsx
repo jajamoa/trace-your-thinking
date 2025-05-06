@@ -81,7 +81,7 @@ export default function ChatPanel() {
   }
 
   return (
-    <div className="flex flex-col space-y-6 py-4 px-2 overflow-y-auto max-h-[calc(100vh-15rem)]">
+    <div className="flex flex-col space-y-6 py-4 px-2 max-h-[calc(100vh-15rem)]">
       <AnimatePresence>
         {messages.map((message) => (
           <motion.div
@@ -122,7 +122,7 @@ export default function ChatPanel() {
                   role={message.role} 
                   text={message.text} 
                   loading={message.loading} 
-                  isLatestMessage={message.role === "bot" && message.id === lastBotMessageId}
+                  isLatestMessage={message.id === lastBotMessageId}
                 />
 
                 {/* Edit button for the last user message */}
@@ -142,7 +142,7 @@ export default function ChatPanel() {
           </motion.div>
         ))}
       </AnimatePresence>
-      <div ref={messagesEndRef} />
+      <div ref={messagesEndRef} className="pb-6" />
     </div>
   )
 }

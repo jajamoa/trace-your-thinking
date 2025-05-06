@@ -2,6 +2,7 @@
 
 import { useStore } from './store'
 import { v4 as uuidv4 } from 'uuid'
+import { QAPair } from './store'
 
 /**
  * Synchronization service for handling data sync between local state and database
@@ -42,10 +43,10 @@ export class SyncService {
             body: JSON.stringify({
               prolificId: state.prolificId,
               qaPairs: state.qaPairs,
-              pendingQuestions: state.pendingQuestions,
               messages: state.messages,
               status: state.status,
-              progress: state.progress
+              progress: state.progress,
+              currentQuestionIndex: state.currentQuestionIndex
             }),
           })
           
@@ -76,11 +77,10 @@ export class SyncService {
         body: JSON.stringify({
           prolificId: state.prolificId,
           qaPairs: state.qaPairs,
-          pendingQuestions: state.pendingQuestions,
           messages: state.messages,
-          questions: state.questions,
           status: state.status,
-          progress: state.progress
+          progress: state.progress,
+          currentQuestionIndex: state.currentQuestionIndex
         }),
       })
       
@@ -151,28 +151,21 @@ export class SyncService {
         console.warn("No active guiding questions found, using fallback question")
         
         // Use a fallback question if no guiding questions are available
-        const fallbackQuestion = {
+        const fallbackQAPair = {
           id: `gq_fallback_${Date.now()}`,
-          text: "Could you describe your current research focus and how it relates to the broader field?",
-          shortText: "Research focus"
-        }
-        
-        const questions = [fallbackQuestion]
-        const qaPairs = [{
-          id: fallbackQuestion.id,
-          question: fallbackQuestion.text,
+          question: "Could you describe your current research focus and how it relates to the broader field?",
+          shortText: "Research focus",
           answer: ""
-        }]
+        }
         
         // Update store with the fallback question
         useStore.setState({
-          questions,
-          pendingQuestions: [...questions],
-          qaPairs,
+          qaPairs: [fallbackQAPair],
           progress: {
             current: 0,
             total: 1
-          }
+          },
+          currentQuestionIndex: 0
         })
         
         // Display the fallback question
@@ -180,7 +173,7 @@ export class SyncService {
           addMessage({
             id: uuidv4(),
             role: "bot",
-            text: fallbackQuestion.text,
+            text: fallbackQAPair.question,
             loading: false
           })
         }
@@ -188,37 +181,31 @@ export class SyncService {
         return true
       }
       
-      // Transform guiding questions into the Question format and QAPair format
-      const questions = guidingQuestions.map((gq: any) => ({
+      // Transform guiding questions directly into QAPair format
+      const qaPairs = guidingQuestions.map((gq: any) => ({
         id: gq.id,
-        text: gq.text,
-        shortText: gq.shortText
-      }))
-      
-      const qaPairs = questions.map((q: any) => ({
-        id: q.id,
-        question: q.text,
+        question: gq.text,
+        shortText: gq.shortText,
         answer: ""
       }))
       
       // Update store with the guiding questions data
       useStore.setState({
-        questions,
-        pendingQuestions: [...questions], // Create a copy
         qaPairs,
         progress: {
           current: 0,
-          total: questions.length
-        }
+          total: qaPairs.length
+        },
+        currentQuestionIndex: 0
       })
       
       // Display the first question as a message
-      if (questions.length > 0 && addMessage) {
-        console.log("Adding first question message:", questions[0].text)
+      if (qaPairs.length > 0 && addMessage) {
+        console.log("Adding first question message:", qaPairs[0].question)
         addMessage({
-          id: uuidv4(), // Use UUID rather than timestamp-based ID
+          id: uuidv4(),
           role: "bot",
-          text: questions[0].text,
+          text: qaPairs[0].question,
           loading: false
         })
       }
@@ -227,23 +214,19 @@ export class SyncService {
     } catch (error) {
       console.error("Error initializing session with guiding questions:", error)
       
-      // Use fallback questions on error
+      // Use fallback question on error
       const store = useStore.getState()
-      const firstQuestion = {
+      const fallbackQAPair = {
         id: "q1",
-        text: "Could you describe your current research focus and how it relates to the broader field?",
+        question: "Could you describe your current research focus and how it relates to the broader field?",
         shortText: "Research focus",
+        answer: ""
       }
       
       useStore.setState({
-        questions: [firstQuestion],
-        pendingQuestions: [firstQuestion],
-        qaPairs: [{
-          id: firstQuestion.id,
-          question: firstQuestion.text,
-          answer: ""
-        }],
-        progress: { current: 0, total: 1 }
+        qaPairs: [fallbackQAPair],
+        progress: { current: 0, total: 1 },
+        currentQuestionIndex: 0
       })
       
       // Display fallback question
@@ -251,7 +234,7 @@ export class SyncService {
         store.addMessage({
           id: uuidv4(),
           role: "bot",
-          text: firstQuestion.text,
+          text: fallbackQAPair.question,
           loading: false
         })
       }
@@ -276,8 +259,6 @@ export class SyncService {
       useStore.setState({
         messages: [],
         qaPairs: [],
-        pendingQuestions: [],
-        questions: [],
         sessionId: null
       })
       
@@ -352,31 +333,58 @@ export class SyncService {
   static displayQAPairsAsMessages(): void {
     try {
       const state = useStore.getState()
-      const { qaPairs, messages, addMessage } = state
+      const { qaPairs, messages, addMessage, currentQuestionIndex } = state
+      
+      // Check if we have already rebuilt messages in this session
+      // Using sessionStorage instead of localStorage ensures this is reset on page refresh
+      const hasRebuiltMessages = sessionStorage.getItem('hasRebuiltMessages') === 'true'
+      
+      // Skip rebuilding messages if:
+      // 1. We have already rebuilt messages in this session
+      // 2. Messages already exist
+      // 3. No QA pairs exist with answers (nothing to rebuild)
+      if (hasRebuiltMessages || messages.length > 0 || !qaPairs.some(qa => qa.answer)) {
+        console.log("Skipping message rebuild:", { 
+          hasRebuiltMessages, 
+          existingMessages: messages.length, 
+          qaPairsWithAnswers: qaPairs.filter(qa => qa.answer).length 
+        })
+        return
+      }
+      
+      console.log("Rebuilding messages from QA pairs:", qaPairs.length)
       
       // Clear existing messages
       useStore.setState({ messages: [] })
       
-      // Re-populate messages from QA pairs
-      qaPairs.forEach((pair) => {
+      // Process QA pairs in order, but only up to currentQuestionIndex
+      // This ensures we only show messages for answered questions and the current question
+      const qaPairsToShow = qaPairs.slice(0, currentQuestionIndex + 1)
+      
+      console.log(`Showing messages for ${qaPairsToShow.length} questions up to index ${currentQuestionIndex}`)
+      
+      qaPairsToShow.forEach((qaPair) => {
         // Add question message
         addMessage({
           id: uuidv4(),
           role: "bot",
-          text: pair.question,
+          text: qaPair.question,
           loading: false
         })
         
         // Add answer message if it exists
-        if (pair.answer) {
+        if (qaPair.answer && qaPair.answer.trim() !== '') {
           addMessage({
             id: uuidv4(),
             role: "user",
-            text: pair.answer,
+            text: qaPair.answer,
             loading: false
           })
         }
       })
+      
+      // Mark that we have rebuilt messages in this session
+      sessionStorage.setItem('hasRebuiltMessages', 'true')
       
       // Recalculate progress after rebuilding messages
       console.log("Recalculating progress after rebuilding messages in SyncService")
@@ -413,8 +421,7 @@ export class SyncService {
 
   /**
    * Fetch full session data from the server to sync local state
-   * This is important to ensure local pendingQuestions and total questions 
-   * are aligned with server data
+   * This is important to ensure local state is aligned with server data
    */
   static async fetchFullSessionData(sessionId: string): Promise<boolean> {
     try {
@@ -438,27 +445,25 @@ export class SyncService {
       
       // Log the retrieved data for debugging
       console.log("Retrieved session data from server:", {
-        questionsCount: sessionData.questions?.length || 0,
-        pendingQuestionsCount: sessionData.pendingQuestions?.length || 0,
         qaPairsCount: sessionData.qaPairs?.length || 0,
-        status: sessionData.status
+        status: sessionData.status,
+        currentQuestionIndex: sessionData.currentQuestionIndex || 0
       })
       
       // Update local state with server data
       const state = useStore.getState()
       
       // Only update if we have valid data
-      if (sessionData.questions && sessionData.questions.length > 0) {
+      if (sessionData.qaPairs && sessionData.qaPairs.length > 0) {
         // Compare server and local data
         console.log("Comparing server and local data:")
-        console.log(`- Server questions: ${sessionData.questions.length}, Local: ${state.questions.length}`)
-        console.log(`- Server pending: ${sessionData.pendingQuestions.length}, Local: ${state.pendingQuestions.length}`)
-        console.log(`- Server QA pairs: ${sessionData.qaPairs.length}, Local: ${state.qaPairs.length}`)
+        console.log(`- Server QA pairs: ${sessionData.qaPairs?.length || 0}, Local: ${state.qaPairs.length}`)
+        console.log(`- Server current index: ${sessionData.currentQuestionIndex || 0}, Local: ${state.currentQuestionIndex}`)
         
         // If there's a mismatch, update local state
         const shouldUpdate = 
-          sessionData.questions.length !== state.questions.length ||
-          sessionData.pendingQuestions.length !== state.pendingQuestions.length;
+          (sessionData.qaPairs?.length || 0) !== state.qaPairs.length ||
+          (sessionData.currentQuestionIndex || 0) !== state.currentQuestionIndex;
           
         if (shouldUpdate) {
           console.log("Updating local state with server data due to mismatch")
@@ -466,18 +471,8 @@ export class SyncService {
           // Prepare server data for local update
           const newState: any = {}
           
-          // Only update questions if there's a mismatch
-          if (sessionData.questions.length !== state.questions.length) {
-            newState.questions = sessionData.questions
-          }
-          
-          // Only update pendingQuestions if there's a mismatch
-          if (sessionData.pendingQuestions.length !== state.pendingQuestions.length) {
-            newState.pendingQuestions = sessionData.pendingQuestions
-          }
-          
           // Update QA pairs if needed while preserving local answers
-          if (sessionData.qaPairs.length !== state.qaPairs.length) {
+          if ((sessionData.qaPairs?.length || 0) !== state.qaPairs.length) {
             // Create a map of local answers to preserve them
             const localAnswers = new Map<string, string>()
             state.qaPairs.forEach(qa => {
@@ -487,7 +482,7 @@ export class SyncService {
             })
             
             // Apply local answers to server QA pairs
-            const updatedQAPairs = sessionData.qaPairs.map((qa: { id: string, question: string, answer: string }) => {
+            const updatedQAPairs = (sessionData.qaPairs || []).map((qa: { id: string, question: string, shortText: string, answer: string }) => {
               if (localAnswers.has(qa.id)) {
                 return { ...qa, answer: localAnswers.get(qa.id) || "" }
               }
@@ -497,11 +492,38 @@ export class SyncService {
             newState.qaPairs = updatedQAPairs
           }
           
-          // Calculate correct progress
-          newState.progress = {
-            current: sessionData.questions.length - sessionData.pendingQuestions.length,
-            total: sessionData.questions.length
+          // Update currentQuestionIndex if needed
+          if (sessionData.currentQuestionIndex !== undefined && 
+              sessionData.currentQuestionIndex !== state.currentQuestionIndex) {
+            newState.currentQuestionIndex = sessionData.currentQuestionIndex;
+          } else {
+            // Calculate correct currentQuestionIndex based on answered questions
+            // Find the index of the first unanswered question
+            const qaPairs = newState.qaPairs || state.qaPairs;
+            let newCurrentQuestionIndex = 0;
+            
+            // Get all answered questions
+            const answeredCount = qaPairs.filter((qa: QAPair) => qa.answer && qa.answer.trim() !== '').length;
+            
+            // Set index to the first unanswered question
+            newCurrentQuestionIndex = Math.min(answeredCount, qaPairs.length - 1);
+            if (newCurrentQuestionIndex < 0 && qaPairs.length > 0) newCurrentQuestionIndex = 0;
+            
+            newState.currentQuestionIndex = newCurrentQuestionIndex;
           }
+          
+          // Calculate correct progress based on currentQuestionIndex and answered QA pairs
+          const qaPairs = newState.qaPairs || state.qaPairs;
+          const currentQuestionIndex = newState.currentQuestionIndex !== undefined 
+            ? newState.currentQuestionIndex 
+            : state.currentQuestionIndex;
+          
+          newState.progress = {
+            current: currentQuestionIndex,
+            total: qaPairs.length
+          }
+          
+          console.log(`Calculated new question index: ${newState.currentQuestionIndex}, Progress: ${newState.progress.current}/${newState.progress.total}`);
           
           // Update local state
           useStore.setState(newState)
@@ -510,6 +532,15 @@ export class SyncService {
           if (typeof state.recalculateProgress === 'function') {
             console.log("Recalculating progress after sync")
             state.recalculateProgress();
+          }
+          
+          // Check if we need to rebuild messages from QA pairs
+          // Only rebuild if we have no messages and there are QA pairs with answers
+          if (state.messages.length === 0 && (sessionData.qaPairs || []).some((qa: any) => qa.answer)) {
+            console.log("Messages empty but QA pairs exist - rebuilding messages after server sync")
+            // Call displayQAPairsAsMessages to rebuild messages from QA pairs
+            // The function has its own safeguards to prevent multiple rebuilds
+            this.displayQAPairsAsMessages();
           }
         }
       }

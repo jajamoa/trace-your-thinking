@@ -41,10 +41,18 @@ export async function PUT(
       return NextResponse.json({ error: "Session not found" }, { status: 404 })
     }
 
-    // No need to map fields - we use 'status' consistently now
+    // Update session
     const updateData = { ...body };
     
-    // Update session
+    // Update progress based on currentQuestionIndex if necessary
+    if (body.currentQuestionIndex !== undefined && body.qaPairs) {
+      const total = body.qaPairs.length;
+      updateData.progress = {
+        current: Math.min(body.currentQuestionIndex, total),
+        total
+      };
+    }
+    
     const updatedSession = await Session.findOneAndUpdate(
       { id: sessionId },
       { 
@@ -82,7 +90,6 @@ export async function PATCH(
       return NextResponse.json({ error: "Session not found" }, { status: 404 })
     }
 
-    // No need to map fields - we use 'status' consistently now
     const updateData = { ...body };
     
     // If completing the session, add completedAt timestamp

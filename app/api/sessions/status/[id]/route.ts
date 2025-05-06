@@ -16,37 +16,16 @@ export async function GET(
     const params = await context.params
     const sessionId = params.id
     
-    // Add a small delay to help with potential replication lag
-    // This is especially important for newly created sessions
-    await new Promise(resolve => setTimeout(resolve, 200))
-    
-    console.log(`[API] Getting status for session: ${sessionId}`)
-    
-    // First attempt to find the session
-    let session = await Session.findOne({ id: sessionId })
-    
-    // If not found on first try and it looks like a new session (contains current timestamp)
-    if (!session && sessionId.includes(`_${Date.now().toString().substring(0, 8)}`)) {
-      console.log(`[API] New session not found, retrying after delay: ${sessionId}`)
-      // For new sessions, add extra delay and retry
-      await new Promise(resolve => setTimeout(resolve, 500))
-      session = await Session.findOne({ id: sessionId })
-    }
+    const session = await Session.findOne({ id: sessionId }).select('status')
 
     if (!session) {
-      console.log(`[API] Session not found: ${sessionId}`)
       return NextResponse.json({ error: "Session not found" }, { status: 404 })
     }
 
-    console.log(`[API] Session found with status: ${session.status}`)
-    return NextResponse.json({
-      sessionId: session.id,
-      status: session.status,
-      updatedAt: session.updatedAt
-    })
+    return NextResponse.json({ status: session.status })
   } catch (error) {
-    console.error("Error retrieving session status:", error)
-    return NextResponse.json({ error: "Failed to retrieve session status" }, { status: 500 })
+    console.error("Error checking session status:", error)
+    return NextResponse.json({ error: "Failed to check session status" }, { status: 500 })
   }
 }
 
@@ -65,10 +44,10 @@ export async function PATCH(
     const sessionId = params.id
     const body = await request.json()
 
-    // Only allow status updates through this endpoint
-    if (!body.status || !["in_progress", "completed"].includes(body.status)) {
+    // Validate that the status is valid
+    if (!body.status || !['in_progress', 'completed'].includes(body.status)) {
       return NextResponse.json({ 
-        error: "Invalid status. Must be either 'in_progress' or 'completed'" 
+        error: "Invalid status. Must be 'in_progress' or 'completed'" 
       }, { status: 400 })
     }
 
@@ -78,22 +57,16 @@ export async function PATCH(
       return NextResponse.json({ error: "Session not found" }, { status: 404 })
     }
 
-    // Prepare update object
-    const updateData: {
-      status: string;
-      updatedAt: Date;
-      completedAt?: Date;
-    } = {
+    // Add completedAt timestamp if setting status to completed
+    const updateData: any = { 
       status: body.status,
       updatedAt: new Date()
-    };
+    }
     
-    // If completing the session, add completedAt timestamp
     if (body.status === 'completed') {
-      updateData.completedAt = new Date();
+      updateData.completedAt = new Date()
     }
 
-    // Update only the session status
     const updatedSession = await Session.findOneAndUpdate(
       { id: sessionId },
       updateData,
@@ -102,9 +75,7 @@ export async function PATCH(
 
     return NextResponse.json({
       success: true,
-      sessionId: updatedSession.id,
-      status: updatedSession.status,
-      updatedAt: updatedSession.updatedAt
+      status: updatedSession.status
     })
   } catch (error) {
     console.error("Error updating session status:", error)

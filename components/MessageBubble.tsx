@@ -18,10 +18,26 @@ export default function MessageBubble({
   isLatestMessage = false 
 }: MessageBubbleProps) {
   const [displayText, setDisplayText] = useState("")
-  const [showCursor, setShowCursor] = useState(loading && isLatestMessage)
+  const [showCursor, setShowCursor] = useState(false) // Start with cursor hidden to prevent hydration mismatch
   const [isTyping, setIsTyping] = useState(false)
+  const [isClient, setIsClient] = useState(false) // Track if we're on client side
   const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null)
   const typingIndexRef = useRef(0)
+  
+  // Set isClient to true once component mounts (client-side only)
+  useEffect(() => {
+    setIsClient(true)
+    
+    // If user message, we don't need typing effect so set full text immediately
+    if (role === "user") {
+      setDisplayText(text)
+    }
+    
+    // If this is a bot message that should show cursor immediately
+    if (role === "bot" && loading && isLatestMessage) {
+      setShowCursor(true)
+    }
+  }, [role, loading, isLatestMessage, text])
   
   // Clear any existing typing animation
   const clearTypingAnimation = () => {
@@ -31,8 +47,11 @@ export default function MessageBubble({
     }
   }
   
-  // Implement typewriter effect
+  // Implement typewriter effect - with fixed timing to avoid hydration issues
   const typeText = (fullText: string, startIndex = 0) => {
+    // Only proceed on client side
+    if (!isClient) return;
+    
     // Initialize
     typingIndexRef.current = startIndex
     setIsTyping(true)
@@ -42,8 +61,8 @@ export default function MessageBubble({
       if (typingIndexRef.current < fullText.length) {
         setDisplayText(fullText.substring(0, typingIndexRef.current + 1))
         typingIndexRef.current++
-        // Faster typing: between 5-20ms for quicker animation
-        const typingSpeed = Math.floor(Math.random() * 0.5) + 2
+        // Use fixed typing speed instead of random to prevent hydration mismatch
+        const typingSpeed = 4 // Consistent 4ms between characters
         typingTimeoutRef.current = setTimeout(typeNextChar, typingSpeed)
       } else {
         setIsTyping(false)
@@ -58,6 +77,9 @@ export default function MessageBubble({
 
   // Handle typing animation for bot messages
   useEffect(() => {
+    // Skip all effects during SSR to prevent hydration issues
+    if (!isClient) return;
+    
     // If message is not the latest bot message, always show full text
     if (!isLatestMessage) {
       clearTypingAnimation()
@@ -80,8 +102,8 @@ export default function MessageBubble({
         clearTypingAnimation()
         setShowCursor(true) // Ensure cursor is showing during typing prep
         
-        // Small delay before starting typing animation
-        setTimeout(() => {
+        // Start typing animation with a short delay
+        const timer = setTimeout(() => {
           // If we already have some text showing, only type the new part
           if (displayText && text.startsWith(displayText)) {
             typeText(text, displayText.length)
@@ -90,7 +112,9 @@ export default function MessageBubble({
             setDisplayText("")
             typeText(text)
           }
-        }, 20) // Reduced from 100ms to 50ms for faster start
+        }, 20)
+        
+        return () => clearTimeout(timer)
       }
     } else {
       // For user messages, no animation
@@ -101,7 +125,7 @@ export default function MessageBubble({
     return () => {
       clearTypingAnimation()
     }
-  }, [role, text, loading, displayText, isLatestMessage])
+  }, [role, text, loading, displayText, isLatestMessage, isClient])
 
   return (
     <div className={cn("flex", role === "user" ? "justify-end" : "justify-start")}>
@@ -115,8 +139,9 @@ export default function MessageBubble({
         )}
       >
         <p className="whitespace-pre-wrap break-words leading-relaxed">
-          {displayText}
-          {(showCursor || isTyping) && role === "bot" && isLatestMessage && (
+          {role === "user" || isClient ? displayText : text}
+          {/* Only show cursor on client-side rendering and when appropriate */}
+          {isClient && (showCursor || isTyping) && role === "bot" && isLatestMessage && (
             <span className="inline-block w-2 h-4 bg-black/70 ml-1 animate-pulse" />
           )}
         </p>

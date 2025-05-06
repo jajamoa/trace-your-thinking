@@ -13,6 +13,7 @@ import Footer from "@/components/Footer"
 import { logStoreState, setupStoreLogger } from "@/lib/debug-store"
 import { SyncService } from "@/lib/sync-service"
 import { v4 as uuidv4 } from "uuid"
+import LoadingTransition from "@/components/LoadingTransition"
 
 // Debounce function to prevent too frequent calls
 const debounce = (fn: Function, ms = 1000) => {
@@ -25,6 +26,9 @@ const debounce = (fn: Function, ms = 1000) => {
 
 export default function InterviewPage() {
   const router = useRouter()
+  const [isNavigating, setIsNavigating] = useState(false)
+  const [navigatingMessage, setNavigatingMessage] = useState("")
+  
   const {
     messages,
     qaPairs,
@@ -34,15 +38,14 @@ export default function InterviewPage() {
     setProgress,
     prolificId,
     status,
-    questions,
-    pendingQuestions,
     getNextQuestion,
     markQuestionAsAnswered,
     updateQAPair,
     saveSession,
     initializeWithGuidingQuestions,
     recalculateProgress,
-    sessionId
+    sessionId,
+    currentQuestionIndex
   } = useStore()
 
   // 在组件挂载时输出调试信息
@@ -106,26 +109,41 @@ export default function InterviewPage() {
     }
   }, [currentQuestion])
 
+  // Custom navigation function that shows loading state
+  const navigateTo = (path: string, loadingMessage = "Navigating...") => {
+    // Start loading animation
+    setNavigatingMessage(loadingMessage)
+    setIsNavigating(true)
+    
+    // Add a small delay for the animation to be visible
+    setTimeout(() => {
+      router.push(path)
+    }, 800)
+  }
+  
   // Redirect if no ProlificID or if session is completed
   useEffect(() => {
+    // Skip if we're already navigating
+    if (isNavigating) return
+    
     // Check if user has a valid Prolific ID
     if (!prolificId) {
       console.log("No Prolific ID found, redirecting to landing page")
-      router.push("/")
+      navigateTo("/", "Redirecting to login...")
       return
     }
     
     // If session is marked as completed, redirect to thank you page
     if (status === "completed") {
       console.log("Session already completed, redirecting to thank you page")
-      router.push("/thank-you")
+      navigateTo("/thank-you", "Session completed, preparing thank you page...")
       return
     }
 
     // Check if all questions have been answered (progress is 100%)
-    if (progress.current === questions.length && questions.length > 0) {
+    if (progress.current === progress.total && progress.total > 0) {
       console.log("All questions answered, redirecting to review page")
-      router.push("/review")
+      navigateTo("/review", "Preparing your answers for review...")
       return
     }
 
@@ -140,14 +158,19 @@ export default function InterviewPage() {
     }
     
     // If no questions, initialize with guiding questions
-    if (questions.length === 0) {
+    if (qaPairs.length === 0) {
       console.log("No questions found, initializing with guiding questions")
+      setIsNavigating(true)
+      setNavigatingMessage("Loading questions...")
+      
       initializeWithGuidingQuestions().then(() => {
         console.log("Guiding questions loaded")
-        saveSession()
+        saveSession().then(() => {
+          setIsNavigating(false)
+        })
       })
     }
-  }, [prolificId, router, status, progress, questions.length, messages.length, qaPairs, initializeWithGuidingQuestions, saveSession, recalculateProgress])
+  }, [prolificId, router, status, progress, qaPairs.length, messages.length, initializeWithGuidingQuestions, saveSession, recalculateProgress, isNavigating])
 
   // Save session when QA pairs change
   useEffect(() => {
@@ -159,16 +182,6 @@ export default function InterviewPage() {
       conditionalSave()
     }
   }, [qaPairs])
-
-  // Update the message UI based on QA pairs when component mounts
-  useEffect(() => {
-    // This ensures that when returning to the interview page,
-    // the conversation reflects the current QA pairs
-    if (messages.length === 0 && qaPairs.some(qa => qa.answer)) {
-      // Use the SyncService to display QA pairs as messages instead of manually creating them
-      SyncService.displayQAPairsAsMessages()
-    }
-  }, [messages.length, qaPairs]);
 
   // Update the function that handles submitting an answer
   const handleAnswerSubmit = async (text: string) => {
@@ -183,13 +196,6 @@ export default function InterviewPage() {
 
     console.log(`Submitting answer for question ${currentQuestion.id}: "${currentQuestion.shortText}"`)
     console.log(`Current progress before answering: ${progress.current}/${progress.total}`)
-
-    // Get the QA pair for this question
-    const qaPair = qaPairs.find(qa => qa.id === currentQuestion.id)
-    if (!qaPair) {
-      console.log(`No QA pair found for question ID: ${currentQuestion.id}`)
-      return
-    }
 
     try {
       // Add user's answer to messages with a UUID
@@ -209,15 +215,21 @@ export default function InterviewPage() {
       const startProgress = progress.current
       console.log(`Progress before marking question as answered: ${startProgress}/${progress.total}`)
       
+      // Important: Use a flag to prevent double-adding the next question 
+      // markQuestionAsAnswered will trigger moveToNextQuestion, which already adds the next question
+      // We need to remember what the last question was to avoid duplicating it
+      const currentIndex = currentQuestionIndex;
+      
       // Mark this question as answered - this updates the store progress state
+      // This will also trigger moveToNextQuestion which might add the next question message
       markQuestionAsAnswered(currentQuestion.id)
       
       // Log updated progress after marking question as answered
       console.log(`Progress after marking question as answered: ${progress.current}/${progress.total}`)
       
       // Calculate target progress
-      const targetProgress = Math.min(progress.current + 1, questions.length)
-      console.log(`Target progress for animation: ${targetProgress}/${questions.length}`)
+      const targetProgress = Math.min(progress.current + 1, qaPairs.length)
+      console.log(`Target progress for animation: ${targetProgress}/${qaPairs.length}`)
       
       // Start real-time progress animation - using a shorter duration for more responsive feeling
       const duration = 800 // Reduced from 2000ms to 800ms for more responsive feeling
@@ -242,7 +254,14 @@ export default function InterviewPage() {
         } else {
           // Ensure we reach exact target at the end
           setRealTimeProgress(targetProgress)
-          console.log(`Progress animation completed: ${targetProgress}/${questions.length}`)
+          console.log(`Progress animation completed: ${targetProgress}/${qaPairs.length}`)
+          
+          // Check if progress is 100% after animation
+          if (targetProgress === qaPairs.length && qaPairs.length > 0) {
+            console.log("Animation finished and progress is 100%, preparing to navigate to review")
+            navigateTo("/review", "Preparing your answers for review...")
+            return
+          }
         }
       }
       
@@ -253,36 +272,52 @@ export default function InterviewPage() {
       console.log("Saving session to database...")
       saveSession()
 
-      // Get next question
+      // Get next question - but only add it if currentQuestionIndex has changed
+      // This prevents duplicating the question when moveToNextQuestion has already added it
       const nextQuestion = getNextQuestion()
-      if (nextQuestion) {
+      if (nextQuestion && currentIndex === currentQuestionIndex) {
         console.log(`Next question: ${nextQuestion.id} - "${nextQuestion.shortText}"`)
         
-        // First add bot message with loading state - uses a completely empty message
-        const nextMessageId = uuidv4()
-        addMessage({
-          id: nextMessageId,
-          role: "bot",
-          text: "",
-          loading: true,
-        })
-        
-        // Update immediately with almost no delay
-        // Important: Must pass a new object reference to trigger proper re-render
-        setTimeout(() => {
-          updateMessage(nextMessageId, (message) => ({
-            ...message,
-            text: nextQuestion.text,
-            loading: false
-          }))
-        }, 10) // Nearly immediate update
+        // Check if the last message in the current message list is already the next question
+        const lastMessage = messages.length > 0 ? messages[messages.length - 1] : null;
+        const isNextQuestionAlreadyAdded = 
+          lastMessage && 
+          lastMessage.role === 'bot' && 
+          !lastMessage.loading && 
+          lastMessage.text === nextQuestion.question;
+          
+        // Only add a new bot message if the next question hasn't been added yet
+        if (!isNextQuestionAlreadyAdded) {
+          // First add bot message with loading state - uses a completely empty message
+          const nextMessageId = uuidv4()
+          addMessage({
+            id: nextMessageId,
+            role: "bot",
+            text: "",
+            loading: true,
+          })
+          
+          // Update immediately with almost no delay
+          // Important: Must pass a new object reference to trigger proper re-render
+          setTimeout(() => {
+            updateMessage(nextMessageId, (message) => ({
+              ...message,
+              text: nextQuestion.question,
+              loading: false
+            }))
+          }, 10) // Nearly immediate update
+        }
         
         // Update current question ID
+        setCurrentQuestionId(nextQuestion.id)
+      } else if (nextQuestion) {
+        // If currentQuestionIndex changed, moveToNextQuestion already added the next question
+        // Just update currentQuestionId
         setCurrentQuestionId(nextQuestion.id)
       } else {
         // All questions answered, redirect to review
         console.log("All questions answered, redirecting to review page")
-        router.push("/review")
+        navigateTo("/review", "Preparing your answers for review...")
       }
     } catch (error) {
       console.error("Error submitting answer:", error)
@@ -295,7 +330,7 @@ export default function InterviewPage() {
   // Use real-time progress for the progress bar
   const displayProgress = {
     current: Math.floor(realTimeProgress),
-    total: questions.length,
+    total: qaPairs.length,
   }
 
   // Add special handling for returning from other pages like Review
@@ -327,6 +362,11 @@ export default function InterviewPage() {
     syncWithServer();
   }, [sessionId, recalculateProgress]); // Only run when sessionId changes or on first mount
 
+  // Show loading transition when navigating
+  if (isNavigating) {
+    return <LoadingTransition message={navigatingMessage} />
+  }
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 12 }}
@@ -343,7 +383,7 @@ export default function InterviewPage() {
           {currentQuestion && (
             <div className="mb-4">
               <div className="text-sm text-gray-500 mb-1">Current Question</div>
-              <div className="text-lg font-light">{currentQuestion.text}</div>
+              <div className="text-lg font-light">{currentQuestion.question}</div>
             </div>
           )}
           <ElegantProgressBar progress={displayProgress} />

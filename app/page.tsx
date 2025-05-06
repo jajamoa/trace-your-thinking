@@ -99,7 +99,7 @@ export default function Home() {
         
         // Double-check that pendingQuestions are loaded
         const state = useStore.getState()
-        if (state.pendingQuestions.length === 0 || state.qaPairs.length === 0) {
+        if (state.qaPairs.length === 0) {
           console.log("Waiting for questions to load...")
           await new Promise(resolve => setTimeout(resolve, 1000))
         }

@@ -17,7 +17,7 @@ export function logStoreState() {
     prolificId: store.prolificId,
     messagesCount: store.messages.length,
     qaPairsCount: store.qaPairs.length,
-    pendingQuestionsCount: store.pendingQuestions.length
+    currentQuestionIndex: store.currentQuestionIndex
   })
   
   // Only log if state has changed
@@ -29,7 +29,7 @@ export function logStoreState() {
     console.log('prolificId:', store.prolificId)
     console.log('messages count:', store.messages.length)
     console.log('qaPairs count:', store.qaPairs.length)
-    console.log('pendingQuestions count:', store.pendingQuestions.length)
+    console.log('currentQuestionIndex:', store.currentQuestionIndex)
     console.log('isRecording:', store.isRecording)
     console.log('progress:', store.progress)
     console.log('status:', store.status)
@@ -56,7 +56,7 @@ export function setupStoreLogger() {
           prolificId: state.prolificId,
           messagesCount: state.messages.length,
           qaPairsCount: state.qaPairs.length,
-          pendingQuestionsCount: state.pendingQuestions.length
+          currentQuestionIndex: state.currentQuestionIndex
         })
         
         // Only log if state has changed significantly
@@ -68,7 +68,7 @@ export function setupStoreLogger() {
           console.log('prolificId:', state.prolificId)
           console.log('messages count:', state.messages.length)
           console.log('qaPairs count:', state.qaPairs.length)
-          console.log('pendingQuestions count:', state.pendingQuestions.length)
+          console.log('currentQuestionIndex:', state.currentQuestionIndex)
           console.log('isRecording:', state.isRecording)
           console.log('progress:', state.progress)
           console.log('status:', state.status)
