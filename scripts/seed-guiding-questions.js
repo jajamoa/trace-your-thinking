@@ -1,18 +1,58 @@
-// 运行此脚本来初始化引导问题数据库
+// Run this script to initialize the guiding questions database
 // node scripts/seed-guiding-questions.js
 
 const { MongoClient } = require('mongodb');
 require('dotenv').config({ path: '.env.local' });
 
-// 默认的引导问题
+// Default guiding questions
 const initialGuidingQuestions = [
+  {
+    id: "gq0a",
+    text: "Welcome to the Trace Your Thinking interview system. This platform is designed to capture your research insights in a comfortable and intuitive way. Would you like me to guide you through using this system?",
+    shortText: "Welcome",
+    category: "tutorial",
+    isActive: true,
+    order: 0
+  },
+  {
+    id: "gq0b",
+    text: "You have two options for answering questions: voice recording or typing. For voice recording, simply click the microphone button (🎤) and speak clearly. When finished, click the microphone again or press ESC. The system will automatically transcribe and submit your response. Would you like to try voice recording now?",
+    shortText: "Voice recording guide",
+    category: "tutorial",
+    isActive: true,
+    order: 1
+  },
+  {
+    id: "gq0c",
+    text: "For text input, click the message icon (💬) to switch modes. Type your response in the text box. Press Ctrl+Enter or click the send button (➤) to submit. You can press ESC to clear your text. Would you like to try text input now?",
+    shortText: "Text input guide",
+    category: "tutorial",
+    isActive: true,
+    order: 2
+  },
+  {
+    id: "gq0d",
+    text: "You can switch between voice and text modes at any time. The microphone button will show while recording and turn red when active. During transcription, you'll see 'Transcribing your speech...' and your answer will be automatically submitted once ready. Feel comfortable with the system now?",
+    shortText: "Mode switching guide",
+    category: "tutorial",
+    isActive: true,
+    order: 3
+  },
+  {
+    id: "gq0e",
+    text: "Excellent! We're now ready to begin the research interview. Remember you can switch input methods anytime. Take your time with each response and provide as much detail as you'd like. Let's start with our first research question.",
+    shortText: "Start interview",
+    category: "tutorial",
+    isActive: true,
+    order: 4
+  },
   {
     id: "gq1",
     text: "Could you describe your current research focus and how it relates to the broader field?",
     shortText: "Research focus",
     category: "research",
     isActive: true,
-    order: 0
+    order: 5
   },
   {
     id: "gq2",
@@ -20,7 +60,7 @@ const initialGuidingQuestions = [
     shortText: "Methodologies",
     category: "research",
     isActive: true,
-    order: 1
+    order: 6
   },
   {
     id: "gq3",
@@ -28,7 +68,7 @@ const initialGuidingQuestions = [
     shortText: "Challenges",
     category: "research",
     isActive: true,
-    order: 2
+    order: 7
   },
   {
     id: "gq4",
@@ -36,7 +76,7 @@ const initialGuidingQuestions = [
     shortText: "Literature context",
     category: "research",
     isActive: true,
-    order: 3
+    order: 8
   },
   {
     id: "gq5",
@@ -44,12 +84,12 @@ const initialGuidingQuestions = [
     shortText: "Implications",
     category: "research",
     isActive: true,
-    order: 4
+    order: 9
   }
 ];
 
 async function seedGuidingQuestions() {
-  // 检查环境变量
+  // Check environment variables
   if (!process.env.MONGODB_URI) {
     console.error('MONGODB_URI environment variable is not defined.');
     process.exit(1);
@@ -64,7 +104,7 @@ async function seedGuidingQuestions() {
     const db = client.db();
     const collection = db.collection('guidingquestions');
 
-    // 检查集合是否为空
+    // Check if collection is empty
     const count = await collection.countDocuments();
     
     if (count > 0) {
@@ -81,11 +121,11 @@ async function seedGuidingQuestions() {
       }
     }
 
-    // 插入新的引导问题
+    // Insert new guiding questions
     const result = await collection.insertMany(initialGuidingQuestions);
     console.log(`${result.insertedCount} guiding questions have been added to the database.`);
 
-    // 添加时间戳
+    // Add timestamps
     const timestamp = new Date();
     for (const id of Object.values(result.insertedIds)) {
       await collection.updateOne(
@@ -119,5 +159,5 @@ async function promptUser(question) {
   });
 }
 
-// 执行脚本
+// Execute script
 seedGuidingQuestions(); 
