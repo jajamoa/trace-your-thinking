@@ -2,13 +2,13 @@ import { useState } from 'react';
 import { useStore } from '../../lib/store';
 
 /**
- * 用于处理用户回答并获取因果图的hook
+ * Hook for processing user answers and retrieving causal graphs
  */
 export function useProcessAnswer() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   
-  // 从store获取会话数据
+  // Get session data from store
   const sessionId = useStore(state => state.sessionId);
   const prolificId = useStore(state => state.prolificId);
   const addNewQuestion = useStore(state => state.addNewQuestion);
@@ -16,18 +16,18 @@ export function useProcessAnswer() {
   const moveToNextQuestion = useStore(state => state.moveToNextQuestion);
   
   /**
-   * 提交回答并处理后端响应
-   * @param qaPair 问答对
-   * @returns 处理结果
+   * Submit answer and process backend response
+   * @param qaPair Question-answer pair
+   * @returns Processing result
    */
   const processAnswer = async (qaPair: { id: string; question: string; shortText?: string; answer: string }) => {
     if (!sessionId || !prolificId) {
-      setError('缺少会话ID或用户ID');
+      setError('Missing session ID or user ID');
       return null;
     }
     
     if (!qaPair || !qaPair.id || !qaPair.answer) {
-      setError('问答数据不完整');
+      setError('Incomplete QA data');
       return null;
     }
     
@@ -35,7 +35,7 @@ export function useProcessAnswer() {
     setError(null);
     
     try {
-      // 调用处理回答API
+      // Call process answer API
       const response = await fetch('/api/process-answer', {
         method: 'POST',
         headers: {
@@ -50,35 +50,35 @@ export function useProcessAnswer() {
       
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || '处理回答时出错');
+        throw new Error(errorData.error || 'Error processing answer');
       }
       
       const data = await response.json();
       
       if (data.success) {
-        // 如果有后续问题，添加到问题列表
+        // If there are follow-up questions, add them to the question list
         if (data.data.followUpQuestions && data.data.followUpQuestions.length > 0) {
-          // 添加后续问题到store，一次添加一个问题
+          // Add follow-up questions to store, one question at a time
           data.data.followUpQuestions.forEach((question: any) => {
             addNewQuestion({
               question: question.question,
-              shortText: question.shortText || '后续问题'
+              shortText: question.shortText || 'Follow-up question'
             });
           });
         }
         
-        // 将当前问题标记为已回答
+        // Mark current question as answered
         markQuestionAsAnswered(qaPair.id);
         
-        // 移动到下一个问题
+        // Move to the next question
         moveToNextQuestion();
         
         return data.data;
       } else {
-        throw new Error(data.error || '未知错误');
+        throw new Error(data.error || 'Unknown error');
       }
     } catch (err: any) {
-      setError(err.message || '处理回答时出错');
+      setError(err.message || 'Error processing answer');
       return null;
     } finally {
       setLoading(false);
@@ -86,16 +86,16 @@ export function useProcessAnswer() {
   };
   
   /**
-   * 获取因果图
-   * @param options 查询选项
-   * @returns 因果图列表
+   * Get causal graphs
+   * @param options Query options
+   * @returns List of causal graphs
    */
   const getCausalGraphs = async (options?: { 
     sessionId?: string;
     qaPairId?: string;
   }) => {
     if (!prolificId && !options?.sessionId) {
-      setError('缺少用户ID或会话ID');
+      setError('Missing user ID or session ID');
       return [];
     }
     
@@ -103,7 +103,7 @@ export function useProcessAnswer() {
     setError(null);
     
     try {
-      // 构建查询参数
+      // Build query parameters
       const params = new URLSearchParams();
       
       if (prolificId) {
@@ -120,12 +120,12 @@ export function useProcessAnswer() {
         params.append('qaPairId', options.qaPairId);
       }
       
-      // 获取因果图
+      // Get causal graphs
       const response = await fetch(`/api/causal-graphs?${params.toString()}`);
       
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || '获取因果图时出错');
+        throw new Error(errorData.error || 'Error fetching causal graphs');
       }
       
       const data = await response.json();
@@ -133,10 +133,10 @@ export function useProcessAnswer() {
       if (data.success) {
         return data.causalGraphs;
       } else {
-        throw new Error(data.error || '未知错误');
+        throw new Error(data.error || 'Unknown error');
       }
     } catch (err: any) {
-      setError(err.message || '获取因果图时出错');
+      setError(err.message || 'Error fetching causal graphs');
       return [];
     } finally {
       setLoading(false);

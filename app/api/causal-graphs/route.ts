@@ -3,8 +3,8 @@ import connectToDatabase from "../../../lib/mongodb";
 import CausalGraph from "../../../models/CausalGraph";
 
 /**
- * 获取因果图API
- * 根据会话ID或用户ID获取相关的因果图
+ * Causal Graph API
+ * Get causal graphs related to a session ID or user ID
  */
 export async function GET(request: Request) {
   try {
@@ -15,12 +15,12 @@ export async function GET(request: Request) {
     const prolificId = searchParams.get("prolificId");
     const qaPairId = searchParams.get("qaPairId");
 
-    // 至少需要提供sessionId或prolificId之一
+    // At least sessionId or prolificId must be provided
     if (!sessionId && !prolificId) {
-      return NextResponse.json({ error: "必须提供sessionId或prolificId参数" }, { status: 400 });
+      return NextResponse.json({ error: "Either sessionId or prolificId parameter is required" }, { status: 400 });
     }
     
-    // 构建查询条件
+    // Build query conditions
     const query: any = {};
     
     if (sessionId) {
@@ -35,7 +35,7 @@ export async function GET(request: Request) {
       query.qaPairId = qaPairId;
     }
     
-    // 查询数据库获取因果图
+    // Query database to get causal graphs
     const causalGraphs = await CausalGraph.find(query).sort({ timestamp: -1 });
     
     return NextResponse.json({
@@ -43,7 +43,67 @@ export async function GET(request: Request) {
       causalGraphs
     });
   } catch (error) {
-    console.error("获取因果图时出错:", error);
-    return NextResponse.json({ error: "获取因果图失败" }, { status: 500 });
+    console.error("Error fetching causal graphs:", error);
+    return NextResponse.json({ error: "Failed to fetch causal graphs" }, { status: 500 });
+  }
+}
+
+/**
+ * Save a causal graph
+ * Stores causal graph data generated from Python backend
+ */
+export async function POST(request: Request) {
+  try {
+    await connectToDatabase();
+    
+    const data = await request.json();
+    const { sessionId, prolificId, qaPairId, graphData } = data;
+    
+    // Validate required fields
+    if (!sessionId || !prolificId || !qaPairId || !graphData) {
+      return NextResponse.json(
+        { error: "Missing required fields: sessionId, prolificId, qaPairId, and graphData are required" }, 
+        { status: 400 }
+      );
+    }
+    
+    // Check if a graph already exists for this QA pair
+    const existingGraph = await CausalGraph.findOne({
+      sessionId,
+      prolificId,
+      qaPairId
+    });
+    
+    if (existingGraph) {
+      // Update existing graph
+      existingGraph.graphData = graphData;
+      existingGraph.timestamp = new Date();
+      await existingGraph.save();
+      
+      return NextResponse.json({
+        success: true,
+        causalGraph: existingGraph,
+        updated: true
+      });
+    } else {
+      // Create new graph
+      const newCausalGraph = new CausalGraph({
+        sessionId,
+        prolificId,
+        qaPairId,
+        graphData
+      });
+      
+      await newCausalGraph.save();
+      
+      return NextResponse.json({
+        success: true,
+        causalGraph: newCausalGraph,
+        created: true
+      });
+    }
+  } catch (error) {
+    console.error("Error saving causal graph:", error);
+    return NextResponse.json({ error: "Failed to save causal graph" }, { status: 500 });
   }
 } 

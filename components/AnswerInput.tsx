@@ -11,12 +11,13 @@ import { toast } from "@/components/ui/use-toast"
 
 interface AnswerInputProps {
   onSendMessage: (text: string) => void
+  isProcessing?: boolean
 }
 
 // Input mode preference key for localStorage
 const INPUT_MODE_PREF_KEY = 'input-mode-preference'
 
-export default function AnswerInput({ onSendMessage }: AnswerInputProps) {
+export default function AnswerInput({ onSendMessage, isProcessing = false }: AnswerInputProps) {
   // Get the previous input mode preference, default to voice if none exists
   const getInitialInputMode = (): "voice" | "text" => {
     // Client-side only operation, always return default on server
@@ -384,7 +385,7 @@ export default function AnswerInput({ onSendMessage }: AnswerInputProps) {
                 onClick={toggleRecording}
                 className="h-10 w-10 rounded-full border-[#e0ddd5]"
                 aria-label={isRecording ? "Stop recording" : "Start recording"}
-                disabled={isTranscribing || isQuestionLoading}
+                disabled={isTranscribing || isQuestionLoading || isProcessing}
               >
                 {isRecording ? <MicOff className="h-5 w-5" /> : <Mic className="h-5 w-5" />}
               </Button>
@@ -392,13 +393,15 @@ export default function AnswerInput({ onSendMessage }: AnswerInputProps) {
 
             <div className="flex-1 flex items-center justify-center h-10">
               <div className="text-sm text-gray-600 font-light">
-                {isTranscribing
-                  ? "Transcribing your speech..."
-                  : isQuestionLoading
-                    ? "Waiting for question..."
-                    : isRecording
-                      ? "Listening..."
-                      : "Press microphone to start speaking"}
+                {isProcessing
+                  ? "Processing your answer with AI..."
+                  : isTranscribing
+                    ? "Transcribing your speech..."
+                    : isQuestionLoading
+                      ? "Waiting for question..."
+                      : isRecording
+                        ? "Listening..."
+                        : "Press microphone to start speaking"}
               </div>
             </div>
 
@@ -409,7 +412,7 @@ export default function AnswerInput({ onSendMessage }: AnswerInputProps) {
                 onClick={toggleInputMode}
                 className="h-10 w-10 rounded-full bg-[#e0ddd5] hover:bg-[#d5d2ca] text-[#333333]"
                 aria-label="Switch to text input"
-                disabled={isTranscribing}
+                disabled={isTranscribing || isProcessing}
               >
                 <MessageSquare className="h-5 w-5" />
               </Button>
@@ -424,6 +427,7 @@ export default function AnswerInput({ onSendMessage }: AnswerInputProps) {
                 onClick={toggleInputMode}
                 className="h-10 w-10 rounded-full bg-[#e0ddd5] hover:bg-[#d5d2ca] text-[#333333]"
                 aria-label="Switch to voice input"
+                disabled={isProcessing}
               >
                 <Mic className="h-5 w-5" />
               </Button>
@@ -433,9 +437,10 @@ export default function AnswerInput({ onSendMessage }: AnswerInputProps) {
               ref={textareaRef}
               value={text}
               onChange={(e) => setText(e.target.value)}
-              placeholder="Type your answer..."
+              placeholder={isProcessing ? "Processing your answer..." : "Type your answer..."}
               className="min-h-10 h-10 resize-none bg-white border-[#e0ddd5] rounded-xl focus:ring-blue-400 font-light"
               aria-label="Answer input"
+              disabled={isProcessing}
             />
 
             {text ? (
@@ -446,6 +451,7 @@ export default function AnswerInput({ onSendMessage }: AnswerInputProps) {
                   onClick={() => setText("")}
                   className="h-10 w-10 rounded-full bg-[#e0ddd5] hover:bg-[#d5d2ca] text-[#333333]"
                   aria-label="Clear text"
+                  disabled={isProcessing}
                 >
                   <X className="h-5 w-5" />
                 </Button>
@@ -457,7 +463,7 @@ export default function AnswerInput({ onSendMessage }: AnswerInputProps) {
                 type="button"
                 size="icon"
                 onClick={handleSend}
-                disabled={!text.trim()}
+                disabled={!text.trim() || isProcessing}
                 className="h-10 w-10 rounded-full bg-[#333333] hover:bg-[#222222] text-white"
                 aria-label="Send message"
               >
@@ -469,16 +475,20 @@ export default function AnswerInput({ onSendMessage }: AnswerInputProps) {
       </div>
 
       <div className="text-xs text-gray-500 text-center mt-2 font-light h-5">
-        {inputMode === "text" && (
+        {!isProcessing && (
           <>
-            Press <kbd className="px-1 py-0.5 bg-[#e0ddd5] rounded">Ctrl</kbd> +{" "}
-            <kbd className="px-1 py-0.5 bg-[#e0ddd5] rounded">Enter</kbd> to send •{" "}
-            <kbd className="px-1 py-0.5 bg-[#e0ddd5] rounded">ESC</kbd> to clear text
-          </>
-        )}
-        {inputMode === "voice" && !isTranscribing && (
-          <>
-            Press <kbd className="px-1 py-0.5 bg-[#e0ddd5] rounded">ESC</kbd> to {isRecording ? "stop recording" : "cancel"}
+            {inputMode === "text" && (
+              <>
+                Press <kbd className="px-1 py-0.5 bg-[#e0ddd5] rounded">Ctrl</kbd> +{" "}
+                <kbd className="px-1 py-0.5 bg-[#e0ddd5] rounded">Enter</kbd> to send •{" "}
+                <kbd className="px-1 py-0.5 bg-[#e0ddd5] rounded">ESC</kbd> to clear text
+              </>
+            )}
+            {inputMode === "voice" && !isTranscribing && (
+              <>
+                Press <kbd className="px-1 py-0.5 bg-[#e0ddd5] rounded">ESC</kbd> to {isRecording ? "stop recording" : "cancel"}
+              </>
+            )}
           </>
         )}
       </div>

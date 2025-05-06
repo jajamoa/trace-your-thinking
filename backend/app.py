@@ -8,7 +8,7 @@ import os
 app = Flask(__name__)
 CORS(app)  # Allow cross-origin requests
 
-# 简化的后续问题 - placeholder
+# Simplified follow-up questions - placeholder
 FOLLOW_UP_QUESTIONS = [
     {
         "id": "followup1",
@@ -30,28 +30,42 @@ FOLLOW_UP_QUESTIONS = [
     }
 ]
 
-# 健康检查端点
+# Health check endpoint
 @app.route('/healthz', methods=['GET'])
 def health_check():
     """
-    健康检查端点，用于监控服务状态
+    Health check endpoint for monitoring service status
     """
     return jsonify({
         "status": "healthy",
         "timestamp": int(time.time())
     })
 
-# 主API端点 - 简化为placeholder
+# API status endpoint for admin dashboard
+@app.route('/api/status', methods=['GET'])
+def api_status():
+    """
+    API status endpoint that provides detailed status information for the admin dashboard
+    """
+    return jsonify({
+        "status": "Running",
+        "version": "1.0.0",
+        "uptime": int(time.time()),
+        "environment": os.environ.get("FLASK_ENV", "development"),
+        "timestamp": int(time.time())
+    })
+
+# Main API endpoint - simplified as placeholder
 @app.route('/api/process_answer', methods=['POST'])
 def process_answer():
     """
-    处理回答的API - placeholder版本
+    Process answer API - placeholder version
     """
     data = request.json
     if not data:
         return jsonify({"error": "No data received"}), 400
     
-    # 提取必要参数
+    # Extract required parameters
     session_id = data.get('sessionId')
     prolific_id = data.get('prolificId')
     qa_pair = data.get('qaPair')
@@ -60,13 +74,13 @@ def process_answer():
     if not all([session_id, prolific_id, qa_pair]):
         return jsonify({"error": "Missing required parameters"}), 400
     
-    # 简化的因果图生成 - placeholder
+    # Simplified causal graph generation - placeholder
     causal_graph = generate_placeholder_graph(
         qa_pair.get('question', ''), 
         qa_pair.get('answer', '')
     )
     
-    # 返回后续问题和因果图
+    # Return follow-up questions and causal graph
     return jsonify({
         "success": True,
         "sessionId": session_id,
@@ -79,12 +93,12 @@ def process_answer():
 
 def generate_placeholder_graph(question, answer):
     """
-    生成简化的placeholder因果图
+    Generate simplified placeholder causal graph
     """
-    # 创建一个基于输入的确定性ID
+    # Create a deterministic ID based on input
     graph_id = hashlib.md5((question + answer).encode()).hexdigest()[:10]
     
-    # 简化的固定节点和边
+    # Simplified fixed nodes and edges
     nodes = [
         {"id": "cause_1", "label": "Cause 1 (placeholder)", "type": "cause"},
         {"id": "cause_2", "label": "Cause 2 (placeholder)", "type": "cause"},

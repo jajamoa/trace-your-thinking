@@ -12,6 +12,7 @@ import ProlificIdBadge from "@/components/ProlificIdBadge"
 import Footer from "@/components/Footer"
 import { logStoreState, setupStoreLogger } from "@/lib/debug-store"
 import { SyncService } from "@/lib/sync-service"
+import { PythonAPIService } from "@/lib/python-api-service"
 import { v4 as uuidv4 } from "uuid"
 import LoadingTransition from "@/components/LoadingTransition"
 
@@ -29,6 +30,9 @@ export default function InterviewPage() {
   const [isNavigating, setIsNavigating] = useState(false)
   const [navigatingMessage, setNavigatingMessage] = useState("")
   
+  // Add state for Python backend processing
+  const [isProcessing, setIsProcessing] = useState(false)
+  
   const {
     messages,
     qaPairs,
@@ -45,7 +49,8 @@ export default function InterviewPage() {
     initializeWithGuidingQuestions,
     recalculateProgress,
     sessionId,
-    currentQuestionIndex
+    currentQuestionIndex,
+    addNewQuestion
   } = useStore()
 
   // 在组件挂载时输出调试信息
@@ -219,6 +224,60 @@ export default function InterviewPage() {
       // markQuestionAsAnswered will trigger moveToNextQuestion, which already adds the next question
       const currentIndex = currentQuestionIndex;
       
+      // Set loading state for Python backend processing
+      setIsProcessing(true);
+      
+      try {
+        // Get the updated QA Pair with answer for sending to Python backend
+        const updatedQAPair = {
+          ...currentQuestion,
+          answer: text
+        };
+        
+        // Call Python backend to process the answer
+        console.log("Calling Python backend to process answer...");
+        const pythonResult = await PythonAPIService.processAnswer(
+          sessionId || '',
+          prolificId || '',
+          updatedQAPair
+        );
+        
+        if (pythonResult.success) {
+          console.log("Python backend processing successful");
+          
+          // Add follow-up questions if provided
+          if (pythonResult.followUpQuestions && pythonResult.followUpQuestions.length > 0) {
+            console.log(`Adding ${pythonResult.followUpQuestions.length} follow-up questions`);
+            
+            // Add each follow-up question to the store
+            pythonResult.followUpQuestions.forEach(question => {
+              const id = question.id || `followup_${uuidv4()}`;
+              
+              // Add new question to store if it doesn't already exist
+              const questionExists = qaPairs.some(q => q.id === id);
+              if (!questionExists) {
+                addNewQuestion({
+                  question: question.question,
+                  shortText: question.shortText
+                });
+              }
+            });
+            
+            // Re-calculate progress after adding new questions
+            recalculateProgress();
+          }
+          
+          // Causal graph is automatically saved by the PythonAPIService
+          console.log("Causal graph processed and saved");
+        } else {
+          console.error("Python backend processing failed:", pythonResult.error);
+        }
+      } catch (pythonError) {
+        console.error("Error during Python backend processing:", pythonError);
+      } finally {
+        setIsProcessing(false);
+      }
+      
       // Mark this question as answered - this updates the store progress state
       // This will also trigger moveToNextQuestion which will add the next question message
       markQuestionAsAnswered(currentQuestion.id)
@@ -286,6 +345,7 @@ export default function InterviewPage() {
       }
     } catch (error) {
       console.error("Error submitting answer:", error)
+      setIsProcessing(false)
     }
   }
   
@@ -356,7 +416,7 @@ export default function InterviewPage() {
         <div className="flex-1 overflow-y-auto pt-6">
           <ChatPanel />
         </div>
-        <AnswerInput key={currentQuestionId} onSendMessage={handleAnswerSubmit} />
+        <AnswerInput key={currentQuestionId} onSendMessage={handleAnswerSubmit} isProcessing={isProcessing} />
       </div>
       
       <Footer showLogo={false} />
