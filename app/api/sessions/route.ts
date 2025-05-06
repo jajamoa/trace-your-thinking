@@ -127,7 +127,7 @@ export async function POST(request: Request) {
       pendingQuestions: pendingQuestions,
       questions: questions,
       progress: progress,
-      sessionStatus: body.sessionStatus || "in_progress",
+      status: body.status || "in_progress",
       metadata: body.metadata || {}
     })
 

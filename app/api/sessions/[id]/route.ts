@@ -41,14 +41,8 @@ export async function PUT(
       return NextResponse.json({ error: "Session not found" }, { status: 404 })
     }
 
-    // Ensure field names match the schema (sessionStatus instead of status)
+    // No need to map fields - we use 'status' consistently now
     const updateData = { ...body };
-    
-    // If status is provided instead of sessionStatus, map it correctly
-    if (updateData.status && !updateData.sessionStatus) {
-      updateData.sessionStatus = updateData.status;
-      delete updateData.status;
-    }
     
     // Update session
     const updatedSession = await Session.findOneAndUpdate(
@@ -88,17 +82,11 @@ export async function PATCH(
       return NextResponse.json({ error: "Session not found" }, { status: 404 })
     }
 
-    // Ensure field names match the schema (sessionStatus instead of status)
+    // No need to map fields - we use 'status' consistently now
     const updateData = { ...body };
     
-    // If status is provided instead of sessionStatus, map it correctly
-    if (updateData.status && !updateData.sessionStatus) {
-      updateData.sessionStatus = updateData.status;
-      delete updateData.status;
-    }
-    
     // If completing the session, add completedAt timestamp
-    if (updateData.sessionStatus === 'completed' || updateData.status === 'completed') {
+    if (updateData.status === 'completed') {
       updateData.completedAt = new Date();
     }
     

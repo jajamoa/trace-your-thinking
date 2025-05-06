@@ -32,7 +32,7 @@ export function logStoreState() {
     console.log('pendingQuestions count:', store.pendingQuestions.length)
     console.log('isRecording:', store.isRecording)
     console.log('progress:', store.progress)
-    console.log('sessionStatus:', store.sessionStatus)
+    console.log('status:', store.status)
     console.log('qaPairs:', JSON.stringify(store.qaPairs, null, 2))
     console.log('================================')
   }
@@ -71,7 +71,8 @@ export function setupStoreLogger() {
           console.log('pendingQuestions count:', state.pendingQuestions.length)
           console.log('isRecording:', state.isRecording)
           console.log('progress:', state.progress)
-          console.log('sessionStatus:', state.sessionStatus)
+          console.log('status:', state.status)
+          console.log('qaPairs:', JSON.stringify(state.qaPairs, null, 2))
           console.log('================================')
         }
       }

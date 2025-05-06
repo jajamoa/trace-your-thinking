@@ -25,6 +25,13 @@
     --ring: 221.2 83.2% 53.3%;
     --radius: 1rem;
     --surface: rgba(0, 0, 0, 0.02);
+    
+    /* 滚动条自定义变量 */
+    --scrollbar-track: rgba(224, 221, 213, 0.5);
+    --scrollbar-thumb: rgba(150, 145, 135, 0.5);
+    --scrollbar-thumb-hover: rgba(130, 125, 115, 0.7);
+    --scrollbar-width: 8px;
+    --scrollbar-height: 8px;
   }
 }
 
@@ -41,6 +48,38 @@
   :focus-visible {
     @apply outline-none ring-2 ring-ring ring-offset-2 ring-offset-background;
   }
+  
+  /* 自定义滚动条样式 - Webkit 浏览器 (Chrome, Safari, Edge) */
+  ::-webkit-scrollbar {
+    width: var(--scrollbar-width);
+    height: var(--scrollbar-height);
+  }
+  
+  ::-webkit-scrollbar-track {
+    background: var(--scrollbar-track);
+    border-radius: 10px;
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    background: var(--scrollbar-thumb);
+    border-radius: 10px;
+    transition: background-color 0.3s ease;
+  }
+  
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--scrollbar-thumb-hover);
+  }
+  
+  /* 自定义滚动条样式 - Firefox */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
+  }
+  
+  /* 平滑滚动 */
+  html {
+    scroll-behavior: smooth;
+  }
 }
 
 @layer utilities {
@@ -50,5 +89,15 @@
 
   .text-balance {
     text-wrap: balance;
+  }
+  
+  /* 隐藏滚动条但保留功能 */
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  
+  .no-scrollbar {
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
   }
 }

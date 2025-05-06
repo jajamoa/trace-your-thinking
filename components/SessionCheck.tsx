@@ -15,7 +15,7 @@ import { useStore } from "@/lib/store"
 export default function SessionCheck() {
   const router = useRouter()
   const pathname = usePathname()
-  const { prolificId, sessionStatus, sessionId, checkSessionStatus } = useStore()
+  const { prolificId, status, sessionId, checkSessionStatus } = useStore()
   
   // Add a pending check reference to avoid checking too frequently
   const isCheckPendingRef = useRef(false)
@@ -88,7 +88,7 @@ export default function SessionCheck() {
     if (pathname === "/") {
       // If user has prolificId AND session is in progress AND there's a valid sessionId,
       // only then redirect to interview
-      if (prolificId && sessionStatus === "in_progress" && sessionId) {
+      if (prolificId && status === "in_progress" && sessionId) {
         console.log("Home page: session in progress, redirecting to interview")
         safeRedirect("/interview")
       }
@@ -102,15 +102,12 @@ export default function SessionCheck() {
     if (pathname === "/interview") {
       // If we have a session ID, just check its status without redirecting
       if (sessionId) {
-        // Delay status check for new sessions to avoid race conditions
-        const isNewSession = sessionId.includes(`_${Date.now().toString().substring(0, 7)}`)
+        // We'll no longer rely on detecting new sessions based on current timestamp
+        // which causes hydration mismatches
         
-        if (isNewSession) {
-          console.log("New session detected, delaying status check")
-          setTimeout(safeCheckSessionStatus, 5000)
-        } else {
-          safeCheckSessionStatus()
-        }
+        // Instead we'll use a more reliable approach: new sessions always get an immediate check
+        console.log("On interview page with session, performing immediate status check")
+        safeCheckSessionStatus()
       }
       
       // If we don't have a prolificId but we're on the interview page, something's wrong
@@ -131,7 +128,7 @@ export default function SessionCheck() {
     }
 
     // Session status based redirection for other pages
-    if (sessionStatus === "completed") {
+    if (status === "completed") {
       // If session is completed but user is not on thank-you page, redirect there
       if (pathname !== "/thank-you") {
         console.log("Session completed, redirecting to thank you page")
@@ -141,7 +138,8 @@ export default function SessionCheck() {
 
     // Only set up periodic checks for paths that need them
     if (!isCheckPendingRef.current && sessionId) {
-      const checkDelay = Math.random() * 5000 + 15000 // Random delay between 15-20s
+      // Use a fixed delay instead of random to avoid hydration mismatches
+      const checkDelay = 15000 // Fixed delay of 15 seconds
       const timeoutId = setTimeout(() => {
         safeCheckSessionStatus()
       }, checkDelay)
@@ -149,7 +147,7 @@ export default function SessionCheck() {
       // Clear timeout on unmount
       return () => clearTimeout(timeoutId)
     }
-  }, [pathname, prolificId, router, sessionStatus, sessionId, checkSessionStatus])
+  }, [pathname, prolificId, router, status, sessionId, checkSessionStatus])
 
   // This component doesn't render anything visible
   return null

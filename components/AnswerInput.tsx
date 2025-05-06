@@ -19,19 +19,12 @@ const INPUT_MODE_PREF_KEY = 'input-mode-preference'
 export default function AnswerInput({ onSendMessage }: AnswerInputProps) {
   // Get the previous input mode preference, default to voice if none exists
   const getInitialInputMode = (): "voice" | "text" => {
-    // Check if we're in a browser environment
-    if (typeof window !== 'undefined') {
-      const savedMode = localStorage.getItem(INPUT_MODE_PREF_KEY)
-      // Only accept valid values
-      if (savedMode === 'voice' || savedMode === 'text') {
-        return savedMode as "voice" | "text"
-      }
-    }
+    // Client-side only operation, always return default on server
     return "voice" // Default to voice input
   }
 
   const [text, setText] = useState("")
-  const [inputMode, setInputMode] = useState<"voice" | "text">(getInitialInputMode)
+  const [inputMode, setInputMode] = useState<"voice" | "text">("voice") // 始终使用默认值
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   const { isRecording, setIsRecording, messages } = useStore()
   const [isTranscribing, setIsTranscribing] = useState(false)
@@ -158,6 +151,18 @@ export default function AnswerInput({ onSendMessage }: AnswerInputProps) {
       }
     }
   }, [isRecording])
+
+  // 在客户端加载时从存储读取偏好设置
+  useEffect(() => {
+    // 仅在客户端运行时读取 localStorage
+    if (typeof window !== 'undefined') {
+      const savedMode = localStorage.getItem(INPUT_MODE_PREF_KEY)
+      // 仅接受有效值
+      if (savedMode === 'voice' || savedMode === 'text') {
+        setInputMode(savedMode as "voice" | "text")
+      }
+    }
+  }, [])
 
   const startRecording = async () => {
     try {
@@ -335,6 +340,10 @@ export default function AnswerInput({ onSendMessage }: AnswerInputProps) {
     // For this to work, the parent component should re-mount this component
     // or pass a key prop that changes with each new question
     
+    // Only execute client-side setup code after component is mounted
+    // This avoids hydration errors
+    if (typeof window === 'undefined') return;
+    
     // Reset audio state on mount
     audioChunksRef.current = []
     shouldProcessAudioRef.current = false
@@ -355,7 +364,7 @@ export default function AnswerInput({ onSendMessage }: AnswerInputProps) {
       shouldProcessAudioRef.current = false
       audioChunksRef.current = []
     }
-  }, []);
+  }, []); // Keep empty dependency array to avoid hydration mismatches
 
   return (
     <motion.div

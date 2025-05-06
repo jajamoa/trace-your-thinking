@@ -28,7 +28,7 @@ export class SyncService {
         if (checkResponse.ok) {
           // Check if session is completed - don't update completed sessions
           const sessionData = await checkResponse.json()
-          if (sessionData.sessionStatus === "completed") {
+          if (sessionData.status === "completed") {
             return { success: true, sessionId: state.sessionId }
           }
           
@@ -44,7 +44,7 @@ export class SyncService {
               qaPairs: state.qaPairs,
               pendingQuestions: state.pendingQuestions,
               messages: state.messages,
-              sessionStatus: state.sessionStatus,
+              status: state.status,
               progress: state.progress
             }),
           })
@@ -79,7 +79,7 @@ export class SyncService {
           pendingQuestions: state.pendingQuestions,
           messages: state.messages,
           questions: state.questions,
-          sessionStatus: state.sessionStatus,
+          status: state.status,
           progress: state.progress
         }),
       })
@@ -377,6 +377,12 @@ export class SyncService {
           })
         }
       })
+      
+      // Recalculate progress after rebuilding messages
+      console.log("Recalculating progress after rebuilding messages in SyncService")
+      if (typeof state.recalculateProgress === 'function') {
+        state.recalculateProgress()
+      }
     } catch (error) {
       console.error("Error displaying QA pairs as messages:", error)
     }
@@ -402,6 +408,116 @@ export class SyncService {
     } catch (error) {
       console.error("Failed to check session status:", error)
       return null
+    }
+  }
+
+  /**
+   * Fetch full session data from the server to sync local state
+   * This is important to ensure local pendingQuestions and total questions 
+   * are aligned with server data
+   */
+  static async fetchFullSessionData(sessionId: string): Promise<boolean> {
+    try {
+      if (!sessionId) {
+        console.error("Cannot fetch session data: No sessionId provided")
+        return false
+      }
+      
+      console.log(`Fetching full session data for: ${sessionId}`)
+      
+      const response = await fetch(`/api/sessions/${sessionId}`, {
+        method: "GET",
+      })
+      
+      if (!response.ok) {
+        console.error(`Failed to fetch session data: ${response.status}`)
+        return false
+      }
+      
+      const sessionData = await response.json()
+      
+      // Log the retrieved data for debugging
+      console.log("Retrieved session data from server:", {
+        questionsCount: sessionData.questions?.length || 0,
+        pendingQuestionsCount: sessionData.pendingQuestions?.length || 0,
+        qaPairsCount: sessionData.qaPairs?.length || 0,
+        status: sessionData.status
+      })
+      
+      // Update local state with server data
+      const state = useStore.getState()
+      
+      // Only update if we have valid data
+      if (sessionData.questions && sessionData.questions.length > 0) {
+        // Compare server and local data
+        console.log("Comparing server and local data:")
+        console.log(`- Server questions: ${sessionData.questions.length}, Local: ${state.questions.length}`)
+        console.log(`- Server pending: ${sessionData.pendingQuestions.length}, Local: ${state.pendingQuestions.length}`)
+        console.log(`- Server QA pairs: ${sessionData.qaPairs.length}, Local: ${state.qaPairs.length}`)
+        
+        // If there's a mismatch, update local state
+        const shouldUpdate = 
+          sessionData.questions.length !== state.questions.length ||
+          sessionData.pendingQuestions.length !== state.pendingQuestions.length;
+          
+        if (shouldUpdate) {
+          console.log("Updating local state with server data due to mismatch")
+          
+          // Prepare server data for local update
+          const newState: any = {}
+          
+          // Only update questions if there's a mismatch
+          if (sessionData.questions.length !== state.questions.length) {
+            newState.questions = sessionData.questions
+          }
+          
+          // Only update pendingQuestions if there's a mismatch
+          if (sessionData.pendingQuestions.length !== state.pendingQuestions.length) {
+            newState.pendingQuestions = sessionData.pendingQuestions
+          }
+          
+          // Update QA pairs if needed while preserving local answers
+          if (sessionData.qaPairs.length !== state.qaPairs.length) {
+            // Create a map of local answers to preserve them
+            const localAnswers = new Map<string, string>()
+            state.qaPairs.forEach(qa => {
+              if (qa.answer && qa.answer.trim()) {
+                localAnswers.set(qa.id, qa.answer)
+              }
+            })
+            
+            // Apply local answers to server QA pairs
+            const updatedQAPairs = sessionData.qaPairs.map((qa: { id: string, question: string, answer: string }) => {
+              if (localAnswers.has(qa.id)) {
+                return { ...qa, answer: localAnswers.get(qa.id) || "" }
+              }
+              return qa
+            })
+            
+            newState.qaPairs = updatedQAPairs
+          }
+          
+          // Calculate correct progress
+          newState.progress = {
+            current: sessionData.questions.length - sessionData.pendingQuestions.length,
+            total: sessionData.questions.length
+          }
+          
+          // Update local state
+          useStore.setState(newState)
+          
+          // Force progress recalculation to ensure consistency
+          if (typeof state.recalculateProgress === 'function') {
+            console.log("Recalculating progress after sync")
+            state.recalculateProgress();
+          }
+        }
+      }
+      
+      return true
+    } catch (error) {
+      console.error("Error fetching full session data:", error)
+      return false
     }
   }
 } 

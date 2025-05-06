@@ -23,13 +23,6 @@ export default function MessageBubble({
   const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null)
   const typingIndexRef = useRef(0)
   
-  // Debugging
-  useEffect(() => {
-    if (role === "bot" && isLatestMessage) {
-      console.log("MessageBubble update:", { loading, text, displayText, showCursor, isTyping });
-    }
-  }, [role, isLatestMessage, loading, text, displayText, showCursor, isTyping]);
-  
   // Clear any existing typing animation
   const clearTypingAnimation = () => {
     if (typingTimeoutRef.current) {

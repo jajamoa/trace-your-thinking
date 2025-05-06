@@ -43,7 +43,7 @@ export interface ISession extends Document {
   
   // Status and progress
   progress: IProgress;
-  sessionStatus: 'in_progress' | 'completed';
+  status: 'in_progress' | 'completed';
   
   // Timestamps
   createdAt: Date;
@@ -99,7 +99,7 @@ const SessionSchema = new Schema({
   
   // Status and progress
   progress: { type: ProgressSchema, default: { current: 0, total: 0 } },
-  sessionStatus: { 
+  status: { 
     type: String, 
     enum: ['in_progress', 'completed'], 
     default: 'in_progress' 

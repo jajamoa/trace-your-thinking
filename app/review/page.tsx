@@ -30,10 +30,11 @@ export default function ReviewPage() {
     setProlificId,
     sessionId,
     saveSession,
-    sessionStatus,
-    setSessionStatus,
+    status,
+    setStatus,
     isRecording, 
-    setIsRecording
+    setIsRecording,
+    recalculateProgress
   } = useStore()
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [showConfirmDialog, setShowConfirmDialog] = useState(false)
@@ -88,6 +89,10 @@ export default function ReviewPage() {
     // Load from localStorage if available
     loadFromLocalStorage()
 
+    // Ensure progress is correctly calculated after loading from localStorage
+    console.log("Recalculating progress on review page load")
+    recalculateProgress()
+
     // If no prolificId, redirect to login
     if (!prolificId) {
       router.push("/")
@@ -95,7 +100,7 @@ export default function ReviewPage() {
     }
 
     // If session is already completed, redirect to thank-you page
-    if (sessionStatus === "completed") {
+    if (status === "completed") {
       router.push("/thank-you")
       return
     }
@@ -104,11 +109,12 @@ export default function ReviewPage() {
     if (messages.length === 0) {
       router.push("/interview")
     }
-  }, [loadFromLocalStorage, messages.length, router, prolificId, sessionStatus])
+  }, [loadFromLocalStorage, messages.length, router, prolificId, status, recalculateProgress])
 
   // Save session when entering review page
   useEffect(() => {
     if (qaPairs.length > 0) {
+      console.log("Saving session data on review page")
       saveSession()
     }
   }, [qaPairs, saveSession])
@@ -252,7 +258,7 @@ export default function ReviewPage() {
       }
 
       // Update local session status
-      setSessionStatus("completed")
+      setStatus("completed")
 
       // Redirect to thank you page
       router.push("/thank-you")

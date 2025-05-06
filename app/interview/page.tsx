@@ -33,7 +33,7 @@ export default function InterviewPage() {
     progress,
     setProgress,
     prolificId,
-    sessionStatus,
+    status,
     questions,
     pendingQuestions,
     getNextQuestion,
@@ -41,6 +41,8 @@ export default function InterviewPage() {
     updateQAPair,
     saveSession,
     initializeWithGuidingQuestions,
+    recalculateProgress,
+    sessionId
   } = useStore()
 
   // 在组件挂载时输出调试信息
@@ -48,7 +50,11 @@ export default function InterviewPage() {
     console.log("==== Component mounted, outputting Store state ====")
     logStoreState()
     setupStoreLogger()  // Setup automatic logging of state changes
-  }, [])
+    
+    // Ensure progress is correctly calculated on page load
+    console.log("Ensuring progress accuracy on interview page load")
+    recalculateProgress()
+  }, [recalculateProgress])
 
   // Reference to track the last saved state
   const lastSavedQAPairsRef = useRef<string>("")
@@ -110,7 +116,7 @@ export default function InterviewPage() {
     }
     
     // If session is marked as completed, redirect to thank you page
-    if (sessionStatus === "completed") {
+    if (status === "completed") {
       console.log("Session already completed, redirecting to thank you page")
       router.push("/thank-you")
       return
@@ -127,6 +133,10 @@ export default function InterviewPage() {
     if (messages.length === 0 && qaPairs.length > 0) {
       console.log("Rebuilding messages from QA pairs")
       SyncService.displayQAPairsAsMessages()
+      
+      // After rebuilding messages, recalculate progress
+      console.log("Recalculating progress after rebuilding messages")
+      recalculateProgress()
     }
     
     // If no questions, initialize with guiding questions
@@ -137,7 +147,7 @@ export default function InterviewPage() {
         saveSession()
       })
     }
-  }, [prolificId, router, sessionStatus, progress, questions.length, messages.length, qaPairs, initializeWithGuidingQuestions, saveSession])
+  }, [prolificId, router, status, progress, questions.length, messages.length, qaPairs, initializeWithGuidingQuestions, saveSession, recalculateProgress])
 
   // Save session when QA pairs change
   useEffect(() => {
@@ -166,11 +176,20 @@ export default function InterviewPage() {
     
     // Get current question
     const currentQuestion = getNextQuestion()
-    if (!currentQuestion) return
+    if (!currentQuestion) {
+      console.log("No current question found!")
+      return
+    }
+
+    console.log(`Submitting answer for question ${currentQuestion.id}: "${currentQuestion.shortText}"`)
+    console.log(`Current progress before answering: ${progress.current}/${progress.total}`)
 
     // Get the QA pair for this question
     const qaPair = qaPairs.find(qa => qa.id === currentQuestion.id)
-    if (!qaPair) return
+    if (!qaPair) {
+      console.log(`No QA pair found for question ID: ${currentQuestion.id}`)
+      return
+    }
 
     try {
       // Add user's answer to messages with a UUID
@@ -183,16 +202,22 @@ export default function InterviewPage() {
       })
 
       // Update QA pair with answer
+      console.log(`Updating QA pair for question: ${currentQuestion.id}`)
       updateQAPair(currentQuestion.id, { answer: text })
 
       // Get current progress before marking question as answered
       const startProgress = progress.current
+      console.log(`Progress before marking question as answered: ${startProgress}/${progress.total}`)
       
       // Mark this question as answered - this updates the store progress state
       markQuestionAsAnswered(currentQuestion.id)
       
+      // Log updated progress after marking question as answered
+      console.log(`Progress after marking question as answered: ${progress.current}/${progress.total}`)
+      
       // Calculate target progress
       const targetProgress = Math.min(progress.current + 1, questions.length)
+      console.log(`Target progress for animation: ${targetProgress}/${questions.length}`)
       
       // Start real-time progress animation - using a shorter duration for more responsive feeling
       const duration = 800 // Reduced from 2000ms to 800ms for more responsive feeling
@@ -217,6 +242,7 @@ export default function InterviewPage() {
         } else {
           // Ensure we reach exact target at the end
           setRealTimeProgress(targetProgress)
+          console.log(`Progress animation completed: ${targetProgress}/${questions.length}`)
         }
       }
       
@@ -224,11 +250,14 @@ export default function InterviewPage() {
       requestAnimationFrame(animateProgress)
 
       // Save session to database - don't await this to avoid delaying UI updates
+      console.log("Saving session to database...")
       saveSession()
 
       // Get next question
       const nextQuestion = getNextQuestion()
       if (nextQuestion) {
+        console.log(`Next question: ${nextQuestion.id} - "${nextQuestion.shortText}"`)
+        
         // First add bot message with loading state - uses a completely empty message
         const nextMessageId = uuidv4()
         addMessage({
@@ -252,6 +281,7 @@ export default function InterviewPage() {
         setCurrentQuestionId(nextQuestion.id)
       } else {
         // All questions answered, redirect to review
+        console.log("All questions answered, redirecting to review page")
         router.push("/review")
       }
     } catch (error) {
@@ -267,6 +297,35 @@ export default function InterviewPage() {
     current: Math.floor(realTimeProgress),
     total: questions.length,
   }
+
+  // Add special handling for returning from other pages like Review
+  useEffect(() => {
+    const syncWithServer = async () => {
+      if (sessionId) {
+        // This will ensure our local data matches the server
+        console.log("Interview page: Syncing with server data");
+        try {
+          // First try to get full session data
+          const syncResult = await SyncService.fetchFullSessionData(sessionId);
+          if (syncResult) {
+            console.log("Successfully synced with server data");
+            // Force recalculation after sync
+            recalculateProgress();
+          } else {
+            console.warn("Failed to sync with server, falling back to local recalculation");
+            recalculateProgress();
+          }
+        } catch (error) {
+          console.error("Error syncing with server:", error);
+          // Still try to recalculate locally in case of error
+          recalculateProgress();
+        }
+      }
+    };
+
+    // Run the sync when component mounts
+    syncWithServer();
+  }, [sessionId, recalculateProgress]); // Only run when sessionId changes or on first mount
 
   return (
     <motion.div

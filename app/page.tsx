@@ -26,7 +26,7 @@ export default function Home() {
   const [prolificId, setProlificId] = useState("")
   const [error, setError] = useState("")
   const [isLoading, setIsLoading] = useState(false)
-  const { setProlificId: setStoreProlificId, prolificId: existingProlificId, sessionStatus } = useStore()
+  const { setProlificId: setStoreProlificId, prolificId: existingProlificId, status } = useStore()
   const { isMobile } = useDeviceDetect()
 
   useEffect(() => {
@@ -34,13 +34,13 @@ export default function Home() {
     if (isMobile) return
     
     // If user already has a Prolific ID and session is completed, go to thank you page
-    if (existingProlificId && sessionStatus === "completed") {
+    if (existingProlificId && status === "completed") {
       router.push("/thank-you")
       return
     }
 
     // If user already has a Prolific ID and session is in progress, go to interview page
-    if (existingProlificId && sessionStatus === "in_progress") {
+    if (existingProlificId && status === "in_progress") {
       router.push("/interview")
       return
     }
@@ -49,7 +49,7 @@ export default function Home() {
     if (existingProlificId) {
       setProlificId(existingProlificId)
     }
-  }, [existingProlificId, router, sessionStatus, isMobile])
+  }, [existingProlificId, router, status, isMobile])
 
   const validateInput = (value: string) => {
     setProlificId(value)

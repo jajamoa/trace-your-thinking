@@ -38,7 +38,7 @@ interface StoreState {
   pendingQuestions: Question[]
   isRecording: boolean
   progress: Progress
-  sessionStatus: SessionStatus
+  status: SessionStatus
   questions: Question[]
 
   setProlificId: (id: string) => void
@@ -48,7 +48,7 @@ interface StoreState {
   setIsRecording: (isRecording: boolean) => void
   updateQAPair: (id: string, updates: Partial<QAPair>) => void
   setProgress: (progress: Progress) => void
-  setSessionStatus: (status: SessionStatus) => void
+  setStatus: (status: SessionStatus) => void
   getNextQuestion: () => Question | null
   markQuestionAsAnswered: (questionId: string) => void
   addNewQuestion: (question: Omit<Question, "id">) => string
@@ -57,6 +57,7 @@ interface StoreState {
   saveSession: () => Promise<void>
   checkSessionStatus: () => Promise<void>
   initializeWithGuidingQuestions: () => Promise<void>
+  recalculateProgress: () => void
 }
 
 // Initial seed data
@@ -99,7 +100,7 @@ export const useStore = create<StoreState>()(
       pendingQuestions: [...initialQuestions], // Create a copy of initialQuestions
       isRecording: false,
       progress: initialProgress,
-      sessionStatus: "in_progress",
+      status: "in_progress",
       questions: initialQuestions,
 
       setProlificId: (id) => {
@@ -109,7 +110,7 @@ export const useStore = create<StoreState>()(
 
       setSessionId: (id) => set({ sessionId: id }),
 
-      setSessionStatus: (status) => set({ sessionStatus: status }),
+      setStatus: (status) => set({ status }),
 
       getNextQuestion: () => {
         const state = get()
@@ -117,14 +118,32 @@ export const useStore = create<StoreState>()(
       },
 
       markQuestionAsAnswered: (questionId) => {
+        console.log(`Marking question as answered: ${questionId}`)
+        
         set((state) => {
+          // Log before state
+          console.log(`Before marking as answered - Pending questions (${state.pendingQuestions.length}):`, 
+            state.pendingQuestions.map(q => ({id: q.id, shortText: q.shortText})));
+          
           const pendingQuestions = state.pendingQuestions.filter(q => q.id !== questionId)
+          
+          // Log the question that was removed
+          const removedQuestion = state.questions.find(q => q.id === questionId)
+          console.log(`Removed question from pending:`, removedQuestion ? 
+            {id: removedQuestion.id, shortText: removedQuestion.shortText} : 
+            'Question not found')
+          
+          // Log after state
+          console.log(`After marking as answered - Pending questions (${pendingQuestions.length}):`, 
+            pendingQuestions.map(q => ({id: q.id, shortText: q.shortText})));
           
           // Update progress
           const progress = {
             current: state.questions.length - pendingQuestions.length,
             total: state.questions.length
           }
+          
+          console.log(`Progress updated: ${progress.current}/${progress.total} (${Math.round(progress.current/progress.total*100)}%)`)
 
           return { 
             pendingQuestions,
@@ -283,30 +302,48 @@ export const useStore = create<StoreState>()(
           set({ prolificId })
         }
         
-        // Update pendingQuestions based on answered questions
+        // Always recalculate progress, even if there are no QA pairs
+        console.log("Recalculating progress after loading from localStorage")
+        
         const state = get();
-        if (state.qaPairs.length > 0) {
-          // Get IDs of answered questions
-          const answeredQuestionIds = state.qaPairs
-            .filter(qa => qa.answer && qa.answer.trim() !== '')
-            .map(qa => qa.id);
-            
-          // Remove answered questions from pendingQuestions
-          const remainingQuestions = state.questions.filter(
-            q => !answeredQuestionIds.includes(q.id)
-          );
+        
+        // Log all questions
+        console.log(`Total questions in store (${state.questions.length}):`, 
+          state.questions.map(q => ({id: q.id, shortText: q.shortText})));
+        
+        // Log all QA pairs
+        console.log(`Total QA pairs in store (${state.qaPairs.length}):`, 
+          state.qaPairs.map(qa => ({id: qa.id, question: qa.question.substring(0, 30) + "...", hasAnswer: Boolean(qa.answer)})));
+        
+        // Get IDs of answered questions - only those with non-empty answers
+        const answeredQuestionIds = state.qaPairs
+          .filter(qa => qa.answer && qa.answer.trim() !== '')
+          .map(qa => qa.id);
+        
+        console.log(`Found ${answeredQuestionIds.length} answered questions out of ${state.qaPairs.length} total QA pairs`)
           
-          // Update progress
-          const progress = {
-            current: state.questions.length - remainingQuestions.length,
-            total: state.questions.length,
-          };
-          
-          set({ 
-            pendingQuestions: remainingQuestions,
-            progress
-          });
-        }
+        // Remove answered questions from pendingQuestions
+        const remainingQuestions = state.questions.filter(
+          q => !answeredQuestionIds.includes(q.id)
+        );
+        
+        // Log pending questions after calculation
+        console.log(`Pending questions (${remainingQuestions.length}):`, 
+          remainingQuestions.map(q => ({id: q.id, shortText: q.shortText})));
+        
+        // Update progress
+        const progress = {
+          current: state.questions.length - remainingQuestions.length,
+          total: state.questions.length,
+        };
+        
+        console.log(`Progress calculation: ${progress.current}/${progress.total} (${Math.round(progress.current/progress.total*100)}%)`)
+        console.log(`Questions: ${state.questions.length}, Remaining: ${remainingQuestions.length}`)
+        
+        set({ 
+          pendingQuestions: remainingQuestions,
+          progress
+        });
       },
 
       resetStore: () =>
@@ -316,7 +353,7 @@ export const useStore = create<StoreState>()(
           pendingQuestions: [...initialQuestions],
           isRecording: false,
           progress: initialProgress,
-          sessionStatus: "in_progress",
+          status: "in_progress",
           // Clear all data including sessionId and prolificId
           sessionId: null,
           prolificId: null
@@ -355,12 +392,22 @@ export const useStore = create<StoreState>()(
               await new Promise(resolve => setTimeout(resolve, 2000))
             }
             
-            // Use the sync service for status checking
+            // First, fetch the full session data to ensure local and server are in sync
+            console.log("Fetching full session data to ensure local/server sync")
+            await SyncService.fetchFullSessionData(state.sessionId)
+            
+            // After data is synced, check the status
             const status = await SyncService.checkSessionStatus(state.sessionId)
             
-            if (status && status !== state.sessionStatus) {
-              console.log(`Updating session status from ${state.sessionStatus} to ${status}`)
-              set({ sessionStatus: status as SessionStatus })
+            if (status && status !== state.status) {
+              console.log(`Updating session status from ${state.status} to ${status}`)
+              set({ status: status as SessionStatus })
+              
+              // Recalculate progress after status update
+              if (status === "in_progress") {
+                console.log("Recalculating progress after status update")
+                get().recalculateProgress()
+              }
             } else if (status === null) {
               console.log("Session check returned null status")
               
@@ -392,7 +439,49 @@ export const useStore = create<StoreState>()(
         }
       },
       
-      // Add new function to initialize a session with guiding questions
+      // Add a utility function to recalculate progress at any time
+      recalculateProgress: () => {
+        const state = get();
+        console.log("Manually recalculating progress...")
+        
+        // Get answered question IDs
+        const answeredQuestionIds = state.qaPairs
+          .filter(qa => qa.answer && qa.answer.trim() !== '')
+          .map(qa => qa.id);
+        
+        // Log all questions
+        console.log(`Total questions (${state.questions.length}):`, 
+          state.questions.map(q => ({id: q.id, shortText: q.shortText})));
+        
+        // Recalculate remaining questions
+        const remainingQuestions = state.questions.filter(
+          q => !answeredQuestionIds.includes(q.id)
+        );
+        
+        // Log pending questions
+        console.log(`Pending questions (${remainingQuestions.length}):`, 
+          remainingQuestions.map(q => ({id: q.id, shortText: q.shortText})));
+        
+        // Log answered questions
+        console.log(`Answered questions (${answeredQuestionIds.length}):`, 
+          answeredQuestionIds);
+        
+        // Update progress
+        const progress = {
+          current: state.questions.length - remainingQuestions.length,
+          total: state.questions.length,
+        };
+        
+        console.log(`Progress recalculated: ${progress.current}/${progress.total} (${Math.round(progress.current/progress.total*100)}%)`)
+        
+        set({ 
+          pendingQuestions: remainingQuestions,
+          progress
+        });
+        
+        return progress;
+      },
+
       initializeWithGuidingQuestions: async () => {
         console.log("Initializing session with guiding questions")
         
@@ -400,6 +489,10 @@ export const useStore = create<StoreState>()(
         const state = get()
         if (state.questions.length > 0) {
           console.log("Session already has questions, skipping initialization")
+          
+          // Even if we skip initialization, ensure progress is correct
+          console.log("Recalculating progress for existing questions")
+          get().recalculateProgress();
           return
         }
         
@@ -408,6 +501,11 @@ export const useStore = create<StoreState>()(
         
         if (success) {
           console.log("Session initialized with guiding questions")
+          
+          // Ensure progress is calculated correctly after initialization
+          const state = get();
+          console.log(`Initialized with ${state.questions.length} questions, recalculating progress`)
+          get().recalculateProgress();
         } else {
           console.warn("Failed to initialize with guiding questions, using defaults")
           // Keep using defaults if loading from server fails
@@ -429,7 +527,7 @@ export const useStore = create<StoreState>()(
         progress: state.progress,
         sessionId: state.sessionId,
         prolificId: state.prolificId,
-        sessionStatus: state.sessionStatus,
+        status: state.status,
       }),
     },
   ),

@@ -38,10 +38,10 @@ export async function GET(
       return NextResponse.json({ error: "Session not found" }, { status: 404 })
     }
 
-    console.log(`[API] Session found with status: ${session.sessionStatus}`)
+    console.log(`[API] Session found with status: ${session.status}`)
     return NextResponse.json({
       sessionId: session.id,
-      status: session.sessionStatus,
+      status: session.status,
       updatedAt: session.updatedAt
     })
   } catch (error) {
@@ -78,13 +78,13 @@ export async function PATCH(
       return NextResponse.json({ error: "Session not found" }, { status: 404 })
     }
 
-    // Prepare update object - map 'status' to 'sessionStatus'
+    // Prepare update object
     const updateData: {
-      sessionStatus: string;
+      status: string;
       updatedAt: Date;
       completedAt?: Date;
     } = {
-      sessionStatus: body.status,
+      status: body.status,
       updatedAt: new Date()
     };
     
@@ -103,7 +103,7 @@ export async function PATCH(
     return NextResponse.json({
       success: true,
       sessionId: updatedSession.id,
-      status: updatedSession.sessionStatus,
+      status: updatedSession.status,
       updatedAt: updatedSession.updatedAt
     })
   } catch (error) {
