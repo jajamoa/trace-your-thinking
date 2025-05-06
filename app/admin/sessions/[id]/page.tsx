@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ChevronLeft, AlertCircle, Save, FileEdit } from 'lucide-react';
+import { ChevronLeft, AlertCircle, Save, FileEdit, Download } from 'lucide-react';
 import { Textarea } from '@/components/ui/textarea';
 
 interface QAPair {
@@ -97,6 +97,58 @@ export default function SessionDetailPage({ params }: { params: { id: string } }
     return new Date(dateString).toLocaleString('en-US');
   };
 
+  // 导出会话详情为CSV文件
+  const exportSessionDetails = () => {
+    if (!session) return;
+
+    // 会话基本信息
+    const sessionInfo = [
+      ['Session ID', session.id],
+      ['Prolific ID', session.prolificId],
+      ['Status', session.status],
+      ['Progress', `${session.progress.current + 1}/${session.progress.total}`],
+      ['Created At', formatDate(session.createdAt)],
+      ['Updated At', formatDate(session.updatedAt)],
+      ['Completed At', session.completedAt ? formatDate(session.completedAt) : 'Not completed'],
+      [''] // 空行分隔
+    ];
+
+    // 问答内容
+    const qaHeaders = ['Question Number', 'Question', 'Answer'];
+    const qaRows = session.qaPairs.map((pair, index) => [
+      `${index + 1}`,
+      pair.question,
+      pair.answer || 'No answer'
+    ]);
+
+    // 合并所有行为CSV格式
+    const allRows = [
+      ...sessionInfo,
+      qaHeaders,
+      ...qaRows
+    ];
+
+    const csvContent = allRows.map(row => 
+      row.map(cell => 
+        // 处理包含逗号、引号等特殊字符的单元格
+        typeof cell === 'string' && (cell.includes(',') || cell.includes('"') || cell.includes('\n')) 
+          ? `"${cell.replace(/"/g, '""')}"` 
+          : cell
+      ).join(',')
+    ).join('\n');
+
+    // 创建Blob并下载
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    
+    link.setAttribute('href', url);
+    link.setAttribute('download', `session-${session.id}-details.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   if (loading && !session) {
     return (
       <div className="container mx-auto p-6 max-w-7xl">
@@ -155,23 +207,33 @@ export default function SessionDetailPage({ params }: { params: { id: string } }
           {/* Q&A Content */}
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-2xl font-semibold">Q&A Content</h2>
-            <Button 
-              variant={editMode ? "default" : "outline"} 
-              onClick={() => setEditMode(!editMode)}
-              className={editMode ? "bg-[#333333] hover:bg-[#222222]" : ""}
-            >
-              {editMode ? (
-                <>
-                  <Save className="h-4 w-4 mr-2" />
-                  Finish Editing
-                </>
-              ) : (
-                <>
-                  <FileEdit className="h-4 w-4 mr-2" />
-                  Edit Answers
-                </>
-              )}
-            </Button>
+            <div className="flex space-x-2">
+              <Button 
+                variant="outline" 
+                onClick={exportSessionDetails}
+                disabled={loading}
+              >
+                <Download className="h-4 w-4 mr-2" />
+                Export Data
+              </Button>
+              <Button 
+                variant={editMode ? "default" : "outline"} 
+                onClick={() => setEditMode(!editMode)}
+                className={editMode ? "bg-[#333333] hover:bg-[#222222]" : ""}
+              >
+                {editMode ? (
+                  <>
+                    <Save className="h-4 w-4 mr-2" />
+                    Finish Editing
+                  </>
+                ) : (
+                  <>
+                    <FileEdit className="h-4 w-4 mr-2" />
+                    Edit Answers
+                  </>
+                )}
+              </Button>
+            </div>
           </div>
 
           {editMode && (

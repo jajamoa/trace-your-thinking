@@ -26,7 +26,7 @@ import {
 } from "@/components/ui/tooltip";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { AlertCircle, CheckCircle, Trash, Search, RefreshCw, Edit, Copy, MoveHorizontal } from "lucide-react";
+import { AlertCircle, CheckCircle, Trash, Search, RefreshCw, Edit, Copy, MoveHorizontal, Download, FileJson } from "lucide-react";
 import Link from 'next/link';
 
 type SessionStatus = 'in_progress' | 'completed' | 'abandoned';
@@ -196,6 +196,102 @@ export default function AdminSessions() {
     setDragOverSession(null);
   };
 
+  // 导出会话摘要为CSV文件
+  const exportSessionsSummary = () => {
+    // 如果没有会话数据，则不继续
+    if (filteredSessions.length === 0) return;
+
+    // 定义CSV头
+    const headers = [
+      'ID',
+      'Prolific ID',
+      'Status',
+      'Progress',
+      'Created At',
+      'Updated At',
+      'Completed At',
+    ];
+
+    // 将数据转换为CSV行
+    const rows = filteredSessions.map(session => [
+      session.id,
+      session.prolificId,
+      session.status,
+      `${session.progress.current + 1}/${session.progress.total}`,
+      formatDate(session.createdAt),
+      formatDate(session.updatedAt),
+      session.completedAt ? formatDate(session.completedAt) : 'N/A'
+    ]);
+
+    // 合并所有行为CSV格式
+    const csvContent = [
+      headers.join(','),
+      ...rows.map(row => 
+        row.map(cell => 
+          // 处理包含逗号、引号等特殊字符的单元格
+          typeof cell === 'string' && (cell.includes(',') || cell.includes('"') || cell.includes('\n')) 
+            ? `"${cell.replace(/"/g, '""')}"` 
+            : cell
+        ).join(',')
+      )
+    ].join('\n');
+
+    // 创建Blob并下载
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+    
+    link.setAttribute('href', url);
+    link.setAttribute('download', `sessions-summary-${timestamp}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  // 导出完整会话数据为JSON文件
+  const exportSessionsAsJson = async () => {
+    if (filteredSessions.length === 0) return;
+    
+    setLoading(true);
+    
+    try {
+      // 获取每个会话的完整数据（包括QA对）
+      const sessionsData = await Promise.all(
+        filteredSessions.map(async (session) => {
+          try {
+            const response = await fetch(`/api/admin/sessions/${session.id}`);
+            if (!response.ok) throw new Error(`Failed to fetch session ${session.id}`);
+            const data = await response.json();
+            return data.session;
+          } catch (error) {
+            console.error(`Error fetching session ${session.id}:`, error);
+            // 返回原始会话数据而不是完整数据
+            return session;
+          }
+        })
+      );
+      
+      // 创建并下载JSON文件
+      const jsonContent = JSON.stringify(sessionsData, null, 2);
+      const blob = new Blob([jsonContent], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+      
+      link.setAttribute('href', url);
+      link.setAttribute('download', `sessions-complete-${timestamp}.json`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } catch (error) {
+      console.error('Failed to export sessions:', error);
+      setError('Failed to export sessions data');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
@@ -219,6 +315,28 @@ export default function AdminSessions() {
             <MoveHorizontal className="h-4 w-4 mr-2" />
             {showOrderControls ? 'Hide Order Controls' : 'Show Order Controls'}
           </Button>
+          <div className="ml-4 flex space-x-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={exportSessionsSummary}
+              disabled={filteredSessions.length === 0 || loading}
+              title="Export basic session data as CSV"
+            >
+              <Download className="h-4 w-4 mr-2" />
+              Export Summary
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={exportSessionsAsJson}
+              disabled={filteredSessions.length === 0 || loading}
+              title="Export complete session data including Q&A as JSON"
+            >
+              <FileJson className="h-4 w-4 mr-2" />
+              Export Complete
+            </Button>
+          </div>
         </div>
         <div className="relative">
           <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
