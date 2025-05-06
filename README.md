@@ -124,3 +124,116 @@ MIT License - See LICENSE file for details
 ## Support
 
 For support or questions, please open an issue on GitHub or contact the development team.
+
+## Adding Questions Programmatically
+
+The application supports adding questions programmatically via an API endpoint.
+
+### API Endpoint
+
+```
+POST /api/questions
+```
+
+### Request Body
+
+```json
+{
+  "sessionId": "session_123456789",
+  "question": {
+    "text": "What are the ethical implications of your research?",
+    "shortText": "Ethical implications"
+  }
+}
+```
+
+### Required Fields
+
+- `sessionId`: The ID of the session to add the question to
+- `question.text`: The full text of the question to ask the participant
+- `question.shortText`: A short description/label for the question
+
+### Response
+
+```json
+{
+  "success": true,
+  "question": {
+    "id": "q1631234567890",
+    "text": "What are the ethical implications of your research?",
+    "shortText": "Ethical implications"
+  },
+  "session": {
+    // Session data
+  }
+}
+```
+
+### Example using curl
+
+```bash
+curl -X POST http://localhost:3000/api/questions \
+  -H "Content-Type: application/json" \
+  -d '{
+    "sessionId": "session_123456789",
+    "question": {
+      "text": "What are the ethical implications of your research?",
+      "shortText": "Ethical implications"
+    }
+  }'
+```
+
+## Getting Questions
+
+You can retrieve all questions for a session using the GET endpoint:
+
+```
+GET /api/questions?sessionId=session_123456789
+```
+
+### Response
+
+```json
+{
+  "questions": [
+    {
+      "id": "q1",
+      "text": "Could you describe your current research focus?",
+      "shortText": "Research focus"
+    },
+    // More questions...
+  ],
+  "pendingQuestions": [
+    // Questions that haven't been answered yet
+  ]
+}
+```
+
+## Session Store API
+
+The application uses a client-side store with the following question-related methods:
+
+### `addNewQuestion(question)`
+
+Adds a new question to the current session.
+
+```javascript
+import { useStore } from '@/lib/store'
+
+// In your component
+const { addNewQuestion } = useStore()
+
+// Add a new question
+const newQuestionId = addNewQuestion({
+  text: "What are the ethical implications of your research?",
+  shortText: "Ethical implications"
+})
+```
+
+### `getNextQuestion()`
+
+Returns the next pending question, or null if all questions have been answered.
+
+### `markQuestionAsAnswered(questionId)`
+
+Marks a question as answered, removing it from the pending questions queue.

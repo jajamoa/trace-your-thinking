@@ -155,20 +155,39 @@ export default function ReviewPage() {
     try {
       setIsSubmitting(true)
 
-      // Update session status to completed
+      // First save all QA pairs data
       if (sessionId) {
-        await fetch(`/api/sessions/${sessionId}`, {
-          method: "PATCH",
+        // Update existing session data
+        const dataResponse = await fetch(`/api/sessions/${sessionId}`, {
+          method: "PUT",
           headers: {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            status: "completed",
-            qaPairs,
             prolificId: id,
-            completedAt: new Date().toISOString(),
+            qaPairs,
           }),
         })
+
+        if (!dataResponse.ok) {
+          throw new Error("Failed to save interview data")
+        }
+
+        // Update session status using the dedicated status API endpoint
+        // This uses a separate API to ensure clean separation of concerns
+        const statusResponse = await fetch(`/api/sessions/status/${sessionId}`, {
+          method: "PATCH", 
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            status: "completed"
+          }),
+        })
+
+        if (!statusResponse.ok) {
+          throw new Error("Failed to update session status")
+        }
       } else {
         // Create a new session if one doesn't exist
         const response = await fetch("/api/sessions", {
@@ -180,7 +199,6 @@ export default function ReviewPage() {
             prolificId: id,
             qaPairs,
             status: "completed",
-            completedAt: new Date().toISOString(),
           }),
         })
 
@@ -192,8 +210,10 @@ export default function ReviewPage() {
       // Update local session status
       setSessionStatus("completed")
 
+      // Redirect to thank you page
       router.push("/thank-you")
     } catch (error) {
+      console.error("Submission error:", error)
       toast({
         title: "Error",
         description: "Failed to submit your interview. Please try again.",

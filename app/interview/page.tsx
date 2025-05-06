@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useState, useEffect, useRef } from "react"
 import { useRouter } from "next/navigation"
 import { motion } from "framer-motion"
 import ChatPanel from "@/components/ChatPanel"
@@ -10,6 +10,15 @@ import { mockWebSocketConnection } from "@/lib/ws"
 import ElegantProgressBar from "@/components/ElegantProgressBar"
 import ProlificIdBadge from "@/components/ProlificIdBadge"
 import Footer from "@/components/Footer"
+
+// Debounce function to prevent too frequent calls
+const debounce = (fn: Function, ms = 1000) => {
+  let timeoutId: ReturnType<typeof setTimeout>
+  return function(...args: any[]) {
+    clearTimeout(timeoutId)
+    timeoutId = setTimeout(() => fn(...args), ms)
+  }
+}
 
 export default function InterviewPage() {
   const router = useRouter()
@@ -25,94 +34,124 @@ export default function InterviewPage() {
     saveSession,
     sessionStatus,
     questions,
-    currentQuestionIndex,
-    setCurrentQuestionIndex,
+    qaPairs,
+    updateQAPair,
+    pendingQuestions,
+    getNextQuestion,
+    markQuestionAsAnswered
   } = useStore()
 
-  // State to track real-time progress
-  const [realTimeProgress, setRealTimeProgress] = useState(0)
+  // Reference to track the last saved state
+  const lastSavedQAPairsRef = useRef<string>("")
+  
+  // Create a debounced version of saveSession function
+  const debouncedSaveSession = useRef(
+    debounce(() => {
+      saveSession()
+    }, 2000)
+  ).current
 
+  // Create conditional save function
+  const conditionalSave = () => {
+    // Serialize current QAPairs for comparison
+    const currentQAPairsString = JSON.stringify(qaPairs)
+    
+    // Only save when QAPairs have changed
+    if (currentQAPairsString !== lastSavedQAPairsRef.current) {
+      lastSavedQAPairsRef.current = currentQAPairsString
+      debouncedSaveSession()
+    }
+  }
+
+  // State to track real-time progress animation
+  const [realTimeProgress, setRealTimeProgress] = useState(progress.current)
+
+  // Current question being asked
+  const currentQuestion = getNextQuestion()
+
+  // Redirect if no ProlificID or if session is completed
   useEffect(() => {
-    // Check if user has a Prolific ID
-    const storedProlificId = localStorage.getItem("prolificId")
-
-    if (!prolificId && storedProlificId) {
-      // If we have it in localStorage but not in state, set it
-      useStore.getState().setProlificId(storedProlificId)
-    } else if (!prolificId && !storedProlificId) {
-      // If we don't have it anywhere, redirect to home
+    // Check if user has a valid Prolific ID
+    if (!prolificId) {
+      console.log("No Prolific ID found, redirecting to landing page")
       router.push("/")
       return
     }
-
-    // If the session is already completed, redirect to thank-you page
+    
+    // If session is marked as completed, redirect to thank you page
     if (sessionStatus === "completed") {
+      console.log("Session already completed, redirecting to thank you page")
       router.push("/thank-you")
       return
     }
+  }, [prolificId, router, sessionStatus])
 
-    // Initialize with a bot message if there are no messages
-    if (messages.length === 0) {
-      addMessage({
-        id: "welcome",
-        role: "bot",
-        text: "Welcome to the interview. I'll be asking you a series of questions about your thinking process.",
-        loading: false,
-      })
-
-      // Add the first question after a delay
-      setTimeout(() => {
-        addMessage({
-          id: questions[0].id,
-          role: "bot",
-          text: questions[0].text,
-          loading: false,
-        })
-      }, 1000)
-
-      // Initialize progress
-      setProgress({ current: 0, total: questions.length })
-      setRealTimeProgress(0)
-    }
-
-    // Setup keyboard shortcut for redo (R key)
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "r" || e.key === "R") {
-        if (messages.length > 0 && messages[messages.length - 1].role === "user") {
-          // Remove the last user message
-          const newMessages = [...messages]
-          newMessages.pop()
-          useStore.setState({ messages: newMessages })
-
-          // Start recording again
-          setIsRecording(true)
-        }
-      }
-    }
-
-    window.addEventListener("keydown", handleKeyDown)
-    return () => window.removeEventListener("keydown", handleKeyDown)
-  }, [addMessage, messages, setIsRecording, setProgress, prolificId, router, sessionStatus, questions])
-
-  // Save session periodically
+  // Save session when QA pairs change
   useEffect(() => {
-    if (messages.length > 0) {
-      saveSession()
+    if (qaPairs.length > 0) {
+      // Initialize lastSavedQAPairsRef
+      if (lastSavedQAPairsRef.current === "") {
+        lastSavedQAPairsRef.current = JSON.stringify(qaPairs)
+      }
+      conditionalSave()
     }
-  }, [messages, saveSession])
+  }, [qaPairs])
+
+  // Update the message UI based on QA pairs when component mounts
+  useEffect(() => {
+    // This ensures that when returning to the interview page,
+    // the conversation reflects the current QA pairs
+    if (messages.length === 0 && qaPairs.some(qa => qa.answer)) {
+      // Populate messages from qaPairs for any answered questions
+      qaPairs.forEach((pair) => {
+        if (pair.answer) {
+          // Add the question message (bot)
+          addMessage({
+            id: `bot-${pair.id}`,
+            role: "bot",
+            text: pair.question,
+            loading: false,
+          })
+          
+          // Add the answer message (user)
+          addMessage({
+            id: `user-${pair.id}`,
+            role: "user",
+            text: pair.answer,
+            loading: false,
+          })
+        }
+      })
+    }
+  }, [messages.length, qaPairs, addMessage]);
 
   const handleSendMessage = (text: string) => {
+    // If there's no current question, don't proceed
+    if (!currentQuestion) {
+      return;
+    }
+
     // Add user message
+    const userMessageId = `user-${Date.now()}`
     addMessage({
-      id: `user-${Date.now()}`,
+      id: userMessageId,
       role: "user",
       text,
       loading: false,
     })
 
+    // Update the QA pair with the user's answer
+    updateQAPair(currentQuestion.id, { answer: text })
+
+    // Get current question ID before marking it as answered
+    const answeredQuestionId = currentQuestion.id
+
+    // Mark current question as answered, which removes it from the pending queue
+    markQuestionAsAnswered(answeredQuestionId)
+
     // Start real-time progress animation
-    const startProgress = currentQuestionIndex
-    const targetProgress = Math.min(currentQuestionIndex + 1, questions.length - 1)
+    const startProgress = progress.current
+    const targetProgress = Math.min(progress.current + 1, questions.length)
     const duration = 2000 // 2 seconds for the animation
     const startTime = Date.now()
 
@@ -125,13 +164,14 @@ export default function InterviewPage() {
 
       if (progressFraction < 1) {
         requestAnimationFrame(animateProgress)
-      } else {
-        // Update the actual progress when animation completes
-        setCurrentQuestionIndex(targetProgress)
       }
     }
 
     requestAnimationFrame(animateProgress)
+
+    // Get the next question (will be null if no more questions)
+    const nextQuestion = getNextQuestion()
+    const isLastQuestion = !nextQuestion
 
     // Simulate bot typing response
     const botMessageId = `bot-${Date.now()}`
@@ -142,14 +182,10 @@ export default function InterviewPage() {
       loading: true,
     })
 
-    // Use mock WebSocket to stream response
-    const nextQuestionIndex = Math.min(currentQuestionIndex + 1, questions.length - 1)
-    const isLastQuestion = nextQuestionIndex === questions.length - 1
-
     // First response is a thank you, second is the next question
     const botResponse = isLastQuestion
       ? "Thank you for sharing your thoughts. That's all the questions we have for you today. Please proceed to the review page to check your answers before submitting."
-      : `Thank you for your response. ${questions[nextQuestionIndex].text}`
+      : `Thank you for your response. ${nextQuestion?.text}`
 
     mockWebSocketConnection(
       botResponse,
@@ -165,11 +201,11 @@ export default function InterviewPage() {
           loading: false,
         }))
 
-        // Save session after each response
-        saveSession()
+        // Manually trigger conditional save after response is complete
+        conditionalSave()
 
         // If we've reached the end of the interview, redirect to review page
-        if (nextQuestionIndex === questions.length - 1) {
+        if (isLastQuestion) {
           setTimeout(() => {
             router.push("/review")
           }, 3000)
@@ -197,10 +233,10 @@ export default function InterviewPage() {
             <h1 className="text-xl font-light">Trace Your Thinking</h1>
             <ProlificIdBadge />
           </div>
-          {currentQuestionIndex < questions.length && (
+          {currentQuestion && (
             <div className="mb-4">
               <div className="text-sm text-gray-500 mb-1">Current Question</div>
-              <div className="text-lg font-light">{questions[currentQuestionIndex].text}</div>
+              <div className="text-lg font-light">{currentQuestion.text}</div>
             </div>
           )}
           <ElegantProgressBar progress={displayProgress} />

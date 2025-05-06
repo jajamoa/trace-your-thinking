@@ -165,8 +165,13 @@ export const useStore = create<StoreState>()(
                 "Content-Type": "application/json",
               },
               body: JSON.stringify({
+                prolificId: state.prolificId,
                 qaPairs: state.qaPairs,
                 status: "in_progress",
+                metadata: {
+                  lastSavedAt: new Date().toISOString(),
+                  messageCount: state.messages.length,
+                }
               }),
             })
           } else {
@@ -179,6 +184,11 @@ export const useStore = create<StoreState>()(
               body: JSON.stringify({
                 prolificId: state.prolificId,
                 qaPairs: state.qaPairs,
+                status: "in_progress",
+                metadata: {
+                  firstSavedAt: new Date().toISOString(),
+                  messageCount: state.messages.length,
+                }
               }),
             })
 

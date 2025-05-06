@@ -3,7 +3,7 @@
 import { useEffect } from "react"
 import { motion } from "framer-motion"
 import { Button } from "@/components/ui/button"
-import { ExternalLink, Info } from "lucide-react"
+import { ArrowLeft, Info } from "lucide-react"
 import Confetti from "@/components/Confetti"
 import { useStore } from "@/lib/store"
 import { useRouter } from "next/navigation"
@@ -21,11 +21,20 @@ export default function ThankYouPage() {
       return
     }
 
-    // Reset the store when leaving the app
-    return () => {
-      resetStore()
-    }
-  }, [resetStore, prolificId, router])
+    // No need to reset the store when loading this page
+    // Let the user explicitly choose to return to home to start fresh
+
+  }, [prolificId, router])
+
+  // Handler for returning to home and starting fresh
+  const handleReturnHome = () => {
+    // Clear ALL data including prolificId before redirecting
+    resetStore();
+    
+    // Force page reload to ensure all React state is reset 
+    // and we start completely fresh
+    window.location.href = "/";
+  }
 
   return (
     <div className="min-h-screen relative bg-[#f5f2eb]">
@@ -82,12 +91,12 @@ export default function ThankYouPage() {
           <div className="flex flex-col sm:flex-row justify-center gap-4 mb-6">
             <motion.div whileTap={{ scale: 0.96 }}>
               <Button
-                onClick={() => window.close()}
+                onClick={handleReturnHome}
                 size="lg"
                 className="bg-[#333333] hover:bg-[#222222] text-white px-8 rounded-full shadow-subtle"
               >
-                Close Window
-                <ExternalLink className="ml-2 h-5 w-5" />
+                Return to Home
+                <ArrowLeft className="ml-2 h-5 w-5" />
               </Button>
             </motion.div>
 

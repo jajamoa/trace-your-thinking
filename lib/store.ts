@@ -34,11 +34,11 @@ interface StoreState {
   prolificId: string | null
   messages: Message[]
   qaPairs: QAPair[]
+  pendingQuestions: Question[]
   isRecording: boolean
   progress: Progress
   sessionStatus: SessionStatus
   questions: Question[]
-  currentQuestionIndex: number
 
   setProlificId: (id: string) => void
   setSessionId: (id: string) => void
@@ -48,10 +48,13 @@ interface StoreState {
   updateQAPair: (id: string, updates: Partial<QAPair>) => void
   setProgress: (progress: Progress) => void
   setSessionStatus: (status: SessionStatus) => void
-  setCurrentQuestionIndex: (index: number) => void
+  getNextQuestion: () => Question | null
+  markQuestionAsAnswered: (questionId: string) => void
+  addNewQuestion: (question: Omit<Question, "id">) => string
   loadFromLocalStorage: () => void
   resetStore: () => void
   saveSession: () => Promise<void>
+  checkSessionStatus: () => Promise<void>
 }
 
 // Initial seed data
@@ -77,11 +80,7 @@ const initialQuestions: Question[] = [
   // Additional questions can be added here or loaded from an API
 ]
 
-const initialQAPairs: QAPair[] = initialQuestions.map((q) => ({
-  id: q.id,
-  question: q.text,
-  answer: "",
-}))
+const initialQAPairs: QAPair[] = []
 
 const initialProgress: Progress = {
   current: 0,
@@ -95,11 +94,11 @@ export const useStore = create<StoreState>()(
       prolificId: null,
       messages: initialMessages,
       qaPairs: initialQAPairs,
+      pendingQuestions: [...initialQuestions], // Create a copy of initialQuestions
       isRecording: false,
       progress: initialProgress,
       sessionStatus: "in_progress",
       questions: initialQuestions,
-      currentQuestionIndex: 0,
 
       setProlificId: (id) => {
         localStorage.setItem("prolificId", id)
@@ -110,37 +109,117 @@ export const useStore = create<StoreState>()(
 
       setSessionStatus: (status) => set({ sessionStatus: status }),
 
-      setCurrentQuestionIndex: (index) => {
-        set({ currentQuestionIndex: index })
-        // Also update progress
-        set((state) => ({
-          progress: {
-            ...state.progress,
-            current: index,
-          },
-        }))
+      getNextQuestion: () => {
+        const state = get()
+        return state.pendingQuestions.length > 0 ? state.pendingQuestions[0] : null
+      },
+
+      markQuestionAsAnswered: (questionId) => {
+        set((state) => {
+          const pendingQuestions = state.pendingQuestions.filter(q => q.id !== questionId)
+          
+          // Update progress
+          const progress = {
+            current: state.questions.length - pendingQuestions.length,
+            total: state.questions.length
+          }
+
+          return { 
+            pendingQuestions,
+            progress
+          }
+        })
+      },
+
+      /**
+       * Adds a new question to both the master question list and pending questions queue
+       * @param questionData Object containing text and shortText for the new question
+       * @returns The generated ID for the new question
+       */
+      addNewQuestion: (questionData) => {
+        // Generate unique ID using timestamp
+        const id = `q${Date.now()}`
+
+        set((state) => {
+          // Create the new question with generated ID
+          const newQuestion: Question = {
+            id,
+            text: questionData.text,
+            shortText: questionData.shortText
+          }
+
+          // Add to master questions list and pending questions
+          const questions = [...state.questions, newQuestion]
+          const pendingQuestions = [...state.pendingQuestions, newQuestion]
+          
+          // Update progress calculation
+          const progress = {
+            current: state.progress.current,
+            total: questions.length
+          }
+
+          return {
+            questions,
+            pendingQuestions,
+            progress
+          }
+        })
+
+        // Return the generated question ID so it can be referenced
+        return id
       },
 
       addMessage: (message) =>
-        set((state) => ({
-          messages: [...state.messages, message],
+        set((state) => {
+          // If we're adding a user message and it's answering a question
+          const nextQuestion = state.pendingQuestions[0];
+          const isAnsweringQuestion = 
+            message.role === "user" && 
+            nextQuestion && 
+            !message.loading;
+            
+          // Create a new QA pair if needed
+          let newQAPairs = [...state.qaPairs];
+          
+          if (isAnsweringQuestion) {
+            // Check if this question is already in QA pairs
+            const existingPairIndex = newQAPairs.findIndex(pair => pair.id === nextQuestion.id);
+            
+            if (existingPairIndex >= 0) {
+              // Update existing pair
+              newQAPairs[existingPairIndex] = {
+                ...newQAPairs[existingPairIndex],
+                answer: message.text
+              };
+            } else {
+              // Add new pair
+              newQAPairs.push({
+                id: nextQuestion.id,
+                question: nextQuestion.text,
+                answer: message.text
+              });
+            }
+          }
 
           // If it's a bot message with a question, add it to qaPairs if it doesn't exist
-          qaPairs:
+          if (
             message.role === "bot" &&
             !message.loading &&
             message.text.includes("?") &&
             !state.qaPairs.some((qa) => qa.question === message.text)
-              ? [
-                  ...state.qaPairs,
-                  {
-                    id: message.id,
-                    question: message.text,
-                    answer: "",
-                  },
-                ]
-              : state.qaPairs,
-        })),
+          ) {
+            newQAPairs.push({
+              id: message.id,
+              question: message.text,
+              answer: "",
+            });
+          }
+
+          return {
+            messages: [...state.messages, message],
+            qaPairs: newQAPairs
+          };
+        }),
 
       updateMessage: (id, updater) =>
         set((state) => ({
@@ -179,35 +258,75 @@ export const useStore = create<StoreState>()(
         if (prolificId) {
           set({ prolificId })
         }
+        
+        // Update pendingQuestions based on answered questions
+        const state = get();
+        if (state.qaPairs.length > 0) {
+          // Get IDs of answered questions
+          const answeredQuestionIds = state.qaPairs
+            .filter(qa => qa.answer && qa.answer.trim() !== '')
+            .map(qa => qa.id);
+            
+          // Remove answered questions from pendingQuestions
+          const remainingQuestions = state.questions.filter(
+            q => !answeredQuestionIds.includes(q.id)
+          );
+          
+          // Update progress
+          const progress = {
+            current: state.questions.length - remainingQuestions.length,
+            total: state.questions.length,
+          };
+          
+          set({ 
+            pendingQuestions: remainingQuestions,
+            progress
+          });
+        }
       },
 
       resetStore: () =>
         set({
           messages: initialMessages,
           qaPairs: initialQAPairs,
+          pendingQuestions: [...initialQuestions],
           isRecording: false,
           progress: initialProgress,
           sessionStatus: "in_progress",
-          currentQuestionIndex: 0,
-          // Don't reset sessionId or prolificId
+          // Clear all data including sessionId and prolificId
+          sessionId: null,
+          prolificId: null
         }),
 
       saveSession: async () => {
         const state = get()
 
         try {
+          // First check the server's session status before making updates
           if (state.sessionId) {
+            // Check current session status from the server
+            await get().checkSessionStatus()
+            
+            // Get the potentially updated state after status check
+            const updatedState = get()
+            
+            // If session is completed, don't update it further
+            if (updatedState.sessionStatus === "completed") {
+              console.log("Session is already completed, skipping update")
+              return
+            }
+            
             // Update existing session
-            await fetch(`/api/sessions/${state.sessionId}`, {
+            const response = await fetch(`/api/sessions/${state.sessionId}`, {
               method: "PUT",
               headers: {
                 "Content-Type": "application/json",
               },
               body: JSON.stringify({
-                prolificId: state.prolificId,
-                qaPairs: state.qaPairs,
-                status: state.sessionStatus,
-                currentQuestionIndex: state.currentQuestionIndex,
+                prolificId: updatedState.prolificId,
+                qaPairs: updatedState.qaPairs,
+                pendingQuestions: updatedState.pendingQuestions,
+                status: updatedState.sessionStatus
               }),
             })
           } else {
@@ -220,18 +339,43 @@ export const useStore = create<StoreState>()(
               body: JSON.stringify({
                 prolificId: state.prolificId,
                 qaPairs: state.qaPairs,
-                status: state.sessionStatus,
-                currentQuestionIndex: state.currentQuestionIndex,
+                pendingQuestions: state.pendingQuestions,
+                status: state.sessionStatus
               }),
             })
 
             const data = await response.json()
             if (data.sessionId) {
               set({ sessionId: data.sessionId })
+              
+              // Check session status after creating a new session
+              await get().checkSessionStatus()
             }
           }
         } catch (error) {
           console.error("Failed to save session:", error)
+        }
+      },
+
+      checkSessionStatus: async () => {
+        const state = get()
+
+        try {
+          if (state.sessionId) {
+            const response = await fetch(`/api/sessions/status/${state.sessionId}`, {
+              method: "GET",
+            })
+
+            if (response.ok) {
+              const data = await response.json()
+              if (data.status && data.status !== state.sessionStatus) {
+                console.log(`Updating session status from ${state.sessionStatus} to ${data.status}`)
+                set({ sessionStatus: data.status })
+              }
+            }
+          }
+        } catch (error) {
+          console.error("Failed to check session status:", error)
         }
       },
     }),
@@ -240,11 +384,11 @@ export const useStore = create<StoreState>()(
       partialize: (state) => ({
         messages: state.messages,
         qaPairs: state.qaPairs,
+        pendingQuestions: state.pendingQuestions,
         progress: state.progress,
         sessionId: state.sessionId,
         prolificId: state.prolificId,
         sessionStatus: state.sessionStatus,
-        currentQuestionIndex: state.currentQuestionIndex,
       }),
     },
   ),

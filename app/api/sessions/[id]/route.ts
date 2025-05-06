@@ -1,44 +1,59 @@
 import { NextResponse } from "next/server"
+import connectToDatabase from "../../../../lib/mongodb"
+import Session from "../../../../models/Session"
 
-// Access the in-memory storage (in a real app, this would be a database)
-// This is just for demonstration - in a real app, you'd use a proper database
-declare global {
-  var sessions: Record<string, any>
-}
-
-if (!global.sessions) {
-  global.sessions = {}
-}
-
-export async function GET(request: Request, { params }: { params: { id: string } }) {
-  const sessionId = params.id
-
-  if (!global.sessions[sessionId]) {
-    return NextResponse.json({ error: "Session not found" }, { status: 404 })
-  }
-
-  return NextResponse.json(global.sessions[sessionId])
-}
-
-export async function PUT(request: Request, { params }: { params: { id: string } }) {
+export async function GET(
+  request: Request, 
+  context: { params: Promise<{ id: string }> }
+) {
   try {
+    await connectToDatabase()
+    
+    const params = await context.params
     const sessionId = params.id
-    const body = await request.json()
+    const session = await Session.findOne({ id: sessionId })
 
-    if (!global.sessions[sessionId]) {
+    if (!session) {
       return NextResponse.json({ error: "Session not found" }, { status: 404 })
     }
 
-    // Update the session
-    global.sessions[sessionId] = {
-      ...global.sessions[sessionId],
-      ...body,
-      updatedAt: new Date().toISOString(),
+    return NextResponse.json(session)
+  } catch (error) {
+    console.error("Error retrieving session:", error)
+    return NextResponse.json({ error: "Failed to retrieve session" }, { status: 500 })
+  }
+}
+
+export async function PUT(
+  request: Request,
+  context: { params: Promise<{ id: string }> }
+) {
+  try {
+    await connectToDatabase()
+    
+    const params = await context.params
+    const sessionId = params.id
+    const body = await request.json()
+
+    const session = await Session.findOne({ id: sessionId })
+
+    if (!session) {
+      return NextResponse.json({ error: "Session not found" }, { status: 404 })
     }
+
+    // Update session
+    const updatedSession = await Session.findOneAndUpdate(
+      { id: sessionId },
+      { 
+        ...body,
+        updatedAt: new Date()
+      },
+      { new: true }
+    )
 
     return NextResponse.json({
       success: true,
-      session: global.sessions[sessionId],
+      session: updatedSession
     })
   } catch (error) {
     console.error("Error updating session:", error)
@@ -46,28 +61,67 @@ export async function PUT(request: Request, { params }: { params: { id: string }
   }
 }
 
-export async function PATCH(request: Request, { params }: { params: { id: string } }) {
+export async function PATCH(
+  request: Request,
+  context: { params: Promise<{ id: string }> }
+) {
   try {
+    await connectToDatabase()
+    
+    const params = await context.params
     const sessionId = params.id
     const body = await request.json()
 
-    if (!global.sessions[sessionId]) {
+    // Find the session first to verify it exists
+    const session = await Session.findOne({ id: sessionId })
+
+    if (!session) {
       return NextResponse.json({ error: "Session not found" }, { status: 404 })
     }
 
-    // Update specific fields
-    global.sessions[sessionId] = {
-      ...global.sessions[sessionId],
-      ...body,
-      updatedAt: new Date().toISOString(),
-    }
+    // Update session with partial data
+    const updatedSession = await Session.findOneAndUpdate(
+      { id: sessionId },
+      { 
+        ...body,
+        updatedAt: new Date()
+      },
+      { new: true }
+    )
 
     return NextResponse.json({
       success: true,
-      session: global.sessions[sessionId],
+      session: updatedSession
     })
   } catch (error) {
-    console.error("Error updating session:", error)
-    return NextResponse.json({ error: "Failed to update session" }, { status: 500 })
+    console.error("Error patching session:", error)
+    return NextResponse.json({ error: "Failed to patch session" }, { status: 500 })
+  }
+}
+
+export async function DELETE(
+  request: Request,
+  context: { params: Promise<{ id: string }> }
+) {
+  try {
+    await connectToDatabase()
+    
+    const params = await context.params
+    const sessionId = params.id
+    const session = await Session.findOne({ id: sessionId })
+
+    if (!session) {
+      return NextResponse.json({ error: "Session not found" }, { status: 404 })
+    }
+
+    await Session.deleteOne({ id: sessionId })
+
+    return NextResponse.json({
+      success: true,
+      message: "Session deleted"
+    })
+  } catch (error) {
+    console.error("Error deleting session:", error)
+    return NextResponse.json({ error: "Failed to delete session" }, { status: 500 })
   }
 }
