@@ -14,6 +14,7 @@ import { useStore } from "@/lib/store"
 import Footer from "@/components/Footer"
 import MobileRedirect from "@/components/MobileRedirect"
 import useDeviceDetect from "@/hooks/useDeviceDetect"
+import { SyncService } from "@/lib/sync-service"
 
 // Schema for Prolific ID validation
 const prolificSchema = z.object({
@@ -24,6 +25,7 @@ export default function Home() {
   const router = useRouter()
   const [prolificId, setProlificId] = useState("")
   const [error, setError] = useState("")
+  const [isLoading, setIsLoading] = useState(false)
   const { setProlificId: setStoreProlificId, prolificId: existingProlificId, sessionStatus } = useStore()
   const { isMobile } = useDeviceDetect()
 
@@ -59,27 +61,61 @@ export default function Home() {
     }
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    
+    if (isLoading) return
 
     try {
-      // Validate the Prolific ID
-      prolificSchema.parse({ id: prolificId })
-
-      // Store the ID in localStorage
-      localStorage.setItem("prolificId", prolificId)
-
-      // Store in the global state
-      setStoreProlificId(prolificId)
-
-      // Navigate to the interview page
-      router.push("/interview")
-    } catch (err) {
-      if (err instanceof z.ZodError) {
-        setError(err.errors[0].message)
-      } else {
-        setError("Please enter a valid Prolific ID")
+      // Validate input
+      const validationResult = prolificSchema.safeParse({ id: prolificId })
+      
+      if (!validationResult.success) {
+        setError(validationResult.error.errors[0].message)
+        return
       }
+      
+      setIsLoading(true)
+      
+      // IMPORTANT: First set the Prolific ID in the store
+      // This ensures SessionCheck won't redirect back to home
+      setStoreProlificId(prolificId)
+      
+      // Use SyncService to create a new session with the prolific ID
+      const result = await SyncService.createNewSession(prolificId)
+      
+      if (result.success && result.sessionId) {
+        console.log("Session created successfully with ID:", result.sessionId)
+        
+        // Ensure the sessionId is properly set in the store
+        const currentSessionId = useStore.getState().sessionId
+        if (!currentSessionId) {
+          console.log("Setting session ID in store:", result.sessionId)
+          useStore.getState().setSessionId(result.sessionId)
+          
+          // Give a moment for the state to update
+          await new Promise(resolve => setTimeout(resolve, 200))
+        }
+        
+        // Double-check that pendingQuestions are loaded
+        const state = useStore.getState()
+        if (state.pendingQuestions.length === 0 || state.qaPairs.length === 0) {
+          console.log("Waiting for questions to load...")
+          await new Promise(resolve => setTimeout(resolve, 1000))
+        }
+        
+        // Only redirect after we confirm we have a valid session ID and data
+        console.log("All checks passed, redirecting to interview page")
+        router.push("/interview")
+      } else {
+        console.error("Failed to create session properly")
+        setError("Failed to create session. Please try again.")
+        setIsLoading(false)
+      }
+    } catch (err) {
+      console.error("Error in form submission:", err)
+      setError("An unexpected error occurred")
+      setIsLoading(false)
     }
   }
 
@@ -148,11 +184,11 @@ export default function Home() {
                 <Button
                   type="submit"
                   size="lg"
-                  disabled={prolificId.length < 4 || Boolean(error)}
+                  disabled={!prolificId || prolificId.length < 4 || isLoading}
                   className="bg-[#333333] hover:bg-[#222222] text-white px-8 py-6 text-base rounded-full shadow-subtle transition-all duration-300 w-full disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  Start Interview
-                  <ArrowRight className="ml-2 h-5 w-5" />
+                  {isLoading ? "Creating session..." : "Begin"}
+                  {!isLoading && <ArrowRight className="ml-2 h-5 w-5" />}
                 </Button>
               </motion.div>
             </form>

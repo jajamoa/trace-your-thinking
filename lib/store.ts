@@ -2,6 +2,7 @@
 
 import { create } from "zustand"
 import { persist } from "zustand/middleware"
+import { SyncService } from "./sync-service"
 
 export interface Message {
   id: string
@@ -55,6 +56,7 @@ interface StoreState {
   resetStore: () => void
   saveSession: () => Promise<void>
   checkSessionStatus: () => Promise<void>
+  initializeWithGuidingQuestions: () => Promise<void>
 }
 
 // Initial seed data
@@ -201,18 +203,24 @@ export const useStore = create<StoreState>()(
             }
           }
 
-          // If it's a bot message with a question, add it to qaPairs if it doesn't exist
+          // If it's a bot message with a question that doesn't exist in QA pairs yet
+          // We'll associate it with an existing question from our questions array
           if (
             message.role === "bot" &&
             !message.loading &&
-            message.text.includes("?") &&
-            !state.qaPairs.some((qa) => qa.question === message.text)
+            message.text.includes("?")
           ) {
-            newQAPairs.push({
-              id: message.id,
-              question: message.text,
-              answer: "",
-            });
+            // Try to find a matching question in our questions array
+            const matchingQuestion = state.questions.find(q => q.text === message.text);
+            
+            if (matchingQuestion && !state.qaPairs.some(qa => qa.id === matchingQuestion.id)) {
+              // Use the question's ID from our questions array
+              newQAPairs.push({
+                id: matchingQuestion.id,
+                question: message.text,
+                answer: "",
+              });
+            }
           }
 
           return {
@@ -222,25 +230,41 @@ export const useStore = create<StoreState>()(
         }),
 
       updateMessage: (id, updater) =>
-        set((state) => ({
-          messages: state.messages.map((message) => (message.id === id ? updater(message) : message)),
-
-          // If it's a bot message that's no longer loading and contains a question, add it to qaPairs
-          qaPairs:
-            state.messages.find((m) => m.id === id)?.role === "bot" &&
-            !updater(state.messages.find((m) => m.id === id)!).loading &&
-            updater(state.messages.find((m) => m.id === id)!).text.includes("?") &&
-            !state.qaPairs.some((qa) => qa.id === id)
-              ? [
-                  ...state.qaPairs,
-                  {
-                    id,
-                    question: updater(state.messages.find((m) => m.id === id)!).text,
-                    answer: "",
-                  },
-                ]
-              : state.qaPairs,
-        })),
+        set((state) => {
+          // Get the updated message
+          const originalMessage = state.messages.find(m => m.id === id);
+          if (!originalMessage) return state;
+          
+          const updatedMessage = updater(originalMessage);
+          
+          // Update QA pairs if needed
+          let updatedQAPairs = [...state.qaPairs];
+          
+          // If it's a bot message that changed from loading to not loading and has a question
+          if (
+            originalMessage.role === "bot" && 
+            originalMessage.loading && 
+            !updatedMessage.loading && 
+            updatedMessage.text.includes("?")
+          ) {
+            // Try to find a matching question in our questions array
+            const matchingQuestion = state.questions.find(q => q.text === updatedMessage.text);
+            
+            if (matchingQuestion && !state.qaPairs.some(qa => qa.id === matchingQuestion.id)) {
+              // Use the question's ID from our questions array
+              updatedQAPairs.push({
+                id: matchingQuestion.id,
+                question: updatedMessage.text,
+                answer: "",
+              });
+            }
+          }
+          
+          return {
+            messages: state.messages.map(msg => msg.id === id ? updatedMessage : msg),
+            qaPairs: updatedQAPairs
+          };
+        }),
 
       setIsRecording: (isRecording) => set({ isRecording }),
 
@@ -299,105 +323,19 @@ export const useStore = create<StoreState>()(
         }),
 
       saveSession: async () => {
-        const state = get()
         console.log("==== saveSession execution started ====")
-        console.log("Current sessionId:", state.sessionId)
-        console.log("Current prolificId:", state.prolificId)
-        console.log("Current qaPairs count:", state.qaPairs.length)
-        console.log("Current pendingQuestions count:", state.pendingQuestions.length)
-        console.log("Current sessionStatus:", state.sessionStatus)
-
+        
         try {
-          // First check the server's session status before making updates
-          if (state.sessionId) {
-            console.log("Existing sessionId found, checking if session exists")
-            // Check if session exists on server
-            const checkResponse = await fetch(`/api/sessions/${state.sessionId}`, {
-              method: "GET",
-            });
-            
-            console.log("Session check response status:", checkResponse.status)
-            // If session not found (404), clear sessionId and try to create a new one
-            if (checkResponse.status === 404) {
-              console.log("Session not found on server (404), will create a new session")
-              // Clear the invalid sessionId but keep other data
-              set({ sessionId: null });
-              // Let the code continue to create a new session with existing data
-            } else {
-              // Session exists, proceed with checking status and updating
-              console.log("Session exists, checking session status")
-              await get().checkSessionStatus();
-              
-              // Get the potentially updated state after status check
-              const updatedState = get();
-              console.log("sessionStatus after status check:", updatedState.sessionStatus)
-              
-              // If session is completed, don't update it further
-              if (updatedState.sessionStatus === "completed") {
-                console.log("Session is completed, skipping update")
-                return;
-              }
-              
-              // Only attempt PUT if session exists and is not completed
-              if (updatedState.sessionId) {
-                console.log("Attempting to update existing session")
-                // Update existing session
-                const response = await fetch(`/api/sessions/${updatedState.sessionId}`, {
-                  method: "PUT",
-                  headers: {
-                    "Content-Type": "application/json",
-                  },
-                  body: JSON.stringify({
-                    prolificId: updatedState.prolificId,
-                    qaPairs: updatedState.qaPairs,
-                    pendingQuestions: updatedState.pendingQuestions,
-                    status: updatedState.sessionStatus
-                  }),
-                });
-                
-                console.log("Update session response status:", response.status)
-                // If PUT fails with 404, clear sessionId for next save attempt
-                if (response.status === 404) {
-                  console.log("PUT failed - session not found, clearing sessionId")
-                  set({ sessionId: null });
-                } else {
-                  console.log("Session update successful")
-                }
-                
-                // We've already handled the existing session case, so return
-                return;
-              }
-            }
-          }
+          // Use the simplified sync service instead of complex logic
+          const result = await SyncService.syncSession()
           
-          // Code reaches here if no sessionId OR session was not found
-          console.log("No sessionId or session not found, creating new session")
-          // Create new session
-          const response = await fetch("/api/sessions", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              prolificId: state.prolificId,
-              qaPairs: state.qaPairs,
-              pendingQuestions: state.pendingQuestions,
-              status: state.sessionStatus
-            }),
-          });
-
-          console.log("Create session response status:", response.status)
-          const data = await response.json();
-          if (data.sessionId) {
-            console.log("Received new sessionId:", data.sessionId)
-            set({ sessionId: data.sessionId });
-            
-            // Check session status after creating a new session
-            console.log("Checking status of newly created session")
-            await get().checkSessionStatus();
+          if (result.success) {
+            console.log("Session saved successfully with ID:", result.sessionId)
+          } else {
+            console.error("Failed to save session:", result.error)
           }
         } catch (error) {
-          console.error("Failed to save session:", error);
+          console.error("Error in saveSession:", error)
         } finally {
           console.log("==== saveSession execution completed ====")
         }
@@ -408,21 +346,39 @@ export const useStore = create<StoreState>()(
 
         try {
           if (state.sessionId) {
-            const response = await fetch(`/api/sessions/status/${state.sessionId}`, {
-              method: "GET",
-            })
-
-            if (response.ok) {
-              const data = await response.json()
-              if (data.status && data.status !== state.sessionStatus) {
-                console.log(`Updating session status from ${state.sessionStatus} to ${data.status}`)
-                set({ sessionStatus: data.status })
-              }
-            } else if (response.status === 404) {
-              // If session not found (404), treat as "return to home" action
-              console.log("Session not found on server, resetting state and redirecting to home")
+            console.log(`Checking status for session: ${state.sessionId}`)
+            
+            // Add a delay for new sessions to ensure they're properly registered in the database
+            const isNewSession = state.messages.length <= 1
+            if (isNewSession) {
+              console.log("This appears to be a new session, adding delay before status check")
+              await new Promise(resolve => setTimeout(resolve, 2000))
+            }
+            
+            // Use the sync service for status checking
+            const status = await SyncService.checkSessionStatus(state.sessionId)
+            
+            if (status && status !== state.sessionStatus) {
+              console.log(`Updating session status from ${state.sessionStatus} to ${status}`)
+              set({ sessionStatus: status as SessionStatus })
+            } else if (status === null) {
+              console.log("Session check returned null status")
               
-              // Reset all data including prolificId
+              // Don't reset state for new sessions (created in the last minute)
+              const sessionIdTimestamp = state.sessionId.split('_')[1]
+              if (sessionIdTimestamp && Date.now() - parseInt(sessionIdTimestamp) < 60000) {
+                console.log("Session was recently created, not resetting state")
+                return
+              }
+              
+              // Also don't reset if we're not in the middle of creating a new session
+              if (state.qaPairs.length === 0 || state.pendingQuestions.length === 0) {
+                console.log("Session appears to be incomplete, not resetting state")
+                return
+              }
+              
+              // Session not found and all safety checks passed, now it's safe to reset state
+              console.log("Session not found on server and it's not a new session, resetting state")
               get().resetStore()
               
               // Force reload to return to home page
@@ -435,6 +391,34 @@ export const useStore = create<StoreState>()(
           console.error("Failed to check session status:", error)
         }
       },
+      
+      // Add new function to initialize a session with guiding questions
+      initializeWithGuidingQuestions: async () => {
+        console.log("Initializing session with guiding questions")
+        
+        // First check if we already have questions
+        const state = get()
+        if (state.questions.length > 0) {
+          console.log("Session already has questions, skipping initialization")
+          return
+        }
+        
+        // Use sync service to load guiding questions
+        const success = await SyncService.initializeSessionWithGuidingQuestions()
+        
+        if (success) {
+          console.log("Session initialized with guiding questions")
+        } else {
+          console.warn("Failed to initialize with guiding questions, using defaults")
+          // Keep using defaults if loading from server fails
+          set({
+            questions: initialQuestions,
+            pendingQuestions: [...initialQuestions],
+            qaPairs: initialQAPairs,
+            progress: initialProgress
+          })
+        }
+      }
     }),
     {
       name: "ach-collector-storage",

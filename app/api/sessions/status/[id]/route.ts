@@ -15,12 +15,30 @@ export async function GET(
 
     const params = await context.params
     const sessionId = params.id
-    const session = await Session.findOne({ id: sessionId })
+    
+    // Add a small delay to help with potential replication lag
+    // This is especially important for newly created sessions
+    await new Promise(resolve => setTimeout(resolve, 200))
+    
+    console.log(`[API] Getting status for session: ${sessionId}`)
+    
+    // First attempt to find the session
+    let session = await Session.findOne({ id: sessionId })
+    
+    // If not found on first try and it looks like a new session (contains current timestamp)
+    if (!session && sessionId.includes(`_${Date.now().toString().substring(0, 8)}`)) {
+      console.log(`[API] New session not found, retrying after delay: ${sessionId}`)
+      // For new sessions, add extra delay and retry
+      await new Promise(resolve => setTimeout(resolve, 500))
+      session = await Session.findOne({ id: sessionId })
+    }
 
     if (!session) {
+      console.log(`[API] Session not found: ${sessionId}`)
       return NextResponse.json({ error: "Session not found" }, { status: 404 })
     }
 
+    console.log(`[API] Session found with status: ${session.sessionStatus}`)
     return NextResponse.json({
       sessionId: session.id,
       status: session.sessionStatus,

@@ -7,9 +7,10 @@ import { useStore } from "@/lib/store"
 import { Button } from "@/components/ui/button"
 import { Edit2 } from "lucide-react"
 import { Textarea } from "@/components/ui/textarea"
+import { SyncService } from "@/lib/sync-service"
 
 export default function ChatPanel() {
-  const { messages, updateMessage } = useStore()
+  const { messages, updateMessage, updateQAPair, qaPairs } = useStore()
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const [editingMessageId, setEditingMessageId] = useState<string | null>(null)
   const [editText, setEditText] = useState("")
@@ -35,17 +36,40 @@ export default function ChatPanel() {
     ? lastLoadingBotMessage.id 
     : [...messages].reverse().find((m) => m.role === "bot")?.id
 
+  // When editing a user message, we need to also update the corresponding QA pair
   const handleEditStart = (message: (typeof messages)[0]) => {
+    if (message.role !== "user") return
     setEditingMessageId(message.id)
     setEditText(message.text)
   }
 
   const handleEditSave = () => {
     if (editingMessageId && editText.trim()) {
+      // Update the message
       updateMessage(editingMessageId, (prev) => ({
         ...prev,
         text: editText.trim(),
       }))
+
+      // Find the related QA pair for this user message
+      if (lastUserMessage) {
+        // Find the bot message that came before this user message
+        const messageIndex = messages.findIndex(m => m.id === editingMessageId)
+        if (messageIndex > 0) {
+          const previousMessages = messages.slice(0, messageIndex)
+          const lastBotMessage = [...previousMessages].reverse().find(m => m.role === "bot")
+          
+          if (lastBotMessage) {
+            // Find a QA pair with this question
+            const relatedQAPair = qaPairs.find(qa => qa.question === lastBotMessage.text)
+            if (relatedQAPair) {
+              // Update the answer in the QA pair
+              updateQAPair(relatedQAPair.id, { answer: editText.trim() })
+            }
+          }
+        }
+      }
+      
       setEditingMessageId(null)
       setEditText("")
     }
@@ -57,38 +81,37 @@ export default function ChatPanel() {
   }
 
   return (
-    <div className="flex flex-col p-4 gap-4 max-w-4xl mx-auto">
-      <AnimatePresence initial={false}>
+    <div className="flex flex-col space-y-6 py-4 px-2 overflow-y-auto max-h-[calc(100vh-15rem)]">
+      <AnimatePresence>
         {messages.map((message) => (
           <motion.div
             key={message.id}
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.2, ease: [0.4, 0, 0.2, 1] }}
-            className="relative group"
+            exit={{ opacity: 0, scale: 0.95 }}
+            transition={{ duration: 0.2 }}
+            className={`relative group ${
+              message.role === "user" ? "items-end" : "items-start"
+            }`}
           >
             {editingMessageId === message.id ? (
-              <div className="flex flex-col gap-2">
+              <div className="flex flex-col space-y-2 w-full max-w-[80%] ml-auto">
                 <Textarea
                   value={editText}
                   onChange={(e) => setEditText(e.target.value)}
-                  className="min-h-[100px] bg-white border-[#e0ddd5] rounded-xl focus:ring-blue-400 resize-none font-light"
+                  className="min-h-[100px] p-3 focus:ring-1 focus:ring-gray-400"
                   autoFocus
                 />
-                <div className="flex justify-end gap-2">
+                <div className="flex justify-end space-x-2">
                   <Button
-                    onClick={handleEditCancel}
                     variant="outline"
                     size="sm"
-                    className="border-[#e0ddd5] text-[#333333] rounded-full hover:bg-[#e0ddd5]"
+                    onClick={handleEditCancel}
+                    className="text-xs"
                   >
                     Cancel
                   </Button>
-                  <Button
-                    onClick={handleEditSave}
-                    size="sm"
-                    className="bg-[#333333] hover:bg-[#222222] text-white rounded-full"
-                  >
+                  <Button size="sm" onClick={handleEditSave} className="text-xs">
                     Save
                   </Button>
                 </div>

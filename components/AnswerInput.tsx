@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useRef, useEffect } from "react"
+import { useState, useRef, useEffect, useMemo } from "react"
 import { motion } from "framer-motion"
 import { Textarea } from "@/components/ui/textarea"
 import { Button } from "@/components/ui/button"
@@ -13,16 +13,79 @@ interface AnswerInputProps {
   onSendMessage: (text: string) => void
 }
 
-export default function AnswerInput({ onSendMessage }: AnswerInputProps) {
-  const [text, setText] = useState("")
-  const [inputMode, setInputMode] = useState<"voice" | "text">("voice")
-  const textareaRef = useRef<HTMLTextAreaElement>(null)
-  const { isRecording, setIsRecording } = useStore()
-  const [isTranscribing, setIsTranscribing] = useState(false)
+// Input mode preference key for localStorage
+const INPUT_MODE_PREF_KEY = 'input-mode-preference'
 
+export default function AnswerInput({ onSendMessage }: AnswerInputProps) {
+  // Get the previous input mode preference, default to voice if none exists
+  const getInitialInputMode = (): "voice" | "text" => {
+    // Check if we're in a browser environment
+    if (typeof window !== 'undefined') {
+      const savedMode = localStorage.getItem(INPUT_MODE_PREF_KEY)
+      // Only accept valid values
+      if (savedMode === 'voice' || savedMode === 'text') {
+        return savedMode as "voice" | "text"
+      }
+    }
+    return "voice" // Default to voice input
+  }
+
+  const [text, setText] = useState("")
+  const [inputMode, setInputMode] = useState<"voice" | "text">(getInitialInputMode)
+  const textareaRef = useRef<HTMLTextAreaElement>(null)
+  const { isRecording, setIsRecording, messages } = useStore()
+  const [isTranscribing, setIsTranscribing] = useState(false)
+  const [autoStartRecording, setAutoStartRecording] = useState(false)
+  const [waitingForQuestion, setWaitingForQuestion] = useState(false)
+  
   // References for audio recording
   const mediaRecorderRef = useRef<MediaRecorder | null>(null)
   const audioChunksRef = useRef<Blob[]>([])
+  // Add a ref to track whether to process the audio (rather than using state)
+  const shouldProcessAudioRef = useRef(false)
+
+  // Listen for forced cancellation from other components (like Review page)
+  useEffect(() => {
+    const handleForcedCancel = () => {
+      console.log("AnswerInput received force-cancel-recording event");
+      
+      // Stop any active recording without processing
+      if (mediaRecorderRef.current && isRecording) {
+        console.log("Forcefully stopping recording due to external cancel event");
+        shouldProcessAudioRef.current = false;
+        audioChunksRef.current = [];
+        
+        try {
+          mediaRecorderRef.current.stop();
+        } catch (error) {
+          console.error("Error stopping recorder:", error);
+        }
+      }
+      
+      // Reset all recording state
+      shouldProcessAudioRef.current = false;
+      audioChunksRef.current = [];
+      setIsTranscribing(false);
+      setIsRecording(false);
+      setWaitingForQuestion(false);
+    };
+    
+    // Add event listener
+    window.addEventListener('force-cancel-recording', handleForcedCancel);
+    
+    // Clean up
+    return () => {
+      window.removeEventListener('force-cancel-recording', handleForcedCancel);
+    };
+  }, [isRecording, setIsRecording]);
+
+  // Check if there is a loading bot message (question is still "typing")
+  const isQuestionLoading = useMemo(() => {
+    // Find the last bot message
+    const lastBotMessage = [...messages].reverse().find(m => m.role === "bot");
+    // Return true if it's loading
+    return lastBotMessage?.loading || false;
+  }, [messages]);
 
   // Auto-resize textarea
   useEffect(() => {
@@ -46,7 +109,7 @@ export default function AnswerInput({ onSendMessage }: AnswerInputProps) {
       // Escape to cancel recording or clear text
       if (e.key === "Escape") {
         if (isRecording) {
-          stopRecording(true) // Cancel recording
+          stopRecording(true) // Process recording when using ESC to stop
         } else if (text && inputMode === "text") {
           setText("")
         }
@@ -57,12 +120,35 @@ export default function AnswerInput({ onSendMessage }: AnswerInputProps) {
     return () => window.removeEventListener("keydown", handleKeyDown)
   }, [text, isRecording, inputMode])
 
-  // Start recording automatically when in voice mode
+  // Start recording automatically when in voice mode, but only after question is displayed
   useEffect(() => {
-    if (inputMode === "voice" && !isRecording) {
-      startRecording()
+    // Don't start recording if question is still being typed
+    if (isQuestionLoading) {
+      setWaitingForQuestion(true);
+      return;
     }
-  }, [inputMode, isRecording])
+    
+    // When question is done typing and we were waiting, start recording
+    if (waitingForQuestion && !isQuestionLoading) {
+      setWaitingForQuestion(false);
+      // Use a slight delay to allow UI to render and user to see the question fully
+      const timer = setTimeout(() => {
+        if (inputMode === "voice" && !isRecording && autoStartRecording) {
+          startRecording();
+        }
+      }, 800); // Longer delay to ensure user has time to read the question
+      
+      return () => clearTimeout(timer);
+    }
+    // Standard auto-start behavior
+    else if (inputMode === "voice" && !isRecording && autoStartRecording && !isQuestionLoading) {
+      const timer = setTimeout(() => {
+        startRecording();
+      }, 500); // Small delay to allow user to see the question
+      
+      return () => clearTimeout(timer);
+    }
+  }, [inputMode, isRecording, autoStartRecording, isQuestionLoading, waitingForQuestion]);
 
   // Clean up recording when component unmounts
   useEffect(() => {
@@ -80,6 +166,8 @@ export default function AnswerInput({ onSendMessage }: AnswerInputProps) {
       const mediaRecorder = new MediaRecorder(stream)
       mediaRecorderRef.current = mediaRecorder
       audioChunksRef.current = []
+      // Set ref to true by default when starting recording
+      shouldProcessAudioRef.current = true
 
       mediaRecorder.ondataavailable = (event) => {
         if (event.data.size > 0) {
@@ -88,9 +176,15 @@ export default function AnswerInput({ onSendMessage }: AnswerInputProps) {
       }
 
       mediaRecorder.onstop = async () => {
-        // Only process if we have audio data and we're not cancelling
-        if (audioChunksRef.current.length > 0 && !isTranscribing) {
+        // Only process once - check and immediately set to false to prevent double processing
+        const shouldProcess = shouldProcessAudioRef.current && audioChunksRef.current.length > 0;
+        shouldProcessAudioRef.current = false;
+        
+        if (shouldProcess) {
           processAudio()
+        } else {
+          // Reset transcribing state
+          setIsTranscribing(false)
         }
 
         // Stop all audio tracks
@@ -107,18 +201,30 @@ export default function AnswerInput({ onSendMessage }: AnswerInputProps) {
         variant: "destructive",
       })
       setInputMode("text")
+      // Save the mode preference when changing due to error
+      localStorage.setItem(INPUT_MODE_PREF_KEY, "text")
+      setIsTranscribing(false) // Ensure we reset the transcribing state
     }
   }
 
-  const stopRecording = (cancel = false) => {
+  const stopRecording = (shouldProcess = true) => {
     if (mediaRecorderRef.current && isRecording) {
-      if (cancel) {
-        setIsTranscribing(false) // Make sure we don't process on cancel
+      // Set the ref directly - this is synchronous
+      shouldProcessAudioRef.current = shouldProcess
+      
+      // Update UI state based on whether we'll process
+      if (shouldProcess) {
+        setIsTranscribing(true) // Will process audio
       } else {
-        setIsTranscribing(true) // We're going to process this audio
+        setIsTranscribing(false) // Won't process audio
       }
 
       mediaRecorderRef.current.stop()
+      setIsRecording(false)
+    } else {
+      // Reset state even if recorder isn't active
+      shouldProcessAudioRef.current = false
+      setIsTranscribing(false)
       setIsRecording(false)
     }
   }
@@ -126,6 +232,12 @@ export default function AnswerInput({ onSendMessage }: AnswerInputProps) {
   const processAudio = async () => {
     try {
       const audioBlob = new Blob(audioChunksRef.current, { type: "audio/webm" })
+      
+      // Only proceed if we have actual audio data
+      if (audioBlob.size <= 0) {
+        setIsTranscribing(false)
+        return
+      }
 
       // Show transcribing indicator
       setIsTranscribing(true)
@@ -143,10 +255,21 @@ export default function AnswerInput({ onSendMessage }: AnswerInputProps) {
       if (result.text.trim()) {
         onSendMessage(result.text.trim())
         setText("")
+        
+        // After sending an answer, we don't auto-start recording again
+        // User must manually start recording for the next question
+        setAutoStartRecording(false)
       }
+      
+      // Ensure we don't process audio again until explicitly enabled
+      shouldProcessAudioRef.current = false
+      // Clear audio chunks after processing
+      audioChunksRef.current = []
     } catch (error) {
       console.error("Error processing audio:", error)
       setIsTranscribing(false)
+      shouldProcessAudioRef.current = false
+      audioChunksRef.current = []
       toast({
         title: "Transcription Error",
         description: "Could not transcribe your audio. Please try again or switch to text input.",
@@ -165,32 +288,81 @@ export default function AnswerInput({ onSendMessage }: AnswerInputProps) {
   const toggleRecording = () => {
     if (inputMode === "voice") {
       if (isRecording) {
-        stopRecording()
+        // When stopping via mic button, we should process audio
+        stopRecording(true)
       } else {
+        // When user manually starts recording, we don't need autoStartRecording
+        setAutoStartRecording(false)
         startRecording()
       }
     }
   }
 
-  const toggleInputMode = () => {
-    const newMode = inputMode === "voice" ? "text" : "voice"
-    setInputMode(newMode)
-
-    if (newMode === "voice") {
-      setText("")
+  // Method for switching to text mode (cancel recording without transcribing)
+  const cancelRecordingAndSwitchToText = () => {
+    // When switching to text, we shouldn't process audio
+    if (mediaRecorderRef.current && isRecording) {
+      stopRecording(false)
     } else {
-      if (isRecording) {
-        stopRecording(true) // Cancel recording when switching to text
-      }
+      // Even if not recording, clear any audio chunks and reset states
+      audioChunksRef.current = []
+      shouldProcessAudioRef.current = false
+      setIsTranscribing(false)
+    }
+    
+    // Switch mode and save preference
+    setInputMode("text")
+    localStorage.setItem(INPUT_MODE_PREF_KEY, "text")
+  }
+
+  const toggleInputMode = () => {
+    if (inputMode === "voice") {
+      // When switching from voice to text, cancel recording without transcribing
+      cancelRecordingAndSwitchToText()
+    } else {
+      // When switching from text to voice
+      setInputMode("voice")
+      localStorage.setItem(INPUT_MODE_PREF_KEY, "voice")
+      setText("")
+      shouldProcessAudioRef.current = true
+      setAutoStartRecording(true)
     }
   }
+
+  // Function to be called when a new question appears
+  useEffect(() => {
+    // This effect should run whenever a new question appears
+    // For this to work, the parent component should re-mount this component
+    // or pass a key prop that changes with each new question
+    
+    // Reset audio state on mount
+    audioChunksRef.current = []
+    shouldProcessAudioRef.current = false
+    
+    // Only prepare recording automatically if current mode is voice
+    if (inputMode === "voice") {
+      setAutoStartRecording(true)
+      // Initially set waiting state based on if the question is still being typed
+      setWaitingForQuestion(isQuestionLoading)
+    }
+    
+    return () => {
+      // Cleanup when component unmounts or before re-running
+      if (isRecording) {
+        stopRecording(false) // Don't process when unmounting
+      }
+      // Extra cleanup
+      shouldProcessAudioRef.current = false
+      audioChunksRef.current = []
+    }
+  }, []);
 
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.2, ease: [0.4, 0, 0.2, 1] }}
-      className="sticky bottom-0 border-t border-[#e0ddd5] bg-[#f5f2eb]/80 backdrop-blur-lg p-4"
+      className="sticky bottom-0 border-t border-[#e0ddd5] bg-[#f5f2eb]/80 backdrop-blur-lg p-4 z-20"
     >
       <div className="flex gap-2 max-w-4xl mx-auto">
         {inputMode === "voice" ? (
@@ -203,19 +375,21 @@ export default function AnswerInput({ onSendMessage }: AnswerInputProps) {
                 onClick={toggleRecording}
                 className="h-10 w-10 rounded-full border-[#e0ddd5]"
                 aria-label={isRecording ? "Stop recording" : "Start recording"}
-                disabled={isTranscribing}
+                disabled={isTranscribing || isQuestionLoading}
               >
                 {isRecording ? <MicOff className="h-5 w-5" /> : <Mic className="h-5 w-5" />}
               </Button>
             </motion.div>
 
-            <div className="flex-1 flex items-center justify-center">
+            <div className="flex-1 flex items-center justify-center h-10">
               <div className="text-sm text-gray-600 font-light">
                 {isTranscribing
                   ? "Transcribing your speech..."
-                  : isRecording
-                    ? "Listening..."
-                    : "Click the microphone to start speaking"}
+                  : isQuestionLoading
+                    ? "Waiting for question..."
+                    : isRecording
+                      ? "Listening..."
+                      : "Press microphone to start speaking"}
               </div>
             </div>
 
@@ -251,7 +425,7 @@ export default function AnswerInput({ onSendMessage }: AnswerInputProps) {
               value={text}
               onChange={(e) => setText(e.target.value)}
               placeholder="Type your answer..."
-              className="min-h-10 resize-none bg-white border-[#e0ddd5] rounded-xl focus:ring-blue-400 font-light"
+              className="min-h-10 h-10 resize-none bg-white border-[#e0ddd5] rounded-xl focus:ring-blue-400 font-light"
               aria-label="Answer input"
             />
 
@@ -285,12 +459,20 @@ export default function AnswerInput({ onSendMessage }: AnswerInputProps) {
         )}
       </div>
 
-      {inputMode === "text" && (
-        <div className="text-xs text-gray-500 text-center mt-2 font-light">
-          Press <kbd className="px-1 py-0.5 bg-[#e0ddd5] rounded">Ctrl</kbd> +{" "}
-          <kbd className="px-1 py-0.5 bg-[#e0ddd5] rounded">Enter</kbd> to send
-        </div>
-      )}
+      <div className="text-xs text-gray-500 text-center mt-2 font-light h-5">
+        {inputMode === "text" && (
+          <>
+            Press <kbd className="px-1 py-0.5 bg-[#e0ddd5] rounded">Ctrl</kbd> +{" "}
+            <kbd className="px-1 py-0.5 bg-[#e0ddd5] rounded">Enter</kbd> to send •{" "}
+            <kbd className="px-1 py-0.5 bg-[#e0ddd5] rounded">ESC</kbd> to clear text
+          </>
+        )}
+        {inputMode === "voice" && !isTranscribing && (
+          <>
+            Press <kbd className="px-1 py-0.5 bg-[#e0ddd5] rounded">ESC</kbd> to {isRecording ? "stop recording" : "cancel"}
+          </>
+        )}
+      </div>
     </motion.div>
   )
 }

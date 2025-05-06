@@ -11,6 +11,8 @@ import ElegantProgressBar from "@/components/ElegantProgressBar"
 import ProlificIdBadge from "@/components/ProlificIdBadge"
 import Footer from "@/components/Footer"
 import { logStoreState, setupStoreLogger } from "@/lib/debug-store"
+import { SyncService } from "@/lib/sync-service"
+import { v4 as uuidv4 } from "uuid"
 
 // Debounce function to prevent too frequent calls
 const debounce = (fn: Function, ms = 1000) => {
@@ -25,21 +27,20 @@ export default function InterviewPage() {
   const router = useRouter()
   const {
     messages,
+    qaPairs,
     addMessage,
     updateMessage,
-    isRecording,
-    setIsRecording,
     progress,
     setProgress,
     prolificId,
-    saveSession,
     sessionStatus,
     questions,
-    qaPairs,
-    updateQAPair,
     pendingQuestions,
     getNextQuestion,
-    markQuestionAsAnswered
+    markQuestionAsAnswered,
+    updateQAPair,
+    saveSession,
+    initializeWithGuidingQuestions,
   } = useStore()
 
   // 在组件挂载时输出调试信息
@@ -52,6 +53,9 @@ export default function InterviewPage() {
   // Reference to track the last saved state
   const lastSavedQAPairsRef = useRef<string>("")
   
+  // Track current question ID for AnswerInput key
+  const [currentQuestionId, setCurrentQuestionId] = useState<string>("")
+
   // Create a debounced version of saveSession function
   const debouncedSaveSession = useRef(
     debounce(() => {
@@ -81,8 +85,20 @@ export default function InterviewPage() {
   // State to track real-time progress animation
   const [realTimeProgress, setRealTimeProgress] = useState(progress.current)
 
+  // Sync realTimeProgress with store progress whenever it changes
+  useEffect(() => {
+    setRealTimeProgress(progress.current)
+  }, [progress.current])
+
   // Current question being asked
   const currentQuestion = getNextQuestion()
+  
+  // Update currentQuestionId when question changes
+  useEffect(() => {
+    if (currentQuestion && currentQuestion.id !== currentQuestionId) {
+      setCurrentQuestionId(currentQuestion.id)
+    }
+  }, [currentQuestion])
 
   // Redirect if no ProlificID or if session is completed
   useEffect(() => {
@@ -106,7 +122,22 @@ export default function InterviewPage() {
       router.push("/review")
       return
     }
-  }, [prolificId, router, sessionStatus, progress, questions.length])
+
+    // If there are no messages but QA pairs exist, rebuild messages from QA pairs
+    if (messages.length === 0 && qaPairs.length > 0) {
+      console.log("Rebuilding messages from QA pairs")
+      SyncService.displayQAPairsAsMessages()
+    }
+    
+    // If no questions, initialize with guiding questions
+    if (questions.length === 0) {
+      console.log("No questions found, initializing with guiding questions")
+      initializeWithGuidingQuestions().then(() => {
+        console.log("Guiding questions loaded")
+        saveSession()
+      })
+    }
+  }, [prolificId, router, sessionStatus, progress, questions.length, messages.length, qaPairs, initializeWithGuidingQuestions, saveSession])
 
   // Save session when QA pairs change
   useEffect(() => {
@@ -124,117 +155,112 @@ export default function InterviewPage() {
     // This ensures that when returning to the interview page,
     // the conversation reflects the current QA pairs
     if (messages.length === 0 && qaPairs.some(qa => qa.answer)) {
-      // Populate messages from qaPairs for any answered questions
-      qaPairs.forEach((pair) => {
-        if (pair.answer) {
-          // Add the question message (bot)
-          addMessage({
-            id: `bot-${pair.id}`,
-            role: "bot",
-            text: pair.question,
-            loading: false,
-          })
-          
-          // Add the answer message (user)
-          addMessage({
-            id: `user-${pair.id}`,
-            role: "user",
-            text: pair.answer,
-            loading: false,
-          })
-        }
+      // Use the SyncService to display QA pairs as messages instead of manually creating them
+      SyncService.displayQAPairsAsMessages()
+    }
+  }, [messages.length, qaPairs]);
+
+  // Update the function that handles submitting an answer
+  const handleAnswerSubmit = async (text: string) => {
+    if (text.trim() === "") return
+    
+    // Get current question
+    const currentQuestion = getNextQuestion()
+    if (!currentQuestion) return
+
+    // Get the QA pair for this question
+    const qaPair = qaPairs.find(qa => qa.id === currentQuestion.id)
+    if (!qaPair) return
+
+    try {
+      // Add user's answer to messages with a UUID
+      const messageId = uuidv4()
+      addMessage({
+        id: messageId,
+        role: "user",
+        text,
+        loading: false,
       })
-    }
-  }, [messages.length, qaPairs, addMessage]);
 
-  const handleSendMessage = (text: string) => {
-    // If there's no current question, don't proceed
-    if (!currentQuestion) {
-      return;
-    }
+      // Update QA pair with answer
+      updateQAPair(currentQuestion.id, { answer: text })
 
-    // Add user message
-    const userMessageId = `user-${Date.now()}`
-    addMessage({
-      id: userMessageId,
-      role: "user",
-      text,
-      loading: false,
-    })
-
-    // Update the QA pair with the user's answer
-    updateQAPair(currentQuestion.id, { answer: text })
-
-    // Get current question ID before marking it as answered
-    const answeredQuestionId = currentQuestion.id
-
-    // Mark current question as answered, which removes it from the pending queue
-    markQuestionAsAnswered(answeredQuestionId)
-
-    // Start real-time progress animation
-    const startProgress = progress.current
-    const targetProgress = Math.min(progress.current + 1, questions.length)
-    const duration = 2000 // 2 seconds for the animation
-    const startTime = Date.now()
-
-    const animateProgress = () => {
-      const elapsed = Date.now() - startTime
-      const progressFraction = Math.min(1, elapsed / duration)
-      const currentProgress = startProgress + progressFraction
-
-      setRealTimeProgress(currentProgress)
-
-      if (progressFraction < 1) {
-        requestAnimationFrame(animateProgress)
-      }
-    }
-
-    requestAnimationFrame(animateProgress)
-
-    // Get the next question (will be null if no more questions)
-    const nextQuestion = getNextQuestion()
-    const isLastQuestion = !nextQuestion
-
-    // Simulate bot typing response
-    const botMessageId = `bot-${Date.now()}`
-    addMessage({
-      id: botMessageId,
-      role: "bot",
-      text: "",
-      loading: true,
-    })
-
-    // First response is a thank you, second is the next question
-    const botResponse = isLastQuestion
-      ? "Thank you for sharing your thoughts. That's all the questions we have for you today. Please proceed to the review page to check your answers before submitting."
-      : `Thank you for your response. ${nextQuestion?.text}`
-
-    mockWebSocketConnection(
-      botResponse,
-      (chunk) => {
-        updateMessage(botMessageId, (prev) => ({
-          ...prev,
-          text: prev.text + chunk,
-        }))
-      },
-      () => {
-        updateMessage(botMessageId, (prev) => ({
-          ...prev,
-          loading: false,
-        }))
-
-        // Manually trigger conditional save after response is complete
-        conditionalSave()
-
-        // If we've reached the end of the interview, redirect to review page
-        if (isLastQuestion) {
-          setTimeout(() => {
-            router.push("/review")
-          }, 3000)
+      // Get current progress before marking question as answered
+      const startProgress = progress.current
+      
+      // Mark this question as answered - this updates the store progress state
+      markQuestionAsAnswered(currentQuestion.id)
+      
+      // Calculate target progress
+      const targetProgress = Math.min(progress.current + 1, questions.length)
+      
+      // Start real-time progress animation - using a shorter duration for more responsive feeling
+      const duration = 800 // Reduced from 2000ms to 800ms for more responsive feeling
+      const startTime = Date.now()
+      
+      // Immediately update progress slightly to give instant feedback
+      setRealTimeProgress(startProgress + 0.2) 
+      
+      const animateProgress = () => {
+        const elapsed = Date.now() - startTime
+        const progressFraction = Math.min(1, elapsed / duration)
+        
+        // Calculate current progress using easing function
+        const easedProgress = startProgress + 
+          (targetProgress - startProgress) * 
+          easeOutQuad(progressFraction)
+        
+        setRealTimeProgress(easedProgress)
+        
+        if (progressFraction < 1) {
+          requestAnimationFrame(animateProgress)
+        } else {
+          // Ensure we reach exact target at the end
+          setRealTimeProgress(targetProgress)
         }
-      },
-    )
+      }
+      
+      // Start animation
+      requestAnimationFrame(animateProgress)
+
+      // Save session to database - don't await this to avoid delaying UI updates
+      saveSession()
+
+      // Get next question
+      const nextQuestion = getNextQuestion()
+      if (nextQuestion) {
+        // First add bot message with loading state - uses a completely empty message
+        const nextMessageId = uuidv4()
+        addMessage({
+          id: nextMessageId,
+          role: "bot",
+          text: "",
+          loading: true,
+        })
+        
+        // Update immediately with almost no delay
+        // Important: Must pass a new object reference to trigger proper re-render
+        setTimeout(() => {
+          updateMessage(nextMessageId, (message) => ({
+            ...message,
+            text: nextQuestion.text,
+            loading: false
+          }))
+        }, 10) // Nearly immediate update
+        
+        // Update current question ID
+        setCurrentQuestionId(nextQuestion.id)
+      } else {
+        // All questions answered, redirect to review
+        router.push("/review")
+      }
+    } catch (error) {
+      console.error("Error submitting answer:", error)
+    }
   }
+  
+  // Easing function for smoother progress animation - more pronounced curve for better feedback
+  const easeOutQuad = (t: number): number => t * (2 - t)
 
   // Use real-time progress for the progress bar
   const displayProgress = {
@@ -266,7 +292,7 @@ export default function InterviewPage() {
         <div className="flex-1 overflow-y-auto pt-6">
           <ChatPanel />
         </div>
-        <AnswerInput onSendMessage={handleSendMessage} />
+        <AnswerInput key={currentQuestionId} onSendMessage={handleAnswerSubmit} />
       </div>
       
       <Footer showLogo={false} />

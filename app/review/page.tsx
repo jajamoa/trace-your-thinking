@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, useCallback } from "react"
 import { useRouter } from "next/navigation"
 import { motion } from "framer-motion"
 import { Button } from "@/components/ui/button"
@@ -32,6 +32,8 @@ export default function ReviewPage() {
     saveSession,
     sessionStatus,
     setSessionStatus,
+    isRecording, 
+    setIsRecording
   } = useStore()
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [showConfirmDialog, setShowConfirmDialog] = useState(false)
@@ -39,6 +41,48 @@ export default function ReviewPage() {
   const [confirmError, setConfirmError] = useState("")
   const [showIdMismatchDialog, setShowIdMismatchDialog] = useState(false)
   const [emptyAnswers, setEmptyAnswers] = useState<string[]>([])
+
+  // Function to forcefully cancel any active recording
+  const cancelAllRecordings = useCallback(() => {
+    // Set global recording state to false
+    setIsRecording(false)
+
+    // Dispatch a custom event that AnswerInput components can listen for
+    const cancelEvent = new CustomEvent('force-cancel-recording')
+    window.dispatchEvent(cancelEvent)
+    
+    console.log("Forcefully cancelled all recordings on Review page")
+  }, [setIsRecording])
+
+  // Stop any active recording immediately when entering the review page
+  useEffect(() => {
+    console.log("Review page mounted - checking for active recordings")
+    
+    // Call our cancel function immediately on mount
+    cancelAllRecordings()
+    
+    // Also listen for visibility changes to cancel recordings when switching back to this tab
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        cancelAllRecordings()
+      }
+    }
+    
+    document.addEventListener('visibilitychange', handleVisibilityChange)
+    
+    // Cleanup
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange)
+    }
+  }, [cancelAllRecordings])
+  
+  // Monitor and forcefully stop recording if it somehow gets activated
+  useEffect(() => {
+    if (isRecording) {
+      console.log("Recording detected on Review page - forcefully stopping")
+      cancelAllRecordings()
+    }
+  }, [isRecording, cancelAllRecordings])
 
   useEffect(() => {
     // Load from localStorage if available
