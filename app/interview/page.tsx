@@ -99,7 +99,14 @@ export default function InterviewPage() {
       router.push("/thank-you")
       return
     }
-  }, [prolificId, router, sessionStatus])
+
+    // Check if all questions have been answered (progress is 100%)
+    if (progress.current === questions.length && questions.length > 0) {
+      console.log("All questions answered, redirecting to review page")
+      router.push("/review")
+      return
+    }
+  }, [prolificId, router, sessionStatus, progress, questions.length])
 
   // Save session when QA pairs change
   useEffect(() => {
