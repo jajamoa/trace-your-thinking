@@ -10,7 +10,8 @@ async function checkDatabaseStatus() {
     details: {
       version: '',
       collections: [] as string[],
-      connectionString: ''
+      connectionString: '',
+      databaseName: ''
     }
   };
 
@@ -30,6 +31,9 @@ async function checkDatabaseStatus() {
         // Get collections list
         const collections = await mongoose.connection.db.listCollections().toArray();
         result.details.collections = collections.map(c => c.name);
+        
+        // Add database name
+        result.details.databaseName = mongoose.connection.db.databaseName;
         
         // Hide sensitive info in connection string
         const mongooseAny = mongoose as any;
@@ -55,13 +59,13 @@ async function checkBackendStatus() {
     error: '',
     details: {
       version: '',
-      url: process.env.PYTHON_API_URL || 'http://localhost:5000',
+      url: process.env.PYTHON_BACKEND_URL || 'http://localhost:5000',
       status: ''
     }
   };
 
   try {
-    const apiUrl = process.env.PYTHON_API_URL || 'http://localhost:5000';
+    const apiUrl = process.env.PYTHON_BACKEND_URL || 'http://localhost:5000';
     const response = await fetch(`${apiUrl}/api/status`, { 
       method: 'GET',
       headers: { 'Content-Type': 'application/json' },

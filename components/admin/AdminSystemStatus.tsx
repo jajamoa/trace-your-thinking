@@ -12,6 +12,7 @@ interface SystemStatus {
       version?: string;
       collections?: string[];
       connectionString?: string;
+      databaseName?: string;
     }
   };
   backend: {
@@ -105,16 +106,16 @@ export default function AdminSystemStatus() {
                     <span className="font-medium">Connection Status:</span>
                     <span className="text-green-600">Connected</span>
                   </div>
+                  {status.database.details?.databaseName && (
+                    <div className="flex justify-between">
+                      <span className="font-medium">Database Name:</span>
+                      <span>{status.database.details.databaseName}</span>
+                    </div>
+                  )}
                   {status.database.details?.version && (
                     <div className="flex justify-between">
                       <span className="font-medium">Database Version:</span>
                       <span>{status.database.details.version}</span>
-                    </div>
-                  )}
-                  {status.database.details?.collections && (
-                    <div className="flex justify-between">
-                      <span className="font-medium">Collections Count:</span>
-                      <span>{status.database.details.collections.length}</span>
                     </div>
                   )}
                   <div className="mt-4">
