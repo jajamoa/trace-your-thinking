@@ -2,44 +2,33 @@
 // npm install mongodb mongoose
 // npm install --save-dev @types/mongoose
 
-import mongoose, { Mongoose } from 'mongoose';
+import mongoose from 'mongoose';
 
-declare global {
-  var mongoose: {
-    conn: Mongoose | null;
-    promise: Promise<Mongoose> | null;
-  };
-}
-
-const MONGODB_URI = process.env.MONGODB_URI || '';
+const { MONGODB_URI } = process.env;
 
 if (!MONGODB_URI) {
-  throw new Error('Please define the MONGODB_URI environment variable');
+  throw new Error('Please set the MONGODB_URI environment variable');
 }
 
-let cached = global.mongoose;
+let cachedConnection: typeof mongoose | null = null;
 
-if (!cached) {
-  cached = global.mongoose = { conn: null, promise: null };
-}
-
+/**
+ * Connect to MongoDB database
+ * @returns Mongoose connection
+ */
 async function connectToDatabase() {
-  if (cached.conn) {
-    return cached.conn;
+  if (cachedConnection) {
+    return cachedConnection;
   }
 
-  if (!cached.promise) {
-    const opts = {
-      bufferCommands: false,
-    };
-
-    cached.promise = mongoose.connect(MONGODB_URI, opts).then((mongooseInstance: Mongoose) => {
-      return mongooseInstance;
-    });
+  try {
+    const connection = await mongoose.connect(MONGODB_URI as string);
+    cachedConnection = connection;
+    return connection;
+  } catch (error) {
+    console.error('MongoDB connection error:', error);
+    throw error;
   }
-
-  cached.conn = await cached.promise;
-  return cached.conn;
 }
 
 export default connectToDatabase; 

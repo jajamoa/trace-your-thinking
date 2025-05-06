@@ -36,6 +36,11 @@ export default function SessionCheck() {
   }
 
   useEffect(() => {
+    // Skip all session checks for admin paths
+    if (pathname.startsWith('/admin') || pathname.startsWith('/api/admin')) {
+      return
+    }
+    
     console.log(`SessionCheck running for path: ${pathname}, sessionId: ${sessionId}, prolificId: ${prolificId}`)
     
     // Reset the redirect flag when dependencies change
