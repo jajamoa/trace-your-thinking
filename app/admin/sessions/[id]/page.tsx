@@ -4,8 +4,9 @@ import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ChevronLeft, AlertCircle, Save, FileEdit, Download } from 'lucide-react';
+import { ChevronLeft, AlertCircle, Save, FileEdit, Download, Network, FileJson } from 'lucide-react';
 import { Textarea } from '@/components/ui/textarea';
+import CausalGraphViewer from '@/components/admin/CausalGraphViewer';
 
 interface QAPair {
   id: string;
@@ -27,9 +28,20 @@ interface Session {
   completedAt?: string;
 }
 
-export default function SessionDetailPage({ params }: { params: { id: string } }) {
+// Add interface for CausalGraph
+interface CausalGraph {
+  _id: string;
+  sessionId: string;
+  prolificId: string;
+  qaPairId: string;
+  graphData: any;
+  timestamp: string;
+}
+
+// Use search params instead of directly accessing params.id
+export default function SessionDetailPage() {
   const router = useRouter();
-  const [sessionId, setSessionId] = useState<string>(params.id);
+  const [sessionId, setSessionId] = useState<string>('');
   
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
@@ -37,7 +49,19 @@ export default function SessionDetailPage({ params }: { params: { id: string } }
   const [editMode, setEditMode] = useState(false);
   const [editedQAPairs, setEditedQAPairs] = useState<QAPair[]>([]);
 
+  // Get session ID from URL
+  useEffect(() => {
+    // Extract session ID from URL path
+    const pathSegments = window.location.pathname.split('/');
+    const id = pathSegments[pathSegments.length - 1];
+    if (id) {
+      setSessionId(id);
+    }
+  }, []);
+
   const fetchSession = async () => {
+    if (!sessionId) return;
+    
     setLoading(true);
     try {
       const response = await fetch(`/api/admin/sessions/${sessionId}`);
@@ -58,10 +82,6 @@ export default function SessionDetailPage({ params }: { params: { id: string } }
       fetchSession();
     }
   }, [sessionId]);
-
-  useEffect(() => {
-    setSessionId(params.id);
-  }, [params.id]);
 
   const handleSaveChanges = async () => {
     try {
@@ -97,11 +117,11 @@ export default function SessionDetailPage({ params }: { params: { id: string } }
     return new Date(dateString).toLocaleString('en-US');
   };
 
-  // 导出会话详情为CSV文件
+  // Export session details as CSV
   const exportSessionDetails = () => {
     if (!session) return;
 
-    // 会话基本信息
+    // Session basic information
     const sessionInfo = [
       ['Session ID', session.id],
       ['Prolific ID', session.prolificId],
@@ -110,10 +130,10 @@ export default function SessionDetailPage({ params }: { params: { id: string } }
       ['Created At', formatDate(session.createdAt)],
       ['Updated At', formatDate(session.updatedAt)],
       ['Completed At', session.completedAt ? formatDate(session.completedAt) : 'Not completed'],
-      [''] // 空行分隔
+      [''] // Empty line separator
     ];
 
-    // 问答内容
+    // Q&A content
     const qaHeaders = ['Question Number', 'Question', 'Answer'];
     const qaRows = session.qaPairs.map((pair, index) => [
       `${index + 1}`,
@@ -121,7 +141,7 @@ export default function SessionDetailPage({ params }: { params: { id: string } }
       pair.answer || 'No answer'
     ]);
 
-    // 合并所有行为CSV格式
+    // Combine all rows into CSV format
     const allRows = [
       ...sessionInfo,
       qaHeaders,
@@ -130,23 +150,85 @@ export default function SessionDetailPage({ params }: { params: { id: string } }
 
     const csvContent = allRows.map(row => 
       row.map(cell => 
-        // 处理包含逗号、引号等特殊字符的单元格
+        // Handle cells with special characters like commas and quotes
         typeof cell === 'string' && (cell.includes(',') || cell.includes('"') || cell.includes('\n')) 
           ? `"${cell.replace(/"/g, '""')}"` 
           : cell
       ).join(',')
     ).join('\n');
 
-    // 创建Blob并下载
+    // Create Blob and download
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     
     link.setAttribute('href', url);
-    link.setAttribute('download', `session-${session.id}-details.csv`);
+    link.setAttribute('download', `session-${session.id}-qa-data.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+  };
+
+  // Export causal graphs as JSON
+  const exportCausalGraphs = async () => {
+    if (!session) return;
+    
+    setLoading(true);
+    try {
+      // Fetch causal graphs for this session
+      const response = await fetch(`/api/causal-graphs?sessionId=${sessionId}`);
+      
+      if (!response.ok) {
+        throw new Error(`Failed to fetch graphs: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      
+      if (!data.success) {
+        throw new Error(data.error || 'Unknown error fetching graphs');
+      }
+      
+      // If no graphs found
+      if (!data.causalGraphs || data.causalGraphs.length === 0) {
+        setError('No causal graphs found for this session');
+        return;
+      }
+      
+      // Create formatted JSON with session info and graphs
+      const exportData = {
+        sessionInfo: {
+          id: session.id,
+          prolificId: session.prolificId,
+          status: session.status,
+          createdAt: session.createdAt,
+          completedAt: session.completedAt,
+          updatedAt: session.updatedAt,
+        },
+        graphs: data.causalGraphs.map((graph: CausalGraph) => ({
+          qaPairId: graph.qaPairId,
+          graphData: graph.graphData,
+          timestamp: graph.timestamp
+        }))
+      };
+      
+      // Create and download the JSON file
+      const jsonContent = JSON.stringify(exportData, null, 2);
+      const blob = new Blob([jsonContent], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      
+      link.setAttribute('href', url);
+      link.setAttribute('download', `session-${session.id}-causal-graphs.json`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+    } catch (err: any) {
+      setError(err.message || 'Failed to export causal graphs');
+      console.error('Error exporting causal graphs:', err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   if (loading && !session) {
@@ -214,7 +296,15 @@ export default function SessionDetailPage({ params }: { params: { id: string } }
                 disabled={loading}
               >
                 <Download className="h-4 w-4 mr-2" />
-                Export Data
+                Export QA Data
+              </Button>
+              <Button 
+                variant="outline" 
+                onClick={exportCausalGraphs}
+                disabled={loading}
+              >
+                <FileJson className="h-4 w-4 mr-2" />
+                Export All Graphs
               </Button>
               <Button 
                 variant={editMode ? "default" : "outline"} 
@@ -251,6 +341,13 @@ export default function SessionDetailPage({ params }: { params: { id: string } }
                 className="data-[state=active]:bg-[#333333] data-[state=active]:text-white"
               >
                 Q&A List
+              </TabsTrigger>
+              <TabsTrigger 
+                value="graphs"
+                className="data-[state=active]:bg-[#333333] data-[state=active]:text-white"
+              >
+                <Network className="h-4 w-4 mr-2" />
+                Causal Graphs
               </TabsTrigger>
             </TabsList>
             
@@ -316,6 +413,18 @@ export default function SessionDetailPage({ params }: { params: { id: string } }
                   )}
                 </div>
               )}
+            </TabsContent>
+            
+            <TabsContent value="graphs">
+              <div className="mb-4">
+                <h3 className="text-lg font-semibold mb-1">Causal Graph Visualization</h3>
+                <p className="text-sm text-gray-500">
+                  This visualization shows the causal graphs generated from user responses. 
+                  Navigate between graphs to see how the model evolves with each question.
+                </p>
+              </div>
+              
+              <CausalGraphViewer sessionId={sessionId} className="mt-6 bg-white p-4 rounded-md border border-[#e0ddd5]" />
             </TabsContent>
           </Tabs>
         </>

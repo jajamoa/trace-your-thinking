@@ -74,10 +74,29 @@ def process_answer():
     if not all([session_id, prolific_id, qa_pair]):
         return jsonify({"error": "Missing required parameters"}), 400
     
+    # Get current QA pair ID to avoid duplicating follow-up questions
+    current_qa_ids = [qa_pair.get('id')]
+    
+    # Check if any existing QA pairs were provided
+    if existing_causal_graph and 'qas' in existing_causal_graph:
+        # Extract existing QA IDs to avoid duplicates
+        for qa in existing_causal_graph.get('qas', []):
+            if 'qa_id' in qa:
+                current_qa_ids.append(qa['qa_id'])
+    
+    # Filter follow-up questions to exclude existing IDs
+    filtered_follow_ups = []
+    for q in FOLLOW_UP_QUESTIONS:
+        if q['id'] not in current_qa_ids:
+            filtered_follow_ups.append(q)
+    
     # Simplified causal graph generation - placeholder
     causal_graph = generate_placeholder_graph(
+        prolific_id,
+        qa_pair.get('id', ''),
         qa_pair.get('question', ''), 
-        qa_pair.get('answer', '')
+        qa_pair.get('answer', ''),
+        existing_causal_graph
     )
     
     # Return follow-up questions and causal graph
@@ -86,36 +105,131 @@ def process_answer():
         "sessionId": session_id,
         "prolificId": prolific_id,
         "qaPair": qa_pair,
-        "followUpQuestions": FOLLOW_UP_QUESTIONS,
+        "followUpQuestions": filtered_follow_ups[:2],  # Limit to at most 2 follow-up questions
         "causalGraph": causal_graph,
         "timestamp": int(time.time())
     })
 
-def generate_placeholder_graph(question, answer):
+def generate_placeholder_graph(agent_id, qa_id, question, answer, existing_graph=None):
     """
-    Generate simplified placeholder causal graph
+    Generate a causal graph following the data schema format
+    
+    Args:
+        agent_id (str): User's ID (prolificId)
+        qa_id (str): Current QA pair ID
+        question (str): Current question text
+        answer (str): Current answer text
+        existing_graph (dict): Existing causal graph to update, if any
+        
+    Returns:
+        dict: A causal graph conforming to the data schema format
     """
     # Create a deterministic ID based on input
-    graph_id = hashlib.md5((question + answer).encode()).hexdigest()[:10]
+    qa_id_clean = f"qa_{qa_id}" if not qa_id.startswith("qa_") else qa_id
     
-    # Simplified fixed nodes and edges
-    nodes = [
-        {"id": "cause_1", "label": "Cause 1 (placeholder)", "type": "cause"},
-        {"id": "cause_2", "label": "Cause 2 (placeholder)", "type": "cause"},
-        {"id": "effect_1", "label": "Effect 1 (placeholder)", "type": "effect"},
-    ]
+    # Initialize with existing graph or create new one
+    if existing_graph and isinstance(existing_graph, dict):
+        graph = existing_graph
+        # Ensure the required top-level structures exist
+        graph.setdefault('agent_id', agent_id)
+        graph.setdefault('nodes', {})
+        graph.setdefault('edges', {})
+        graph.setdefault('qas', [])
+    else:
+        # Create new graph structure following the schema
+        graph = {
+            "agent_id": agent_id,
+            "nodes": {},
+            "edges": {},
+            "qas": []
+        }
     
-    edges = [
-        {"source": "cause_1", "target": "effect_1", "label": "causes"},
-        {"source": "cause_2", "target": "effect_1", "label": "causes"}
-    ]
+    # If this is a new QA pair, add nodes and edges
+    if not any(qa['qa_id'] == qa_id_clean for qa in graph['qas']):
+        # Create two simple nodes to represent the key concepts
+        # Use node IDs based on the number of existing nodes
+        next_node_id = 1 + len(graph['nodes'])
+        
+        # Create first node (external state)
+        n1_id = f"n{next_node_id}"
+        graph['nodes'][n1_id] = {
+            "id": n1_id,
+            "label": f"Factor 1 from {qa_id_clean}",
+            "type": "binary",
+            "values": [True, False],
+            "semantic_role": "external_state",
+            "appearance": {
+                "qa_ids": [qa_id_clean],
+                "frequency": 1
+            },
+            "incoming_edges": [],
+            "outgoing_edges": []
+        }
+        
+        # Create second node (internal affect)
+        n2_id = f"n{next_node_id + 1}"
+        graph['nodes'][n2_id] = {
+            "id": n2_id,
+            "label": f"Factor 2 from {qa_id_clean}",
+            "type": "binary",
+            "values": [True, False],
+            "semantic_role": "internal_affect",
+            "appearance": {
+                "qa_ids": [qa_id_clean],
+                "frequency": 1
+            },
+            "incoming_edges": [],
+            "outgoing_edges": []
+        }
+        
+        # Create an edge connecting the nodes
+        next_edge_id = 1 + len(graph['edges'])
+        edge_id = f"e{next_edge_id}"
+        
+        # Update node edge references
+        graph['nodes'][n1_id]["outgoing_edges"].append(edge_id)
+        graph['nodes'][n2_id]["incoming_edges"].append(edge_id)
+        
+        # Create the edge with sigmoid function
+        graph['edges'][edge_id] = {
+            "from": n1_id,
+            "to": n2_id,
+            "function": {
+                "target": n2_id,
+                "inputs": [n1_id],
+                "function_type": "sigmoid",
+                "parameters": {
+                    "weights": [0.8],
+                    "bias": 0.2
+                },
+                "noise_std": 0.1,
+                "support_qas": [qa_id_clean],
+                "confidence": 0.7
+            },
+            "support_qas": [qa_id_clean]
+        }
+        
+        # Add the QA pair with parsed belief
+        graph['qas'].append({
+            "qa_id": qa_id_clean,
+            "question": question,
+            "answer": answer,
+            "parsed_belief": {
+                "belief_structure": {
+                    "from": n1_id,
+                    "to": n2_id,
+                    "direction": "positive"
+                },
+                "belief_strength": {
+                    "estimated_probability": 0.7,
+                    "confidence_rating": 0.6
+                },
+                "counterfactual": f"If {graph['nodes'][n1_id]['label']} were different, {graph['nodes'][n2_id]['label']} would change."
+            }
+        })
     
-    return {
-        "id": f"graph_{graph_id}",
-        "nodes": nodes,
-        "edges": edges
-    }
+    return graph
 
 if __name__ == '__main__':
-    port = int(os.environ.get("PORT", 5000))
+    port = int(os.environ.get("PORT", 5001))
     app.run(host='0.0.0.0', port=port) 

@@ -26,7 +26,7 @@ import {
 } from "@/components/ui/tooltip";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { AlertCircle, CheckCircle, Trash, Search, RefreshCw, Edit, Copy, MoveHorizontal, Download, FileJson } from "lucide-react";
+import { AlertCircle, CheckCircle, Trash, Search, RefreshCw, Edit, Copy, MoveHorizontal, Download, FileJson, Network } from "lucide-react";
 import Link from 'next/link';
 
 type SessionStatus = 'in_progress' | 'completed' | 'abandoned';
@@ -196,7 +196,7 @@ export default function AdminSessions() {
     setDragOverSession(null);
   };
 
-  // Export complete session data as JSON file
+  // Export all sessions QA data as JSON file
   const exportSessionsAsJson = async () => {
     if (filteredSessions.length === 0) return;
     
@@ -227,13 +227,67 @@ export default function AdminSessions() {
       const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
       
       link.setAttribute('href', url);
-      link.setAttribute('download', `sessions-complete-${timestamp}.json`);
+      link.setAttribute('download', `all-sessions-qa-data-${timestamp}.json`);
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
     } catch (error) {
       console.error('Failed to export sessions:', error);
       setError('Failed to export sessions data');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Export all causal graphs data as JSON file
+  const exportAllCausalGraphs = async () => {
+    if (filteredSessions.length === 0) return;
+    
+    setLoading(true);
+    
+    try {
+      // Get causal graphs for each session
+      const graphsData = await Promise.all(
+        filteredSessions.map(async (session) => {
+          try {
+            const response = await fetch(`/api/causal-graphs?sessionId=${session.id}`);
+            if (!response.ok) throw new Error(`Failed to fetch graphs for session ${session.id}`);
+            const data = await response.json();
+            
+            return {
+              sessionId: session.id,
+              prolificId: session.prolificId,
+              status: session.status,
+              graphs: data.causalGraphs || []
+            };
+          } catch (error) {
+            console.error(`Error fetching graphs for session ${session.id}:`, error);
+            return {
+              sessionId: session.id,
+              prolificId: session.prolificId,
+              status: session.status,
+              graphs: [],
+              error: 'Failed to fetch graphs'
+            };
+          }
+        })
+      );
+      
+      // Create and download JSON file
+      const jsonContent = JSON.stringify(graphsData, null, 2);
+      const blob = new Blob([jsonContent], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+      
+      link.setAttribute('href', url);
+      link.setAttribute('download', `all-causal-graphs-${timestamp}.json`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } catch (error) {
+      console.error('Failed to export causal graphs:', error);
+      setError('Failed to export causal graphs data');
     } finally {
       setLoading(false);
     }
@@ -268,10 +322,20 @@ export default function AdminSessions() {
               size="sm"
               onClick={exportSessionsAsJson}
               disabled={filteredSessions.length === 0 || loading}
-              title="Export complete session data including Q&A as JSON"
+              title="Export all sessions Q&A data as JSON"
             >
               <FileJson className="h-4 w-4 mr-2" />
-              Export Complete
+              Export All QAs
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={exportAllCausalGraphs}
+              disabled={filteredSessions.length === 0 || loading}
+              title="Export all causal graphs data as JSON"
+            >
+              <Network className="h-4 w-4 mr-2" />
+              Export All Graphs
             </Button>
           </div>
         </div>
