@@ -170,8 +170,9 @@ export class SyncService {
         
         // Display the fallback question
         if (addMessage) {
+          const timestamp = Date.now();
           addMessage({
-            id: uuidv4(),
+            id: `msg_q_${fallbackQAPair.id}_${timestamp}`,
             role: "bot",
             text: fallbackQAPair.question,
             loading: false
@@ -202,8 +203,9 @@ export class SyncService {
       // Display the first question as a message
       if (qaPairs.length > 0 && addMessage) {
         console.log("Adding first question message:", qaPairs[0].question)
+        const timestamp = Date.now();
         addMessage({
-          id: uuidv4(),
+          id: `msg_q_${qaPairs[0].id}_${timestamp}`,
           role: "bot",
           text: qaPairs[0].question,
           loading: false
@@ -231,8 +233,9 @@ export class SyncService {
       
       // Display fallback question
       if (store.addMessage) {
+        const timestamp = Date.now();
         store.addMessage({
-          id: uuidv4(),
+          id: `msg_q_${fallbackQAPair.id}_${timestamp}`,
           role: "bot",
           text: fallbackQAPair.question,
           loading: false
@@ -363,10 +366,12 @@ export class SyncService {
       
       console.log(`Showing messages for ${qaPairsToShow.length} questions up to index ${currentQuestionIndex}`)
       
-      qaPairsToShow.forEach((qaPair) => {
+      qaPairsToShow.forEach((qaPair, index) => {
+        const timestamp = Date.now() + index; // 添加索引确保每次生成的时间戳不同
+      
         // Add question message
         addMessage({
-          id: uuidv4(),
+          id: `msg_q_${qaPair.id}_${timestamp}`,
           role: "bot",
           text: qaPair.question,
           loading: false
@@ -375,7 +380,7 @@ export class SyncService {
         // Add answer message if it exists
         if (qaPair.answer && qaPair.answer.trim() !== '') {
           addMessage({
-            id: uuidv4(),
+            id: `msg_a_${qaPair.id}_${timestamp+1}`,
             role: "user",
             text: qaPair.answer,
             loading: false

@@ -4,6 +4,7 @@ import json
 import hashlib
 import time
 import os
+import uuid
 
 app = Flask(__name__)
 CORS(app)  # Allow cross-origin requests
@@ -11,19 +12,19 @@ CORS(app)  # Allow cross-origin requests
 # Simplified follow-up questions - placeholder
 FOLLOW_UP_QUESTIONS = [
     {
-        "id": "followup1",
+        "id": None,  # Will be dynamically generated when needed
         "question": "Could you further explain the main factors you mentioned in your previous answer?",
         "shortText": "Explain main factors",
         "answer": ""
     },
     {
-        "id": "followup2",
+        "id": None,  # Will be dynamically generated when needed
         "question": "How do these factors influence each other?",
         "shortText": "Factor relationships",
         "answer": ""
     },
     {
-        "id": "followup3",
+        "id": None,  # Will be dynamically generated when needed
         "question": "Which factor do you think has the greatest impact, and why?",
         "shortText": "Most influential factor",
         "answer": ""
@@ -102,7 +103,11 @@ def process_answer():
     for q in FOLLOW_UP_QUESTIONS:
         # Simple content comparison - if question text is not already asked
         if q['question'] not in current_question_texts:
-            filtered_follow_ups.append(q)
+            # Create a deep copy of the question to avoid modifying the original
+            follow_up = q.copy()
+            # Generate a unique ID using timestamp and a random component
+            follow_up['id'] = f"followup_{uuid.uuid4().hex[:8]}_{int(time.time())}"
+            filtered_follow_ups.append(follow_up)
     
     # Limit number of follow-up questions based on current position in the session
     # If we're near the end (last 3 questions), don't add more follow-ups
@@ -150,8 +155,13 @@ def generate_placeholder_graph(agent_id, qa_id, question, answer, existing_graph
     Returns:
         dict: A causal graph conforming to the data schema format
     """
-    # Create a deterministic ID based on input
-    qa_id_clean = f"qa_{qa_id}" if not qa_id.startswith("qa_") else qa_id
+    # Create a deterministic ID based on input, adding timestamp for uniqueness if needed
+    if not qa_id.startswith("qa_"):
+        # Add timestamp to ensure uniqueness
+        time_component = int(time.time())
+        qa_id_clean = f"qa_{qa_id}_{time_component}"
+    else:
+        qa_id_clean = qa_id
     
     # Initialize with existing graph or create new one
     if existing_graph and isinstance(existing_graph, dict):

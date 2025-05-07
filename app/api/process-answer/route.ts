@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import connectToDatabase from "../../../lib/mongodb";
 import Session from "../../../models/Session";
 import CausalGraph, { ICausalGraphData } from "../../../models/CausalGraph";
+import { v4 as uuidv4 } from 'uuid';
 
 // Get Python backend URL - server-side only, not exposed to client
 const PYTHON_BACKEND_URL = process.env.PYTHON_BACKEND_URL || 'http://localhost:5000';
@@ -124,10 +125,15 @@ export async function POST(request: Request) {
         const insertPosition = currentQuestionIndex + 1;
         
         // Prepare follow-up questions, ensuring no ID conflicts with existing questions
-        const followUpQuestions = data.followUpQuestions.map((q: any, index: number) => ({
-          ...q,
-          id: q.id || `followup_${qaPair.id}_${index + 1}`
-        }));
+        const followUpQuestions = data.followUpQuestions.map((q: any, index: number) => {
+          // Generate a unique ID with timestamp and UUID fragment to ensure uniqueness
+          // This prevents ID collisions when multiple follow-up questions are added in quick succession
+          const uniqueId = `${Date.now()}_${uuidv4().substring(0, 8)}`;
+          return {
+            ...q,
+            id: q.id || `followup_${qaPair.id}_${index + 1}_${uniqueId}`
+          };
+        });
         
         // Insert follow-up questions into the session
         const newQaPairs = [

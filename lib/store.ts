@@ -147,7 +147,7 @@ export const useStore = create<StoreState>()(
               
               // Add the next question as a message
               filteredMessages.push({
-                id: `msg_q_${nextQuestion.id}`,
+                id: `msg_q_${nextQuestion.id}_${Date.now()}`,
                 role: "bot" as const,
                 text: nextQuestion.question,
                 loading: false
@@ -271,6 +271,7 @@ export const useStore = create<StoreState>()(
                 
                 if (prevMsg && prevMsg.role === "bot" && prevMsg.text === currentQAPair.question) {
                   messagesUpdated = true;
+                  // 保持原ID但更新文本内容
                   return {
                     ...msg,
                     text: updates.answer || ""
@@ -279,6 +280,19 @@ export const useStore = create<StoreState>()(
               }
               return msg;
             });
+            
+            // 如果没有找到对应消息进行更新，可能需要添加新消息
+            if (!messagesUpdated) {
+              // 在这种情况下，我们需要添加一个用户答案消息
+              const timestamp = Date.now();
+              updatedMessages.push({
+                id: `msg_a_${id}_${timestamp}`,
+                role: "user",
+                text: updates.answer || "",
+                loading: false
+              });
+              messagesUpdated = true;
+            }
             
             if (messagesUpdated) {
               return {
@@ -500,10 +514,11 @@ export const useStore = create<StoreState>()(
           // Build message list including all questions up to current index
           for (let i = 0; i <= currentQuestionIndex && i < state.qaPairs.length; i++) {
             const qaPair = state.qaPairs[i];
+            const timestamp = Date.now() + i; // 添加i确保每次循环生成的时间戳不同
             
             // Add question message
             newMessages.push({
-              id: `msg_q_${qaPair.id}`,
+              id: `msg_q_${qaPair.id}_${timestamp}`,
               role: "bot" as const,
               text: qaPair.question,
               loading: false
@@ -512,7 +527,7 @@ export const useStore = create<StoreState>()(
             // If there's an answer, add answer message
             if (qaPair.answer && qaPair.answer.trim() !== '') {
               newMessages.push({
-                id: `msg_a_${qaPair.id}`,
+                id: `msg_a_${qaPair.id}_${timestamp+1}`,
                 role: "user" as const,
                 text: qaPair.answer,
                 loading: false
@@ -532,7 +547,7 @@ export const useStore = create<StoreState>()(
             if (!lastMessage || lastMessage.role !== 'bot' || lastMessage.text !== currentQA.question) {
               newMessages = [...state.messages];
               newMessages.push({
-                id: `msg_q_${currentQA.id}`,
+                id: `msg_q_${currentQA.id}_${Date.now()}`,
                 role: "bot" as const,
                 text: currentQA.question,
                 loading: false
@@ -607,13 +622,14 @@ export const useStore = create<StoreState>()(
       },
 
       /**
-       * 添加一个新问题
-       * @param questionData 包含text和shortText的对象
-       * @returns 为新问题生成的ID
+       * Add a new question
+       * @param questionData Object containing text and shortText
+       * @returns Generated ID for the new question
        */
       addNewQuestion: (questionData) => {
-        // Generate a unique ID using timestamp
-        const id = `q${Date.now()}`
+        // Generate a unique ID using timestamp and UUID to ensure uniqueness
+        // This prevents collisions when multiple questions are added at almost the same time
+        const id = `q${Date.now()}_${uuidv4().substring(0, 8)}`
 
         set((state) => {
           // Create a new QA pair with the generated ID

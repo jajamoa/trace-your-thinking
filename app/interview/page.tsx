@@ -203,7 +203,8 @@ export default function InterviewPage() {
     console.log(`Current progress before answering: ${progress.current}/${progress.total}`)
 
     try {
-      const messageId = `user_msg_${uuidv4()}_${Date.now()}`
+      const timestamp = Date.now();
+      const messageId = `msg_a_${currentQuestion.id}_${timestamp}`
       addMessage({
         id: messageId,
         role: "user",
