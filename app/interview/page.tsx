@@ -203,8 +203,7 @@ export default function InterviewPage() {
     console.log(`Current progress before answering: ${progress.current}/${progress.total}`)
 
     try {
-      // Add user's answer to messages with a UUID
-      const messageId = uuidv4()
+      const messageId = `user_msg_${uuidv4()}_${Date.now()}`
       addMessage({
         id: messageId,
         role: "user",
@@ -239,7 +238,9 @@ export default function InterviewPage() {
         const pythonResult = await PythonAPIService.processAnswer(
           sessionId || '',
           prolificId || '',
-          updatedQAPair
+          updatedQAPair,
+          qaPairs,
+          currentQuestionIndex
         );
         
         if (pythonResult.success) {

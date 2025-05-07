@@ -14,6 +14,8 @@ export class PythonAPIService {
     sessionId: string, 
     prolificId: string, 
     qaPair: QAPair,
+    qaPairs: QAPair[] = [],
+    currentQuestionIndex: number = 0,
     existingCausalGraph: any = null
   ): Promise<{
     success: boolean;
@@ -26,7 +28,9 @@ export class PythonAPIService {
       console.log(`Sending QA pair to process-answer API:`, { 
         sessionId, 
         prolificId, 
-        questionId: qaPair.id 
+        questionId: qaPair.id,
+        totalQaPairs: qaPairs.length,
+        currentQuestionIndex
       });
 
       // Make API call to Next.js API route (not directly to Python backend)
@@ -39,6 +43,8 @@ export class PythonAPIService {
           sessionId,
           prolificId,
           qaPair,
+          qaPairs,
+          currentQuestionIndex,
           existingCausalGraph
         }),
       });

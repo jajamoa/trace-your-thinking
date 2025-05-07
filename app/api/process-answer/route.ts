@@ -15,7 +15,7 @@ export async function POST(request: Request) {
     await connectToDatabase();
     
     const body = await request.json();
-    const { sessionId, prolificId, qaPair } = body;
+    const { sessionId, prolificId, qaPair, qaPairs, currentQuestionIndex } = body;
 
     if (!sessionId || !prolificId || !qaPair) {
       return NextResponse.json({ error: "Missing required parameters" }, { status: 400 });
@@ -28,6 +28,12 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Session not found" }, { status: 404 });
     }
 
+    // Get all qaPairs from the session if not provided in request
+    const allQaPairs = qaPairs || session.qaPairs || [];
+    
+    // Default current index to 0 if not provided
+    const questionIndex = currentQuestionIndex !== undefined ? currentQuestionIndex : 0;
+
     // Call Python backend API for processing
     const pythonResponse = await fetch(`${PYTHON_BACKEND_URL}/api/process_answer`, {
       method: 'POST',
@@ -38,6 +44,8 @@ export async function POST(request: Request) {
         sessionId,
         prolificId,
         qaPair,
+        qaPairs: allQaPairs,
+        currentQuestionIndex: questionIndex,
       }),
     });
 
