@@ -68,27 +68,53 @@ def process_answer():
     # Extract required parameters
     session_id = data.get('sessionId')
     prolific_id = data.get('prolificId')
-    qa_pair = data.get('qaPair')
+    qa_pair = data.get('qaPair')  # Current QA pair being processed
+    qa_pairs = data.get('qaPairs', [])  # All QA pairs in the session
+    current_index = data.get('currentQuestionIndex', 0)  # Current question index
     existing_causal_graph = data.get('existingCausalGraph')
     
     if not all([session_id, prolific_id, qa_pair]):
         return jsonify({"error": "Missing required parameters"}), 400
     
-    # Get current QA pair ID to avoid duplicating follow-up questions
-    current_qa_ids = [qa_pair.get('id')]
+    print(f"Processing answer for question {current_index + 1}/{len(qa_pairs)}: {qa_pair.get('question', '')[:50]}...")
     
-    # Check if any existing QA pairs were provided
+    # Get texts from all existing questions to avoid duplicating follow-up questions
+    current_question_texts = []
+    
+    # Add the current question
+    if qa_pair.get('question'):
+        current_question_texts.append(qa_pair.get('question'))
+    
+    # Add all questions from the session's qaPairs
+    for pair in qa_pairs:
+        if pair.get('question') and pair.get('question') not in current_question_texts:
+            current_question_texts.append(pair.get('question'))
+    
+    # Check if any existing QA pairs were provided in the causal graph
     if existing_causal_graph and 'qas' in existing_causal_graph:
-        # Extract existing QA IDs to avoid duplicates
+        # Extract existing question texts to avoid duplicates
         for qa in existing_causal_graph.get('qas', []):
-            if 'qa_id' in qa:
-                current_qa_ids.append(qa['qa_id'])
+            if 'question' in qa and qa['question'] not in current_question_texts:
+                current_question_texts.append(qa['question'])
     
-    # Filter follow-up questions to exclude existing IDs
+    # Filter follow-up questions to exclude similar questions
     filtered_follow_ups = []
     for q in FOLLOW_UP_QUESTIONS:
-        if q['id'] not in current_qa_ids:
+        # Simple content comparison - if question text is not already asked
+        if q['question'] not in current_question_texts:
             filtered_follow_ups.append(q)
+    
+    # Limit number of follow-up questions based on current position in the session
+    # If we're near the end (last 3 questions), don't add more follow-ups
+    remaining_questions = len(qa_pairs) - current_index - 1
+    if remaining_questions <= 3:
+        filtered_follow_ups = []  # No more follow-ups near the end
+    elif remaining_questions <= 5:
+        filtered_follow_ups = filtered_follow_ups[:1]  # Just one follow-up for near-end questions
+    else:
+        filtered_follow_ups = filtered_follow_ups[:2]  # Regular limit
+    
+    print(f"Added {len(filtered_follow_ups)} follow-up questions")
     
     # Simplified causal graph generation - placeholder
     causal_graph = generate_placeholder_graph(
@@ -105,7 +131,7 @@ def process_answer():
         "sessionId": session_id,
         "prolificId": prolific_id,
         "qaPair": qa_pair,
-        "followUpQuestions": filtered_follow_ups[:2],  # Limit to at most 2 follow-up questions
+        "followUpQuestions": filtered_follow_ups,
         "causalGraph": causal_graph,
         "timestamp": int(time.time())
     })
