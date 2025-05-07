@@ -1,5 +1,5 @@
 'use client';
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import ReactFlow, {
   Node,
   Edge,
@@ -9,7 +9,8 @@ import ReactFlow, {
   useNodesState,
   useEdgesState,
   Position,
-  Handle
+  Handle,
+  ReactFlowInstance
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -139,6 +140,7 @@ export default function CausalGraphViewer({ sessionId, qaPairId, className }: Ca
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
   const [qaInfo, setQaInfo] = useState<{ question: string; answer: string } | null>(null);
+  const reactFlowInstance = useRef<ReactFlowInstance | null>(null);
 
   const fetchCausalGraphs = useCallback(async () => {
     setLoading(true);
@@ -163,12 +165,12 @@ export default function CausalGraphViewer({ sessionId, qaPairId, className }: Ca
         throw new Error(data.error || 'Unknown error');
       }
       
-      // Sort by qaPairId to maintain question order
+      // Sort by timestamp to maintain chronological order
       const sortedGraphs = [...data.causalGraphs].sort((a, b) => {
-        // Extract numeric part from qaPairId for sorting
-        const numA = parseInt(a.qaPairId.replace(/\D/g, ''));
-        const numB = parseInt(b.qaPairId.replace(/\D/g, ''));
-        return numA - numB;
+        // Parse timestamps into Date objects for comparison
+        const timeA = new Date(a.timestamp).getTime();
+        const timeB = new Date(b.timestamp).getTime();
+        return timeA - timeB;  // Oldest first
       });
       
       setCausalGraphs(sortedGraphs);
@@ -203,8 +205,10 @@ export default function CausalGraphViewer({ sessionId, qaPairId, className }: Ca
     const transformedEdges: Edge[] = [];
     
     // Get QA info for the current graph
-    const qa = graphData.qas.find(qa => qa.qa_id === `qa_${graph.qaPairId}`) || 
-               graphData.qas.find(qa => qa.qa_id === graph.qaPairId);
+    const qa = graphData.qas && graphData.qas.length > 0 
+      ? (graphData.qas.find(qa => qa.qa_id === `qa_${graph.qaPairId}`) || 
+         graphData.qas.find(qa => qa.qa_id === graph.qaPairId))
+      : null;
     
     if (qa) {
       setQaInfo({
@@ -215,10 +219,19 @@ export default function CausalGraphViewer({ sessionId, qaPairId, className }: Ca
       setQaInfo(null);
     }
 
+    // Transform nodes
     // Analyze graph structure to improve layout
-    const nodeIds = Object.keys(graphData.nodes);
-    const rootNodes = nodeIds.filter(id => graphData.nodes[id].incoming_edges.length === 0);
-    const leafNodes = nodeIds.filter(id => graphData.nodes[id].outgoing_edges.length === 0);
+    const nodeIds = graphData.nodes ? Object.keys(graphData.nodes) : [];
+    const rootNodes = nodeIds.filter(id => 
+      graphData.nodes && graphData.nodes[id] && 
+      graphData.nodes[id].incoming_edges && 
+      graphData.nodes[id].incoming_edges.length === 0
+    );
+    const leafNodes = nodeIds.filter(id => 
+      graphData.nodes && graphData.nodes[id] && 
+      graphData.nodes[id].outgoing_edges && 
+      graphData.nodes[id].outgoing_edges.length === 0
+    );
     const middleNodes = nodeIds.filter(id => 
       !rootNodes.includes(id) && !leafNodes.includes(id)
     );
@@ -227,92 +240,130 @@ export default function CausalGraphViewer({ sessionId, qaPairId, className }: Ca
     const sortedNodes = [...rootNodes, ...middleNodes, ...leafNodes];
     
     // Create a better layout based on graph structure
-    sortedNodes.forEach((nodeId, index) => {
-      const node = graphData.nodes[nodeId];
-      let nodeType = 'default';
-      const rowPosition = index % 3;  // Stagger nodes in three rows
+    if (graphData.nodes) {
+      // Improved layout configuration
+      const HORIZONTAL_SPACING = 300;  // Further increased spacing between nodes horizontally
+      const VERTICAL_SPACING = 200;    // Further increased spacing between levels
+      const NODES_PER_ROW = Math.max(3, Math.ceil(Math.sqrt(nodeIds.length * 0.8)));  // Reduce nodes per row to prevent overlap
       
-      // Map semantic role to node type
-      switch (node.semantic_role) {
-        case 'external_state':
-          nodeType = 'externalState';
-          break;
-        case 'internal_affect':
-          nodeType = 'internalAffect';
-          break;
-        case 'behavioral_intention':
-          nodeType = 'behavioralIntention';
-          break;
-      }
-
-      // Create position based on node's role in the graph
-      let xPos = 150 * Math.floor(index / 3);
-      let yPos = 100 * rowPosition;
+      // Calculate optimal distribution of nodes in each layer
+      const rootNodesCount = rootNodes.length;
+      const middleNodesCount = middleNodes.length;
+      const leafNodesCount = leafNodes.length;
       
-      // Adjust position based on node's role in the graph
-      if (rootNodes.includes(nodeId)) {
-        xPos = 150 * rootNodes.indexOf(nodeId);
-        yPos = 50;
-      } else if (leafNodes.includes(nodeId)) {
-        xPos = 150 * leafNodes.indexOf(nodeId);
-        yPos = 250;
-      } else {
-        xPos = 150 * middleNodes.indexOf(nodeId);
-        yPos = 150;
-      }
+      // Get max count to determine optimal width
+      const maxNodesInLayer = Math.max(rootNodesCount, middleNodesCount, leafNodesCount, 1);
       
-      transformedNodes.push({
-        id: node.id,
-        type: nodeType,
-        data: {
-          label: node.label,
-          type: node.type,
-          values: node.values,
-          range: node.range,
-          semantic_role: node.semantic_role
-        },
-        position: { x: xPos, y: yPos }
-      });
-    });
-
-    // Transform edges
-    Object.entries(graphData.edges).forEach(([edgeId, edge]) => {
-      const edgeFunction = edge.function;
-      
-      // Determine edge style based on function type and parameters
-      let style = {};
-      let label = '';
-      
-      if (edgeFunction.function_type === 'sigmoid') {
-        // Label with weight and bias
-        const weight = edgeFunction.parameters.weights?.[0] || 0;
-        const bias = edgeFunction.parameters.bias || 0;
-        label = `W: ${weight.toFixed(1)}, B: ${bias.toFixed(1)}`;
+      sortedNodes.forEach((nodeId, index) => {
+        const node = graphData.nodes[nodeId];
+        if (!node) return; // Skip if node doesn't exist
         
-        // Style based on weight (positive = solid, negative = dashed)
-        if (weight < 0) {
-          style = { strokeDasharray: '5,5', stroke: '#a87c7c' };
-        } else {
-          style = { stroke: '#8a936a' };
+        let nodeType = 'default';
+        
+        // Map semantic role to node type
+        switch (node.semantic_role) {
+          case 'external_state':
+            nodeType = 'externalState';
+            break;
+          case 'internal_affect':
+            nodeType = 'internalAffect';
+            break;
+          case 'behavioral_intention':
+            nodeType = 'behavioralIntention';
+            break;
         }
-      } else if (edgeFunction.function_type === 'threshold') {
-        // Label with threshold and direction
-        const threshold = edgeFunction.parameters.threshold || 0;
-        const direction = edgeFunction.parameters.direction || 'greater';
-        label = `T: ${threshold.toFixed(1)} (${direction})`;
-        style = { strokeWidth: 2, stroke: '#8f8574' };
-      }
-      
-      transformedEdges.push({
-        id: edgeId,
-        source: edge.from,
-        target: edge.to,
-        label,
-        labelStyle: { fill: '#5c5c5c', fontWeight: 500, fontSize: 12 },
-        style,
-        animated: true
+
+        // Calculate position based on the node's layer and relative position within that layer
+        let xPos = 0;
+        let yPos = 0;
+        
+        if (rootNodes.includes(nodeId)) {
+          // Calculate position in the top row (root nodes)
+          const positionInLayer = rootNodes.indexOf(nodeId);
+          xPos = (positionInLayer - (rootNodesCount - 1) / 2) * HORIZONTAL_SPACING;
+          yPos = 0;
+        } else if (leafNodes.includes(nodeId)) {
+          // Calculate position in the bottom row (leaf nodes)
+          const positionInLayer = leafNodes.indexOf(nodeId);
+          xPos = (positionInLayer - (leafNodesCount - 1) / 2) * HORIZONTAL_SPACING;
+          yPos = VERTICAL_SPACING * 2;
+        } else {
+          // Calculate position in the middle row
+          const positionInLayer = middleNodes.indexOf(nodeId);
+          
+          // If we have many middle nodes, distribute them in a grid
+          if (middleNodesCount > NODES_PER_ROW) {
+            const row = Math.floor(positionInLayer / NODES_PER_ROW);
+            const col = positionInLayer % NODES_PER_ROW;
+            xPos = (col - (NODES_PER_ROW - 1) / 2) * HORIZONTAL_SPACING;
+            yPos = VERTICAL_SPACING + row * (VERTICAL_SPACING * 0.6);
+          } else {
+            // Otherwise center them in one row
+            xPos = (positionInLayer - (middleNodesCount - 1) / 2) * HORIZONTAL_SPACING;
+            yPos = VERTICAL_SPACING;
+          }
+        }
+        
+        transformedNodes.push({
+          id: node.id,
+          type: nodeType,
+          data: {
+            label: node.label,
+            type: node.type,
+            values: node.values,
+            range: node.range,
+            semantic_role: node.semantic_role
+          },
+          position: { 
+            x: xPos + Math.random() * 20 - 10,
+            y: yPos + Math.random() * 20 - 10
+          }
+        });
       });
-    });
+    }
+
+    // Transform edges - Add null check before using Object.entries
+    if (graphData.edges) {
+      Object.entries(graphData.edges).forEach(([edgeId, edge]) => {
+        if (!edge || !edge.function) return; // Skip if edge or function doesn't exist
+        
+        const edgeFunction = edge.function;
+        
+        // Determine edge style based on function type and parameters
+        let style = {};
+        let label = '';
+        
+        if (edgeFunction.function_type === 'sigmoid') {
+          // Label with weight and bias
+          const weight = edgeFunction.parameters?.weights?.[0] || 0;
+          const bias = edgeFunction.parameters?.bias || 0;
+          label = `W: ${weight.toFixed(1)}, B: ${bias.toFixed(1)}`;
+          
+          // Style based on weight (positive = solid, negative = dashed)
+          if (weight < 0) {
+            style = { strokeDasharray: '5,5', stroke: '#a87c7c' };
+          } else {
+            style = { stroke: '#8a936a' };
+          }
+        } else if (edgeFunction.function_type === 'threshold') {
+          // Label with threshold and direction
+          const threshold = edgeFunction.parameters?.threshold || 0;
+          const direction = edgeFunction.parameters?.direction || 'greater';
+          label = `T: ${threshold.toFixed(1)} (${direction})`;
+          style = { strokeWidth: 2, stroke: '#8f8574' };
+        }
+        
+        transformedEdges.push({
+          id: edgeId,
+          source: edge.from,
+          target: edge.to,
+          label,
+          labelStyle: { fill: '#5c5c5c', fontWeight: 500, fontSize: 12 },
+          style,
+          animated: false // Disable animation
+        });
+      });
+    }
 
     setNodes(transformedNodes);
     setEdges(transformedEdges);
@@ -322,6 +373,18 @@ export default function CausalGraphViewer({ sessionId, qaPairId, className }: Ca
     if (index >= 0 && index < causalGraphs.length) {
       setCurrentGraphIndex(index);
       transformGraphToReactFlow(causalGraphs[index]);
+      
+      // Wait for the graph to be rendered before fitting the view
+      setTimeout(() => {
+        if (reactFlowInstance.current) {
+          reactFlowInstance.current.fitView({
+            padding: 0.25,
+            minZoom: 0.5,
+            maxZoom: 1.5,
+            duration: 0 // No animation
+          });
+        }
+      }, 50);
     }
   }, [causalGraphs, transformGraphToReactFlow]);
 
@@ -359,6 +422,9 @@ export default function CausalGraphViewer({ sessionId, qaPairId, className }: Ca
           <Badge variant="outline" className="ml-2 bg-white text-[#8a7f6c] border-[#d7d2c5]">
             QA Pair: {causalGraphs[currentGraphIndex].qaPairId}
           </Badge>
+          <Badge variant="outline" className="ml-2 bg-white text-[#6c788a] border-[#d5d9e0]">
+            {new Date(causalGraphs[currentGraphIndex].timestamp).toLocaleString()}
+          </Badge>
         </div>
         <div className="flex space-x-2">
           <Button
@@ -368,7 +434,7 @@ export default function CausalGraphViewer({ sessionId, qaPairId, className }: Ca
             disabled={currentGraphIndex === 0}
             className="border-[#d7d2c5] bg-white hover:bg-[#ede9e0] text-[#5c5c5c]"
           >
-            Previous
+            ← Earlier
           </Button>
           <Button
             variant="outline"
@@ -377,7 +443,7 @@ export default function CausalGraphViewer({ sessionId, qaPairId, className }: Ca
             disabled={currentGraphIndex === causalGraphs.length - 1}
             className="border-[#d7d2c5] bg-white hover:bg-[#ede9e0] text-[#5c5c5c]"
           >
-            Next
+            Later →
           </Button>
         </div>
       </div>
@@ -390,7 +456,7 @@ export default function CausalGraphViewer({ sessionId, qaPairId, className }: Ca
               <span className="bg-blue-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm mr-2">
                 Q
               </span>
-              Question for Graph {currentGraphIndex + 1}
+              Question #{currentGraphIndex + 1}
             </CardTitle>
           </CardHeader>
           <CardContent className="pt-4 bg-white">
@@ -419,9 +485,18 @@ export default function CausalGraphViewer({ sessionId, qaPairId, className }: Ca
           onEdgesChange={onEdgesChange}
           nodeTypes={nodeTypes}
           fitView
+          fitViewOptions={{
+            padding: 0.25,  // Add more padding around nodes (25% of viewport)
+            minZoom: 0.5,   // Allow zooming out further if needed
+            maxZoom: 1.5,   // Limit maximum zoom
+            duration: 0     // No animation
+          }}
           defaultEdgeOptions={{
             style: { stroke: '#8f8574' },
-            animated: true,
+            animated: false, // Disable edge animation
+          }}
+          onInit={(instance) => {
+            reactFlowInstance.current = instance;
           }}
         >
           <Controls className="border border-[#e0ddd5] bg-white rounded-md" />

@@ -35,6 +35,24 @@ export async function POST(request: Request) {
     // Default current index to 0 if not provided
     const questionIndex = currentQuestionIndex !== undefined ? currentQuestionIndex : 0;
 
+    // Try to get the latest causal graph from the database
+    let existingCausalGraph = null;
+    try {
+      const latestGraph = await CausalGraph.findOne({ 
+        sessionId, 
+        prolificId 
+      }).sort({ timestamp: -1 });  // Get the most recent graph
+      
+      if (latestGraph && latestGraph.graphData) {
+        console.log(`Found existing causal graph for session ${sessionId}`);
+        existingCausalGraph = latestGraph.graphData;
+      }
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      console.warn(`Could not fetch existing causal graph: ${errorMessage}`);
+      // Proceed without the existing graph
+    }
+
     // Call Python backend API for processing
     const pythonResponse = await fetch(`${PYTHON_BACKEND_URL}/api/process_answer`, {
       method: 'POST',
@@ -47,6 +65,7 @@ export async function POST(request: Request) {
         qaPair,
         qaPairs: allQaPairs,
         currentQuestionIndex: questionIndex,
+        existingCausalGraph  // Include the latest causal graph if available
       }),
     });
 
@@ -64,9 +83,18 @@ export async function POST(request: Request) {
     // Save causal graph to database
     if (data.causalGraph) {
       try {
+        console.log("Attempting to save causal graph to database...");
+        console.log(`QA pair ID: ${qaPair.id}, Session ID: ${sessionId}, Prolific ID: ${prolificId}`);
+        
+        if (!qaPair.id) {
+          console.error("Cannot save causal graph: Missing qaPair.id");
+          throw new Error("QA pair ID is required to save causal graph");
+        }
+        
         // Check if this is a valid causal graph according to our schema
         // If Python backend returns legacy format, transform it to new schema format
         const graphData = transformToSchemaFormat(data.causalGraph, sessionId, prolificId, qaPair);
+        console.log("Successfully transformed causal graph to schema format");
         
         // Check if a graph already exists for this QA pair
         const existingGraph = await CausalGraph.findOne({
@@ -91,13 +119,68 @@ export async function POST(request: Request) {
             timestamp: new Date(data.timestamp * 1000 || Date.now())
           });
           
-          await newCausalGraph.save();
+          const savedGraph = await newCausalGraph.save();
           console.log(`Created new causal graph for QA pair: ${qaPair.id}`);
+          console.log(`Graph saved with ID: ${savedGraph._id}`);
+        }
+        
+        // Verify the save by checking the database again
+        const verifyGraph = await CausalGraph.findOne({
+          sessionId,
+          prolificId,
+          qaPairId: qaPair.id
+        });
+        
+        if (verifyGraph) {
+          console.log(`Verified: Graph for QA pair ${qaPair.id} exists in database`);
+        } else {
+          console.error(`Failed to verify graph for QA pair ${qaPair.id} in database`);
         }
       } catch (graphError) {
-        console.error("Error saving causal graph:", graphError);
+        const errorMessage = graphError instanceof Error ? graphError.message : String(graphError);
+        console.error(`Error saving causal graph: ${errorMessage}`);
+        console.error("Stack trace:", graphError instanceof Error ? graphError.stack : "No stack trace");
+        
+        // Try direct API call as fallback
+        try {
+          console.log("Attempting fallback save directly to database...");
+          
+          // Direct database access instead of HTTP call
+          const graphData = transformToSchemaFormat(data.causalGraph, sessionId, prolificId, qaPair);
+          
+          // Check if a graph already exists before trying to save again
+          const fallbackExistingGraph = await CausalGraph.findOne({
+            sessionId,
+            prolificId,
+            qaPairId: qaPair.id
+          });
+          
+          if (fallbackExistingGraph) {
+            // Update existing graph
+            fallbackExistingGraph.graphData = graphData;
+            fallbackExistingGraph.timestamp = new Date();
+            await fallbackExistingGraph.save();
+            console.log("Fallback: Updated existing causal graph successfully");
+          } else {
+            // Create new graph
+            const newCausalGraph = new CausalGraph({
+              sessionId,
+              prolificId,
+              qaPairId: qaPair.id,
+              graphData,
+              timestamp: new Date(data.timestamp * 1000 || Date.now())
+            });
+            
+            await newCausalGraph.save();
+            console.log("Fallback: Created new causal graph successfully");
+          }
+        } catch (fallbackError) {
+          console.error("Fallback save attempt failed:", fallbackError);
+        }
         // Continue with the rest of the processing even if graph saving fails
       }
+    } else {
+      console.warn("No causal graph returned from Python backend to save");
     }
 
     // Update QA pair in session
@@ -189,6 +272,15 @@ interface LegacyGraph {
   edges: LegacyEdge[];
 }
 
+// QA interface for type checking
+interface QA {
+  qa_id: string;
+  question: string;
+  answer: string;
+  parsed_belief?: any;
+  [key: string]: any; // For any additional fields
+}
+
 /**
  * Transform causal graph from Python backend format to schema format
  * Handles both the new schema format and the legacy format
@@ -196,7 +288,21 @@ interface LegacyGraph {
 function transformToSchemaFormat(graphData: any, sessionId: string, prolificId: string, qaPair: any): ICausalGraphData {
   // If the graph data is already in the expected format with agent_id, nodes, edges, qas
   if (graphData.agent_id && graphData.nodes && graphData.edges && graphData.qas) {
-    return graphData as ICausalGraphData;
+    // Make sure all QAs have a parsed_belief field
+    const validatedGraph = { ...graphData };
+    if (Array.isArray(validatedGraph.qas)) {
+      validatedGraph.qas = validatedGraph.qas.map((qa: QA) => {
+        if (!qa.parsed_belief) {
+          console.log(`Adding empty parsed_belief to QA ${qa.qa_id} to comply with schema`);
+          return {
+            ...qa,
+            parsed_belief: {} // Empty object to satisfy schema validation
+          };
+        }
+        return qa;
+      });
+    }
+    return validatedGraph as ICausalGraphData;
   }
   
   // Otherwise, transform from the legacy format (simple nodes and edges arrays)

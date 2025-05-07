@@ -1,182 +1,152 @@
-# Thinking Trace Application
+# Structural Causal Model (SCM) Interview Framework
 
-This is a Python backend for processing user answers and generating causal graphs for the Thinking Trace application. It works in conjunction with a Next.js frontend that handles data storage.
+This project implements a semi-structured interview framework for building Structural Causal Models (SCMs) from qualitative interviews. It focuses on cognitively-informed elicitation strategies for domains like urban upzoning.
 
 ## Architecture Overview
 
-This application uses a hybrid architecture with clear separation of responsibilities:
+The system uses a three-phase strategy for constructing SCMs:
 
-1. **Python Backend**: 
-   - Responsible for computational logic and data processing
-   - Generates causal graphs from user answers
-   - Provides follow-up questions
-   - Does NOT handle database storage
+1. **Node Discovery & Establishment**: Identifying important concepts and establishing them as nodes
+2. **Anchor Expansion**: Exploring causal relationships between established nodes
+3. **Function Fitting**: Determining the nature and parameters of causal relationships
 
-2. **Next.js Frontend**:
-   - Handles user interface and interactions
-   - Manages question flow
-   - Responsible for ALL database operations
-   - Stores data processed by the Python backend
+### System Components
 
-### Data Flow
+The backend consists of four main components:
 
-1. User answers a question in the Next.js frontend
-2. Frontend sends the answer to the Python backend for processing
-3. Python backend generates a causal graph and returns it along with follow-up questions
-4. Next.js frontend stores the processed data in MongoDB
-5. Next.js provides API routes for retrieving stored data
+- `app.py`: Main Flask application implementing the API endpoints
+- `scm_extractor.py`: Extracts nodes, edges, and function parameters from QA pairs
+- `scm_manager.py`: Manages the SCM graph, including node merging and edge updates
+- `question_generator.py`: Generates follow-up questions based on the current state of the SCM
 
-## Python Backend
+## Data Flow
 
-### Features
+1. A question-answer pair is sent to the `/api/process_answer` endpoint
+2. The SCM extractor identifies potential nodes and relationships
+3. The SCM manager updates the graph structure
+4. The question generator creates follow-up questions based on the current phase
+5. The updated SCM and follow-up questions are returned to the client
 
-- Process user answers to extract patterns
-- Generate causal graphs showing relationships
-- Provide fixed follow-up questions
-- Return processed data to frontend
+## SCM Structure
 
-### Installation and Setup
+The SCM follows a structured JSON format:
 
-#### Prerequisites
-
-- Python 3.8+
-
-#### Installation Steps
-
-1. Clone the repository
-
-2. Install dependencies:
-```bash
-pip install -r requirements.txt
+```json
+{
+  "agent_id": "user123",
+  "nodes": {
+    "n_123": {
+      "id": "n_123",
+      "label": "Housing Affordability",
+      "type": "binary",
+      "values": [true, false],
+      "semantic_role": "external_state",
+      "appearance": {
+        "qa_ids": ["qa_1", "qa_2"],
+        "frequency": 2
+      },
+      "incoming_edges": ["e_1"],
+      "outgoing_edges": ["e_2"]
+    }
+  },
+  "edges": {
+    "e_1": {
+      "from": "n_123",
+      "to": "n_456",
+      "function": {
+        "target": "n_456",
+        "inputs": ["n_123"],
+        "function_type": "sigmoid",
+        "parameters": {
+          "weights": [0.8],
+          "bias": 0.2
+        },
+        "noise_std": 0.1,
+        "support_qas": ["qa_1"],
+        "confidence": 0.7
+      },
+      "support_qas": ["qa_1"]
+    }
+  },
+  "qas": [
+    {
+      "qa_id": "qa_1",
+      "question": "What do you think about housing policies?",
+      "answer": "I think zoning policies affect housing affordability significantly.",
+      "parsed_belief": {
+        "belief_structure": {
+          "from": "n_789",
+          "to": "n_123",
+          "direction": "positive"
+        },
+        "belief_strength": {
+          "estimated_probability": 0.7,
+          "confidence_rating": 0.6
+        },
+        "counterfactual": "If zoning policies were different, housing affordability would change."
+      }
+    }
+  ]
+}
 ```
 
-3. Run the server:
-```bash
-python app.py
-```
+## Cognitive Foundations
 
-The server will start at http://localhost:5000.
+The system is grounded in several cognitive theories:
 
-### API Endpoints
+- Mental Models (Johnson-Laird, 1983)
+- Basic-Level Categories (Rosch, 1978)
+- Discourse Entity Grounding (Grosz & Sidner, 1986)
 
-#### Process Answer
+## Node Classification
+
+Nodes are classified into three semantic roles:
+
+1. **External State**: World states observed or believed (e.g., noise level, housing prices)
+2. **Internal Affect**: Emotions, preferences, perceived costs (e.g., stress, satisfaction)
+3. **Behavioral Intention**: Action tendencies or decision intents (e.g., support for policy)
+
+## API Usage
+
+### Process Answer Endpoint
 
 ```
 POST /api/process_answer
 ```
 
-Request body example:
+Request body:
 ```json
 {
-  "sessionId": "session_123456",
-  "prolificId": "user_123",
+  "sessionId": "session123",
+  "prolificId": "user123",
   "qaPair": {
-    "id": "q1",
-    "question": "Please describe your thinking process...",
-    "shortText": "Thinking process",
-    "answer": "I first considered..."
-  }
+    "id": "qa_1",
+    "question": "What do you think about housing policies?",
+    "answer": "I think zoning policies affect housing affordability significantly."
+  },
+  "qaPairs": [...],
+  "currentQuestionIndex": 0,
+  "existingCausalGraph": {...}
 }
 ```
 
-Response example:
+Response:
 ```json
 {
   "success": true,
-  "sessionId": "session_123456",
-  "prolificId": "user_123",
-  "qaPair": {
-    "id": "q1",
-    "question": "Please describe your thinking process...",
-    "shortText": "Thinking process",
-    "answer": "I first considered..."
-  },
-  "followUpQuestions": [
-    {
-      "id": "followup1",
-      "question": "Could you further explain the main factors you mentioned in your previous answer?",
-      "shortText": "Explain main factors",
-      "answer": ""
-    },
-    ...
-  ],
-  "causalGraph": {
-    "id": "graph_12345",
-    "nodes": [...],
-    "edges": [...]
-  },
-  "timestamp": 1631234567
+  "sessionId": "session123",
+  "prolificId": "user123",
+  "qaPair": {...},
+  "followUpQuestions": [...],
+  "causalGraph": {...},
+  "timestamp": 1620000000
 }
 ```
 
-## Next.js Frontend Integration
+## Deployment
 
-The Next.js frontend provides API routes for database operations:
-
-### Save Data API Route
+The application runs on port 5001 by default. You can customize this by setting the `PORT` environment variable.
 
 ```
-POST /api/save-data
-```
-This endpoint saves data received from the Python backend to MongoDB.
-
-### Get Causal Graphs API Route
-
-```
-GET /api/causal-graphs?prolificId=user123
-```
-This endpoint retrieves all causal graphs for a specific user.
-
-### Integration Example
-
-```javascript
-// Frontend code example
-async function submitAnswer(qaPair) {
-  // Get session data from store
-  const sessionId = useStore.getState().sessionId;
-  const prolificId = useStore.getState().prolificId;
-  
-  // 1. Send to Python backend for processing
-  const response = await fetch('http://localhost:5000/api/process_answer', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ sessionId, prolificId, qaPair }),
-  });
-  
-  const data = await response.json();
-  
-  if (data.success) {
-    // 2. Save processed data to MongoDB via Next.js API
-    await fetch('/api/save-data', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data),
-    });
-    
-    // 3. Add follow-up questions to question list
-    data.followUpQuestions.forEach(question => {
-      useStore.getState().addNewQuestion(question);
-    });
-    
-    // 4. Update UI with causal graph
-    displayCausalGraph(data.causalGraph);
-  }
-}
-```
-
-## Why This Architecture?
-
-This architecture leverages the strengths of both platforms:
-
-1. **Python for Complex Processing**: 
-   - Better suited for computational tasks and data analysis
-   - Easier integration with NLP and ML libraries
-   - More flexible for implementing complex algorithms
-
-2. **Next.js for Data Management**:
-   - Unified data storage approach
-   - Consistent data access patterns
-   - Better type safety with TypeScript
-   - Simplified state management
-
-By separating computation from data storage, we get a more maintainable and scalable system that can evolve independently. 
+PORT=5001 python app.py
+``` 

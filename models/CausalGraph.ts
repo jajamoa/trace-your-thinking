@@ -61,8 +61,8 @@ interface IBeliefStrength {
 
 // Interface for parsed belief
 interface IParsedBelief {
-  belief_structure: IBeliefStructure;
-  belief_strength: IBeliefStrength;
+  belief_structure?: IBeliefStructure;
+  belief_strength?: IBeliefStrength;
   counterfactual?: string;
 }
 
@@ -158,8 +158,8 @@ const BeliefStrengthSchema = new Schema({
 
 // Parsed belief schema
 const ParsedBeliefSchema = new Schema({
-  belief_structure: { type: BeliefStructureSchema, required: true },
-  belief_strength: { type: BeliefStrengthSchema, required: true },
+  belief_structure: { type: BeliefStructureSchema, required: false },
+  belief_strength: { type: BeliefStrengthSchema, required: false },
   counterfactual: { type: String }
 });
 
