@@ -1,9 +1,9 @@
 "use client"
 
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import { motion } from "framer-motion"
 import { Button } from "@/components/ui/button"
-import { ArrowLeft, Info } from "lucide-react"
+import { ArrowLeft, Info, ExternalLink } from "lucide-react"
 import Confetti from "@/components/Confetti"
 import { useStore } from "@/lib/store"
 import { useRouter } from "next/navigation"
@@ -13,6 +13,7 @@ import Footer from "@/components/Footer"
 export default function ThankYouPage() {
   const { resetStore, prolificId } = useStore()
   const router = useRouter()
+  const [prolificCompletionUrl, setProlificCompletionUrl] = useState<string | null>(null)
 
   useEffect(() => {
     // Check if user has a Prolific ID
@@ -21,6 +22,28 @@ export default function ThankYouPage() {
       return
     }
 
+    // Try to get Prolific completion URL from environment variable
+    // Using fetch to get environment variables from the server side
+    fetch('/api/get-env')
+      .then(response => response.json())
+      .then(data => {
+        if (data.PROLIFIC_COMPLETION_URL) {
+          // Ensure we have a complete URL with protocol
+          let completionUrl = data.PROLIFIC_COMPLETION_URL;
+          
+          // If URL doesn't start with http:// or https://, add https://
+          if (!/^https?:\/\//i.test(completionUrl)) {
+            completionUrl = 'https://' + completionUrl;
+          }
+          
+          setProlificCompletionUrl(completionUrl);
+          console.log("Setting Prolific completion URL:", completionUrl);
+        }
+      })
+      .catch(error => {
+        console.error("Failed to fetch environment variables:", error);
+      });
+    
     // No need to reset the store when loading this page
     // Let the user explicitly choose to return to home to start fresh
 
@@ -88,30 +111,75 @@ export default function ThankYouPage() {
             </div>
           </div>
 
-          <div className="flex flex-col sm:flex-row justify-center gap-4 mb-6">
-            <motion.div whileTap={{ scale: 0.96 }}>
-              <Button
-                onClick={handleReturnHome}
-                size="lg"
-                className="bg-[#333333] hover:bg-[#222222] text-white px-8 rounded-full shadow-subtle"
+          <div className="flex flex-col gap-6 mb-6 w-full max-w-md mx-auto">
+            {/* Prolific completion button - prominent */}
+            {prolificCompletionUrl && (
+              <a 
+                href={prolificCompletionUrl} 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="w-full"
+                onClick={(e) => {
+                  // For debugging - log the actual URL being used
+                  console.log("Opening Prolific URL:", prolificCompletionUrl);
+                  
+                  // Handle click directly to ensure it opens as absolute URL
+                  if (prolificCompletionUrl) {
+                    window.open(prolificCompletionUrl, '_blank', 'noopener,noreferrer');
+                    e.preventDefault(); // Prevent default to ensure our handling works
+                  }
+                }}
               >
-                Return to Home
-                <ArrowLeft className="ml-2 h-5 w-5" />
-              </Button>
-            </motion.div>
-
-            <motion.div whileTap={{ scale: 0.96 }}>
-              <Link href="/about">
-                <Button
-                  variant="outline"
-                  size="lg"
-                  className="border-[#e0ddd5] hover:bg-[#f5f2eb] px-8 rounded-full shadow-subtle"
+                <motion.div 
+                  whileHover={{ scale: 1.03 }} 
+                  whileTap={{ scale: 0.97 }}
+                  className="w-full"
                 >
-                  About This Study
-                  <Info className="ml-2 h-5 w-5" />
+                  <Button
+                    size="lg"
+                    className="bg-[#1E40AF] hover:bg-[#1E3A8A] text-white px-8 py-6 rounded-xl shadow-md w-full font-medium text-lg flex items-center justify-center gap-2"
+                  >
+                    Complete on Prolific
+                    <ExternalLink className="h-5 w-5" />
+                  </Button>
+                </motion.div>
+              </a>
+            )}
+
+            {/* Secondary buttons container */}
+            <div className="flex flex-col sm:flex-row justify-center gap-4 w-full">
+              <motion.div 
+                whileHover={{ scale: 1.02 }} 
+                whileTap={{ scale: 0.97 }}
+                className="w-full sm:w-1/2"
+              >
+                <Button
+                  onClick={handleReturnHome}
+                  size="lg"
+                  className="bg-[#333333] hover:bg-[#222222] text-white px-8 py-5 rounded-lg shadow-sm w-full"
+                >
+                  Return to Home
+                  <ArrowLeft className="ml-2 h-5 w-5" />
                 </Button>
-              </Link>
-            </motion.div>
+              </motion.div>
+
+              <motion.div 
+                whileHover={{ scale: 1.02 }} 
+                whileTap={{ scale: 0.97 }}
+                className="w-full sm:w-1/2"
+              >
+                <Link href="/about" className="w-full">
+                  <Button
+                    variant="outline"
+                    size="lg"
+                    className="border-[#e0ddd5] hover:bg-[#f5f2eb] px-8 py-5 rounded-lg shadow-sm w-full"
+                  >
+                    About This Study
+                    <Info className="ml-2 h-5 w-5" />
+                  </Button>
+                </Link>
+              </motion.div>
+            </div>
           </div>
         </motion.div>
       </motion.div>
