@@ -8,7 +8,7 @@ require('dotenv').config({ path: '.env.local' });
 const initialGuidingQuestions = [
   {
     id: "gq0a",
-    text: "Welcome to the Trace Your Thinking interview system. This platform is designed to capture your research insights in a comfortable and intuitive way. Would you like me to guide you through using this system?",
+    text: "Welcome to the Trace Your Thinking interview system. This platform is designed to capture your thought process about research practices. Would you like me to guide you through using this system?",
     shortText: "Welcome",
     category: "tutorial",
     isActive: true,
@@ -32,67 +32,94 @@ const initialGuidingQuestions = [
   },
   {
     id: "gq0d",
-    text: "You can switch between voice and text modes at any time. In voice mode, the microphone button will show as red when recording is active. During transcription, you'll see 'Transcribing your speech...' and your answer will be automatically submitted once ready. Remember, in voice mode, always press the microphone button or Space key to begin and end your recording. Feel comfortable with the system now?",
+    text: "You can switch between voice and text modes at any time. In voice mode, the microphone button will show as red when recording is active. During transcription, you'll see 'Transcribing your speech...' and your answer will be automatically submitted once ready. Feel comfortable with the system now?",
     shortText: "Mode switching guide",
     category: "tutorial",
     isActive: true,
     order: 3
   },
   {
-    id: "gq0e",
-    text: "As the interview progresses, you'll notice the progress bar at the top of the screen showing your current position. Based on your responses, the system may generate follow-up questions to dive deeper into specific topics. These new questions will be added to your interview flow automatically. Don't be surprised if the progress bar adjusts as new questions are added. This helps us capture your thinking process more thoroughly.",
-    shortText: "Progress tracking",
+    id: "gq0f",
+    text: "Excellent! We're now ready to begin the research interview. We're interested in understanding your thoughts about open science practices in research. Take your time with each response and provide as much detail as you'd like.",
+    shortText: "Start interview",
     category: "tutorial",
     isActive: true,
     order: 4
   },
+  // Phase 1: Node Discovery Questions - Primary stance exploration
   {
-    id: "gq0f",
-    text: "Excellent! We're now ready to begin the research interview. Remember you can switch input methods anytime. For voice recording, you'll need to explicitly start and stop recording using the microphone button or Space key. Take your time with each response and provide as much detail as you'd like. Let's start with our first research question.",
-    shortText: "Start interview",
-    category: "tutorial",
+    id: "gq1",
+    text: "To what extent do you believe that open science practices improve research quality? Please explain your reasoning.",
+    shortText: "Stance on open science",
+    category: "research",
     isActive: true,
     order: 5
   },
+  // Phase 1: Node Discovery Questions - Discovering key concepts/nodes
   {
-    id: "gq1",
-    text: "Could you describe your current research focus and how it relates to the broader field?",
-    shortText: "Research focus",
+    id: "gq2",
+    text: "What specific aspects of open science (such as data sharing, pre-registration, open access publishing, etc.) do you think are most important for research quality?",
+    shortText: "Important aspects",
     category: "research",
     isActive: true,
     order: 6
   },
   {
-    id: "gq2",
-    text: "Could you elaborate on the methodologies you're using in your current project?",
-    shortText: "Methodologies",
+    id: "gq3",
+    text: "How do you think transparency in research methods affects the reliability of scientific findings?",
+    shortText: "Transparency effects",
     category: "research",
     isActive: true,
     order: 7
   },
   {
-    id: "gq3",
-    text: "What challenges have you encountered in your research, and how have you addressed them?",
-    shortText: "Challenges",
+    id: "gq4",
+    text: "What role do you believe peer review plays in maintaining research quality in an open science framework?",
+    shortText: "Peer review role",
     category: "research",
     isActive: true,
     order: 8
   },
   {
-    id: "gq4",
-    text: "How do you situate your work within existing literature in your field?",
-    shortText: "Literature context",
+    id: "gq5",
+    text: "How might institutional incentives influence researchers' adoption of open science practices?",
+    shortText: "Institutional incentives",
     category: "research",
     isActive: true,
     order: 9
   },
   {
-    id: "gq5",
-    text: "What implications might your findings have for theory or practice in your domain?",
-    shortText: "Implications",
+    id: "gq6",
+    text: "What challenges or barriers do you see in implementing open science practices across different research fields?",
+    shortText: "Implementation challenges",
     category: "research",
     isActive: true,
     order: 10
+  },
+  {
+    id: "gq7",
+    text: "How do you think open data practices specifically contribute to research reproducibility?",
+    shortText: "Open data impact",
+    category: "research",
+    isActive: true,
+    order: 11
+  },
+  {
+    id: "gq8",
+    text: "In what ways might open science practices affect researchers at different career stages differently?",
+    shortText: "Career stage effects",
+    category: "research",
+    isActive: true,
+    order: 12
+  },
+  // Phase 2 questions will be generated dynamically based on the nodes discovered
+  {
+    id: "gq9",
+    text: "Thank you for sharing your perspectives. As we conclude, is there anything else about open science and research quality that you'd like to add?",
+    shortText: "Final thoughts",
+    category: "conclusion",
+    isActive: true,
+    order: 13
   }
 ];
 

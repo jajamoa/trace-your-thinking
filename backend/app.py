@@ -168,16 +168,51 @@ def process_answer():
         current_question_texts
     )
     
-    # Check if we're near the end of the interview and should limit follow-ups
-    remaining_questions = len(qa_pairs) - current_index - 1
-    if remaining_questions <= 3:
-        follow_up_questions = []  # No more follow-ups near the end
-        logger.info("Near end of interview, no follow-up questions generated")
-    elif remaining_questions <= 5:
-        follow_up_questions = follow_up_questions[:1]  # Just one follow-up for near-end questions
-        logger.info(f"Near end of interview, limited to 1 follow-up question")
+    # Check total QA count and anchor nodes before deciding on follow-ups
+    total_qa_count = len(qa_pairs)
+    anchor_count = len(updated_scm.get('anchor_queue', []))
+    
+    logger.info(f"Current QA count: {total_qa_count}, Anchor nodes: {anchor_count}")
+    
+    # Modified logic to ensure minimum QA pairs and anchor nodes
+    if total_qa_count < 30:
+        # If we haven't reached 30 QAs yet, ensure we have follow-ups
+        if not follow_up_questions:
+            # If no follow-ups were generated but we need more QAs, force create some
+            logger.info("Forcing follow-up question generation to reach minimum QA count")
+            follow_up_questions = question_generator.generate_additional_questions(
+                updated_scm, 
+                current_phase, 
+                current_question_texts,
+                force_generate=True  # Force generation flag
+            )
+            
+        logger.info(f"Generated {len(follow_up_questions)} follow-up questions (QA count: {total_qa_count}/30)")
+    elif anchor_count < 3:
+        # If we have enough QAs but not enough anchor nodes, focus on node discovery
+        logger.info(f"Not enough anchor nodes ({anchor_count}/3). Continuing with node discovery.")
+        if not follow_up_questions:
+            # Generate node discovery focused questions
+            follow_up_questions = question_generator.generate_additional_questions(
+                updated_scm, 
+                "node_discovery",  # Force node discovery phase
+                current_question_texts,
+                focus_on_nodes=True  # Focus on discovering more nodes
+            )
+        
+        logger.info(f"Generated {len(follow_up_questions)} node-focused questions")
     else:
-        logger.info(f"Generated {len(follow_up_questions)} follow-up questions")
+        # We have enough QAs and anchor nodes, proceed normally
+        # Limit follow-ups only if near the end AND we have enough anchors and QAs
+        remaining_questions = len(qa_pairs) - current_index - 1
+        if remaining_questions <= 3 and total_qa_count >= 30 and anchor_count >= 3:
+            follow_up_questions = []  # No more follow-ups near the end when requirements are met
+            logger.info("Near end of interview with sufficient QAs and anchors, no follow-up questions generated")
+        elif remaining_questions <= 5:
+            follow_up_questions = follow_up_questions[:1]  # Just one follow-up for near-end questions
+            logger.info(f"Near end of interview, limited to 1 follow-up question")
+        else:
+            logger.info(f"Generated {len(follow_up_questions)} follow-up questions")
     
     # Return follow-up questions and causal graph
     return jsonify({
@@ -194,6 +229,10 @@ def update_scm_with_qa(agent_scm, qa_pair):
     """
     Update the Structural Causal Model with information from a QA pair.
     
+    Implements a two-phase approach:
+    1. Node Discovery & Confirmation phase
+    2. Edge Construction & Function Fitting phase
+    
     Args:
         agent_scm (dict): The existing SCM
         qa_pair (dict): The QA pair to process
@@ -203,11 +242,24 @@ def update_scm_with_qa(agent_scm, qa_pair):
     """
     logger.info("Updating SCM with QA pair")
     
-    # 1. Extract nodes from the QA pair using Qwen LLM
+    # Determine current phase based on SCM state
+    if 'phase' not in agent_scm:
+        agent_scm['phase'] = "node_discovery"  # Default to node discovery
+    
+    current_phase = agent_scm['phase']
+    logger.info(f"Current SCM phase: {current_phase}")
+    
     # If this is the first QA, ensure we create a stance node
     first_qa = len(agent_scm.get('qas', [])) == 0
     
-    # Log more details about inputs to LLM
+    # Track node queues if not already present
+    if 'node_candidate_queue' not in agent_scm:
+        agent_scm['node_candidate_queue'] = {}  # Store node candidates with frequency
+    
+    if 'anchor_queue' not in agent_scm:
+        agent_scm['anchor_queue'] = []  # Store confirmed anchor nodes
+    
+    # 1. Extract nodes from the QA pair using Qwen LLM
     if DEBUG_LLM_IO:
         logger.info(f"LLM INPUT (extract_nodes): Question: {qa_pair.get('question', '')[:100]}...")
         logger.info(f"LLM INPUT (extract_nodes): Answer: {qa_pair.get('answer', '')[:100]}...")
@@ -218,8 +270,30 @@ def update_scm_with_qa(agent_scm, qa_pair):
     if DEBUG_LLM_IO and new_nodes:
         logger.info(f"LLM OUTPUT (extract_nodes): {json.dumps(new_nodes, indent=2)[:500]}...")
     
+    # Process new nodes according to phase
     if new_nodes:
         logger.info(f"Extracted {len(new_nodes)} nodes")
+        
+        # Update node candidate queue with frequency
+        for node_id, node in new_nodes.items():
+            node_label = node.get('label', '').lower()
+            if node_label in agent_scm['node_candidate_queue']:
+                agent_scm['node_candidate_queue'][node_label]['frequency'] += 1
+            else:
+                agent_scm['node_candidate_queue'][node_label] = {
+                    'node_id': node_id,
+                    'frequency': 1,
+                    'semantic_role': node.get('semantic_role', 'unknown'),
+                    'first_seen_in_qa': len(agent_scm.get('qas', [])),
+                }
+        
+        # Promote candidate nodes to anchor status if they meet criteria
+        for node_label, info in list(agent_scm['node_candidate_queue'].items()):
+            if (info['frequency'] >= 2 and 
+                node_label not in [n.lower() for n in agent_scm['anchor_queue']]):
+                # Promote to anchor queue
+                agent_scm['anchor_queue'].append(node_label)
+                logger.info(f"Promoted node '{node_label}' to anchor status (frequency: {info['frequency']})")
         
         # If we have a stance node in the extracted nodes, set it in the SCM
         stance_nodes = [node_id for node_id, node in new_nodes.items() 
@@ -233,6 +307,13 @@ def update_scm_with_qa(agent_scm, qa_pair):
     
     # 2. Merge and tag nodes
     agent_scm = scm_manager.merge_and_tag_nodes(agent_scm, new_nodes)
+    
+    # Check for phase transition (Node Discovery -> Edge Construction)
+    num_anchors = len(agent_scm['anchor_queue'])
+    if current_phase == "node_discovery" and num_anchors >= 5:
+        logger.info(f"Phase transition: Node Discovery -> Edge Construction (found {num_anchors} anchor nodes)")
+        agent_scm['phase'] = "edge_construction"
+        current_phase = "edge_construction"
     
     # 3. Extract edge from the QA pair using Qwen LLM
     if DEBUG_LLM_IO:
@@ -250,16 +331,39 @@ def update_scm_with_qa(agent_scm, qa_pair):
         agent_scm = scm_manager.add_or_update_edge(agent_scm, edge)
         
         # 5. If we have an edge, extract function parameters using Qwen LLM
-        if DEBUG_LLM_IO:
-            logger.info(f"LLM INPUT (extract_function_params): Question: {qa_pair.get('question', '')[:100]}...")
-            logger.info(f"LLM INPUT (extract_function_params): Answer: {qa_pair.get('answer', '')[:100]}...")
+        # This is primarily for the Edge Construction phase
+        if current_phase == "edge_construction":
+            if DEBUG_LLM_IO:
+                logger.info(f"LLM INPUT (extract_function_params): Question: {qa_pair.get('question', '')[:100]}...")
+                logger.info(f"LLM INPUT (extract_function_params): Answer: {qa_pair.get('answer', '')[:100]}...")
+                
+            function_params = extractor.extract_function_params(qa_pair)
             
-        function_params = extractor.extract_function_params(qa_pair)
+            if DEBUG_LLM_IO and function_params:
+                logger.info(f"LLM OUTPUT (extract_function_params): {json.dumps(function_params, indent=2)}")
+            
+            # Find the edge ID for the newly added/updated edge
+            edge_id = None
+            for eid, e in agent_scm.get('edges', {}).items():
+                from_node_id = e.get('from')
+                to_node_id = e.get('to')
+                
+                if from_node_id and to_node_id:
+                    from_node = agent_scm['nodes'].get(from_node_id, {})
+                    to_node = agent_scm['nodes'].get(to_node_id, {})
+                    
+                    if (from_node.get('label', '').lower() == edge['from_label'].lower() and 
+                        to_node.get('label', '').lower() == edge['to_label'].lower()):
+                        edge_id = eid
+                        break
+            
+            # 6. Update function parameters if edge found and parameters extracted
+            if edge_id and function_params:
+                logger.info(f"Updating function parameters for edge {edge_id}")
+                agent_scm = scm_manager.update_function_params(agent_scm, edge_id, function_params)
         
-        if DEBUG_LLM_IO and function_params:
-            logger.info(f"LLM OUTPUT (extract_function_params): {json.dumps(function_params, indent=2)}")
-        
-        # Find the edge ID for the newly added/updated edge
+        # 7. Create parsed belief for QA using Qwen LLM
+        # Find edge ID (if it exists) for creating parsed belief
         edge_id = None
         for eid, e in agent_scm.get('edges', {}).items():
             from_node_id = e.get('from')
@@ -274,12 +378,7 @@ def update_scm_with_qa(agent_scm, qa_pair):
                     edge_id = eid
                     break
         
-        # 6. Update function parameters if edge found and parameters extracted
-        if edge_id and function_params:
-            logger.info(f"Updating function parameters for edge {edge_id}")
-            agent_scm = scm_manager.update_function_params(agent_scm, edge_id, function_params)
-            
-            # 7. Create parsed belief for QA using Qwen LLM
+        if edge_id:
             from_node_id = agent_scm['edges'][edge_id]['from']
             to_node_id = agent_scm['edges'][edge_id]['to']
             
@@ -304,7 +403,7 @@ def update_scm_with_qa(agent_scm, qa_pair):
                 agent_scm = scm_manager.add_qa_to_graph(agent_scm, qa_pair, empty_parsed_belief)
         else:
             # Add QA with empty parsed belief
-            logger.info(f"Adding QA with empty parsed belief (no function params)")
+            logger.info(f"Adding QA with empty parsed belief (no valid edge ID)")
             empty_parsed_belief = {}
             agent_scm = scm_manager.add_qa_to_graph(agent_scm, qa_pair, empty_parsed_belief)
     else:
@@ -314,12 +413,16 @@ def update_scm_with_qa(agent_scm, qa_pair):
         empty_parsed_belief = {}
         agent_scm = scm_manager.add_qa_to_graph(agent_scm, qa_pair, empty_parsed_belief)
     
-    # 9. Check if interview should be terminated
-    if scm_manager.check_termination(agent_scm):
-        logger.info("SCM termination criteria met")
+    # 9. Check if interview should be terminated based on phase-specific criteria
+    if current_phase == "edge_construction":
+        # For edge construction phase, check for structure convergence
+        if scm_manager.check_termination(agent_scm):
+            logger.info("SCM termination criteria met")
     
     # Log current state
     logger.info(f"Updated SCM now has {len(agent_scm['nodes'])} nodes and {len(agent_scm.get('edges', {}))} edges")
+    logger.info(f"Node candidates: {len(agent_scm['node_candidate_queue'])}, Anchor nodes: {len(agent_scm['anchor_queue'])}")
+    
     if agent_scm.get('stance_node_id'):
         stance_node = agent_scm['nodes'].get(agent_scm['stance_node_id'], {})
         logger.info(f"Stance node: {stance_node.get('label', 'None')}")

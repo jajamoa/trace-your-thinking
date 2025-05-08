@@ -5,7 +5,9 @@ Responsible for generating follow-up questions based on the current state of the
 import uuid
 import time
 import random
+import logging
 
+logger = logging.getLogger(__name__)
 
 class QuestionGenerator:
     """
@@ -425,4 +427,178 @@ class QuestionGenerator:
         intersection = words1.intersection(words2)
         overlap = len(intersection) / max(len(words1), len(words2))
         
-        return overlap >= threshold 
+        return overlap >= threshold
+    
+    def generate_additional_questions(self, scm, current_phase, current_questions, force_generate=False, focus_on_nodes=False):
+        """
+        Generate additional questions when more are needed to reach minimum requirements.
+        
+        Args:
+            scm (dict): The current state of the Structural Causal Model
+            current_phase (str): The current phase of the interview
+            current_questions (list): List of questions already asked
+            force_generate (bool): Whether to force generation of questions
+            focus_on_nodes (bool): Whether to focus specifically on discovering more nodes
+            
+        Returns:
+            list: List of additional questions
+        """
+        additional_questions = []
+        
+        # If we're focusing on node discovery or forced to generate questions
+        if focus_on_nodes or (force_generate and current_phase == "node_discovery"):
+            # Generate more node discovery questions
+            node_questions = self._generate_forced_node_discovery_questions(scm, current_questions)
+            additional_questions.extend(node_questions)
+            
+        # If we need to force generate questions for edge construction
+        elif force_generate and current_phase == "edge_construction":
+            # Generate more edge construction questions
+            edge_questions = self._generate_forced_edge_construction_questions(scm, current_questions)
+            additional_questions.extend(edge_questions)
+            
+        # If we still don't have enough questions, add some general questions
+        if not additional_questions or force_generate:
+            additional_questions.extend(self._generate_general_questions(current_questions))
+            
+        # Ensure we have at least 1-3 questions
+        if additional_questions:
+            logger.info(f"Generated {len(additional_questions)} additional questions")
+            return additional_questions[:3]  # Limit to 3 questions max
+        
+        # Fallback to a single general question if nothing else worked
+        return ["Could you elaborate more on your previous answer?"]
+    
+    def _generate_forced_node_discovery_questions(self, scm, current_questions):
+        """
+        Generate additional node discovery questions when needed.
+        """
+        # More specific node discovery questions that probe deeper
+        probe_questions = [
+            "What underlying beliefs or values shape your perspective on this topic?",
+            "Are there any external factors or constraints that influence your thinking?",
+            "How do you think societal or cultural factors affect this issue?",
+            "What personal experiences have shaped your understanding of this topic?",
+            "Are there any technical or practical considerations we haven't discussed?",
+            "How do ethical considerations factor into your thinking on this subject?",
+            "What long-term implications do you see from this that we haven't covered?",
+            "How might different stakeholders view this issue differently?",
+            "What knowledge gaps or uncertainties affect your perspective?"
+        ]
+        
+        # Filter questions that are too similar to what's been asked
+        filtered_questions = [q for q in probe_questions 
+                           if not any(self._is_similar_question(q, existing) for existing in current_questions)]
+        
+        # If we have a stance node, create targeted questions about it
+        stance_node_id = scm.get("stance_node_id")
+        if stance_node_id and stance_node_id in scm.get("nodes", {}):
+            stance_label = scm["nodes"][stance_node_id].get("label", "your stance")
+            
+            stance_questions = [
+                f"What do you think is the most important factor that shapes {stance_label}?",
+                f"How did you first develop your views on {stance_label}?",
+                f"What would make you reconsider your position on {stance_label}?",
+                f"What concerns do you have related to {stance_label}?"
+            ]
+            
+            # Add filtered stance questions
+            for q in stance_questions:
+                if not any(self._is_similar_question(q, existing) for existing in current_questions):
+                    filtered_questions.append(q)
+        
+        # Randomize the order to get varied questions
+        random.shuffle(filtered_questions)
+        return filtered_questions
+    
+    def _generate_forced_edge_construction_questions(self, scm, current_questions):
+        """
+        Generate additional edge construction questions when needed.
+        """
+        questions = []
+        
+        # Find nodes with few or no connections
+        node_connection_count = {}
+        for node_id in scm.get("nodes", {}):
+            node_connection_count[node_id] = 0
+            
+        for edge in scm.get("edges", {}).values():
+            if edge.get("from") in node_connection_count:
+                node_connection_count[edge.get("from")] += 1
+            if edge.get("to") in node_connection_count:
+                node_connection_count[edge.get("to")] += 1
+        
+        # Focus on nodes with fewer connections
+        isolated_nodes = [node_id for node_id, count in node_connection_count.items() if count <= 1]
+        
+        # Generate questions about isolated nodes
+        for node_id in isolated_nodes:
+            if node_id in scm.get("nodes", {}):
+                node_label = scm["nodes"][node_id].get("label", "")
+                
+                questions.extend([
+                    f"What factors do you think influence {node_label}?",
+                    f"How does {node_label} affect other aspects we've discussed?",
+                    f"Could you elaborate on how {node_label} connects to your other views?"
+                ])
+        
+        # Questions about causal chains
+        if scm.get("edges"):
+            questions.append("Do you see any chain of cause and effect across multiple factors we've discussed?")
+            
+        # Filter out questions that are too similar to existing ones
+        filtered_questions = [q for q in questions 
+                           if not any(self._is_similar_question(q, existing) for existing in current_questions)]
+        
+        # Randomize the order
+        random.shuffle(filtered_questions)
+        return filtered_questions
+    
+    def _generate_general_questions(self, current_questions):
+        """
+        Generate general questions that can work in any phase.
+        """
+        general_questions = [
+            "Could you elaborate more on your previous answer?",
+            "Is there anything else important about this topic that we haven't covered?",
+            "How confident are you in the views you've expressed so far?",
+            "What nuances or complexities in this topic do you think are often overlooked?",
+            "If you had to summarize your main points on this topic, what would they be?",
+            "How have your views on this topic evolved over time?",
+            "What sources of information have shaped your understanding of this issue?",
+            "Are there any important distinctions or clarifications you'd like to make about what we've discussed?",
+            "What questions do you think should be asked about this topic that we haven't covered?"
+        ]
+        
+        # Filter out questions that are too similar to existing ones
+        filtered_questions = [q for q in general_questions 
+                           if not any(self._is_similar_question(q, existing) for existing in current_questions)]
+        
+        # Randomize the order
+        random.shuffle(filtered_questions)
+        return filtered_questions
+    
+    def _is_similar_question(self, q1, q2):
+        """
+        Check if two questions are similar enough to be considered duplicates.
+        """
+        # Simple text-based similarity check
+        q1_lower = q1.lower()
+        q2_lower = q2.lower()
+        
+        # Check for exact matches or significant overlap
+        if q1_lower == q2_lower:
+            return True
+            
+        # Check for significant word overlap
+        words1 = set(q1_lower.split())
+        words2 = set(q2_lower.split())
+        
+        # If more than 60% of words overlap, consider similar
+        if len(words1) > 0 and len(words2) > 0:
+            overlap = len(words1.intersection(words2))
+            smaller_set = min(len(words1), len(words2))
+            if overlap / smaller_set > 0.6:
+                return True
+                
+        return False 
