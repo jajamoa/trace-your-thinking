@@ -17,6 +17,7 @@ export interface QAPair {
   question: string
   shortText: string
   answer: string
+  category?: string  // Optional category field to identify tutorial vs research questions
 }
 
 export interface Progress {
@@ -48,7 +49,7 @@ interface StoreState {
   markQuestionAsAnswered: (questionId: string) => void
   moveToNextQuestion: () => void
   getCurrentQuestionIndex: () => number
-  addNewQuestion: (question: Omit<QAPair, "id" | "answer">) => string
+  addNewQuestion: (question: Omit<QAPair, "id" | "answer"> & { category?: string }) => string
   loadFromLocalStorage: () => void
   resetStore: () => void
   saveSession: () => Promise<void>
@@ -623,7 +624,7 @@ export const useStore = create<StoreState>()(
 
       /**
        * Add a new question
-       * @param questionData Object containing text and shortText
+       * @param questionData Object containing text, shortText, and optionally category
        * @returns Generated ID for the new question
        */
       addNewQuestion: (questionData) => {
@@ -637,6 +638,7 @@ export const useStore = create<StoreState>()(
             id,
             question: questionData.question,
             shortText: questionData.shortText,
+            category: questionData.category || 'research', // Default to 'research' if not specified
             answer: ""
           }
 

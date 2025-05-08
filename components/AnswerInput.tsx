@@ -29,7 +29,6 @@ export default function AnswerInput({ onSendMessage, isProcessing = false }: Ans
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   const { isRecording, setIsRecording, messages } = useStore()
   const [isTranscribing, setIsTranscribing] = useState(false)
-  const [autoStartRecording, setAutoStartRecording] = useState(false)
   const [waitingForQuestion, setWaitingForQuestion] = useState(false)
   
   // References for audio recording
@@ -92,6 +91,9 @@ export default function AnswerInput({ onSendMessage, isProcessing = false }: Ans
   // Handle keyboard shortcuts
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
+      // Don't handle keyboard shortcuts if input is focused
+      const isInputFocused = document.activeElement === textareaRef.current;
+      
       // Ctrl/Cmd + Enter to send
       if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
         if (text.trim() && !isRecording && inputMode === "text") {
@@ -108,41 +110,34 @@ export default function AnswerInput({ onSendMessage, isProcessing = false }: Ans
           setText("")
         }
       }
+      
+      // Space to toggle recording in voice mode (when not in input field)
+      if (e.key === " " && !isInputFocused && inputMode === "voice" && !isTranscribing && !isProcessing && !isQuestionLoading) {
+        if (isRecording) {
+          stopRecording(true) // Process recording when using Space to stop
+        } else {
+          startRecording()
+        }
+        e.preventDefault() // Prevent scroll behavior of space key
+      }
     }
 
     window.addEventListener("keydown", handleKeyDown)
     return () => window.removeEventListener("keydown", handleKeyDown)
-  }, [text, isRecording, inputMode])
+  }, [text, isRecording, inputMode, isTranscribing, isProcessing, isQuestionLoading])
 
   // Start recording automatically when in voice mode, but only after question is displayed
   useEffect(() => {
-    // Don't start recording if question is still being typed
+    // Don't start recording automatically - require user interaction 
+    // This replaces the previous auto-start recording logic
+    
+    // Just track if question is loading for UI purposes
     if (isQuestionLoading) {
       setWaitingForQuestion(true);
-      return;
-    }
-    
-    // When question is done typing and we were waiting, start recording
-    if (waitingForQuestion && !isQuestionLoading) {
+    } else if (waitingForQuestion) {
       setWaitingForQuestion(false);
-      // Use a slight delay to allow UI to render and user to see the question fully
-      const timer = setTimeout(() => {
-        if (inputMode === "voice" && !isRecording && autoStartRecording) {
-          startRecording();
-        }
-      }, 800); // Longer delay to ensure user has time to read the question
-      
-      return () => clearTimeout(timer);
     }
-    // Standard auto-start behavior
-    else if (inputMode === "voice" && !isRecording && autoStartRecording && !isQuestionLoading) {
-      const timer = setTimeout(() => {
-        startRecording();
-      }, 500); // Small delay to allow user to see the question
-      
-      return () => clearTimeout(timer);
-    }
-  }, [inputMode, isRecording, autoStartRecording, isQuestionLoading, waitingForQuestion]);
+  }, [isQuestionLoading, waitingForQuestion]);
 
   // Clean up recording when component unmounts
   useEffect(() => {
@@ -261,10 +256,6 @@ export default function AnswerInput({ onSendMessage, isProcessing = false }: Ans
       if (result.text.trim()) {
         onSendMessage(result.text.trim())
         setText("")
-        
-        // After sending an answer, we don't auto-start recording again
-        // User must manually start recording for the next question
-        setAutoStartRecording(false)
       }
       
       // Ensure we don't process audio again until explicitly enabled
@@ -297,8 +288,6 @@ export default function AnswerInput({ onSendMessage, isProcessing = false }: Ans
         // When stopping via mic button, we should process audio
         stopRecording(true)
       } else {
-        // When user manually starts recording, we don't need autoStartRecording
-        setAutoStartRecording(false)
         startRecording()
       }
     }
@@ -331,7 +320,6 @@ export default function AnswerInput({ onSendMessage, isProcessing = false }: Ans
       localStorage.setItem(INPUT_MODE_PREF_KEY, "voice")
       setText("")
       shouldProcessAudioRef.current = true
-      setAutoStartRecording(true)
     }
   }
 
@@ -349,9 +337,8 @@ export default function AnswerInput({ onSendMessage, isProcessing = false }: Ans
     audioChunksRef.current = []
     shouldProcessAudioRef.current = false
     
-    // Only prepare recording automatically if current mode is voice
+    // Only track question loading state if current mode is voice
     if (inputMode === "voice") {
-      setAutoStartRecording(true)
       // Initially set waiting state based on if the question is still being typed
       setWaitingForQuestion(isQuestionLoading)
     }
@@ -400,8 +387,8 @@ export default function AnswerInput({ onSendMessage, isProcessing = false }: Ans
                     : isQuestionLoading
                       ? "Waiting for question..."
                       : isRecording
-                        ? "Listening..."
-                        : "Press microphone to start speaking"}
+                        ? "Listening... Press mic button or Space to stop"
+                        : "Press mic button or Space key to start speaking"}
               </div>
             </div>
 
@@ -486,7 +473,7 @@ export default function AnswerInput({ onSendMessage, isProcessing = false }: Ans
             )}
             {inputMode === "voice" && !isTranscribing && (
               <>
-                Press <kbd className="px-1 py-0.5 bg-[#e0ddd5] rounded">ESC</kbd> to {isRecording ? "stop recording" : "cancel"}
+                Press <kbd className="px-1 py-0.5 bg-[#e0ddd5] rounded">Space</kbd> to {isRecording ? "stop" : "start"} recording • <kbd className="px-1 py-0.5 bg-[#e0ddd5] rounded">ESC</kbd> to {isRecording ? "stop recording" : "cancel"}
               </>
             )}
           </>

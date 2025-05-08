@@ -187,6 +187,7 @@ export class SyncService {
         id: gq.id,
         question: gq.text,
         shortText: gq.shortText,
+        category: gq.category,
         answer: ""
       }))
       

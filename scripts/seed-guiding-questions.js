@@ -16,7 +16,7 @@ const initialGuidingQuestions = [
   },
   {
     id: "gq0b",
-    text: "You have two options for answering questions: voice recording or typing. For voice recording, simply click the microphone button (🎤) and speak clearly. When finished, click the microphone again or press ESC. The system will automatically transcribe and submit your response. Would you like to try voice recording now?",
+    text: "You have two options for answering questions: voice recording or typing. For voice recording, press the microphone button (🎤) or the Space key to start recording. When finished, press the microphone button or Space key again to stop. You can also press ESC to cancel. The system will automatically transcribe and submit your response after recording. Would you like to try voice recording now?",
     shortText: "Voice recording guide",
     category: "tutorial",
     isActive: true,
@@ -32,7 +32,7 @@ const initialGuidingQuestions = [
   },
   {
     id: "gq0d",
-    text: "You can switch between voice and text modes at any time. The microphone button will show while recording and turn red when active. During transcription, you'll see 'Transcribing your speech...' and your answer will be automatically submitted once ready. Feel comfortable with the system now?",
+    text: "You can switch between voice and text modes at any time. In voice mode, the microphone button will show as red when recording is active. During transcription, you'll see 'Transcribing your speech...' and your answer will be automatically submitted once ready. Remember, in voice mode, always press the microphone button or Space key to begin and end your recording. Feel comfortable with the system now?",
     shortText: "Mode switching guide",
     category: "tutorial",
     isActive: true,
@@ -40,11 +40,19 @@ const initialGuidingQuestions = [
   },
   {
     id: "gq0e",
-    text: "Excellent! We're now ready to begin the research interview. Remember you can switch input methods anytime. Take your time with each response and provide as much detail as you'd like. Let's start with our first research question.",
-    shortText: "Start interview",
+    text: "As the interview progresses, you'll notice the progress bar at the top of the screen showing your current position. Based on your responses, the system may generate follow-up questions to dive deeper into specific topics. These new questions will be added to your interview flow automatically. Don't be surprised if the progress bar adjusts as new questions are added. This helps us capture your thinking process more thoroughly.",
+    shortText: "Progress tracking",
     category: "tutorial",
     isActive: true,
     order: 4
+  },
+  {
+    id: "gq0f",
+    text: "Excellent! We're now ready to begin the research interview. Remember you can switch input methods anytime. For voice recording, you'll need to explicitly start and stop recording using the microphone button or Space key. Take your time with each response and provide as much detail as you'd like. Let's start with our first research question.",
+    shortText: "Start interview",
+    category: "tutorial",
+    isActive: true,
+    order: 5
   },
   {
     id: "gq1",
@@ -52,7 +60,7 @@ const initialGuidingQuestions = [
     shortText: "Research focus",
     category: "research",
     isActive: true,
-    order: 5
+    order: 6
   },
   {
     id: "gq2",
@@ -60,7 +68,7 @@ const initialGuidingQuestions = [
     shortText: "Methodologies",
     category: "research",
     isActive: true,
-    order: 6
+    order: 7
   },
   {
     id: "gq3",
@@ -68,7 +76,7 @@ const initialGuidingQuestions = [
     shortText: "Challenges",
     category: "research",
     isActive: true,
-    order: 7
+    order: 8
   },
   {
     id: "gq4",
@@ -76,7 +84,7 @@ const initialGuidingQuestions = [
     shortText: "Literature context",
     category: "research",
     isActive: true,
-    order: 8
+    order: 9
   },
   {
     id: "gq5",
@@ -84,7 +92,7 @@ const initialGuidingQuestions = [
     shortText: "Implications",
     category: "research",
     isActive: true,
-    order: 9
+    order: 10
   }
 ];
 

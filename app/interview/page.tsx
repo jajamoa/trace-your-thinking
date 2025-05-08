@@ -224,60 +224,70 @@ export default function InterviewPage() {
       // markQuestionAsAnswered will trigger moveToNextQuestion, which already adds the next question
       const currentIndex = currentQuestionIndex;
       
-      // Set loading state for Python backend processing
-      setIsProcessing(true);
+      // Check if this is a tutorial question - if so, skip Python backend processing
+      const isTutorialQuestion = currentQuestion.category === "tutorial";
       
-      try {
-        // Get the updated QA Pair with answer for sending to Python backend
-        const updatedQAPair = {
-          ...currentQuestion,
-          answer: text
-        };
+      if (!isTutorialQuestion) {
+        // Only process non-tutorial questions with the Python backend
+        // Set loading state for Python backend processing
+        setIsProcessing(true);
         
-        // Call Python backend to process the answer
-        console.log("Calling Python backend to process answer...");
-        const pythonResult = await PythonAPIService.processAnswer(
-          sessionId || '',
-          prolificId || '',
-          updatedQAPair,
-          qaPairs,
-          currentQuestionIndex
-        );
-        
-        if (pythonResult.success) {
-          console.log("Python backend processing successful");
+        try {
+          // Get the updated QA Pair with answer for sending to Python backend
+          const updatedQAPair = {
+            ...currentQuestion,
+            answer: text
+          };
           
-          // Add follow-up questions if provided
-          if (pythonResult.followUpQuestions && pythonResult.followUpQuestions.length > 0) {
-            console.log(`Adding ${pythonResult.followUpQuestions.length} follow-up questions`);
+          // Call Python backend to process the answer
+          console.log("Calling Python backend to process answer...");
+          const pythonResult = await PythonAPIService.processAnswer(
+            sessionId || '',
+            prolificId || '',
+            updatedQAPair,
+            qaPairs,
+            currentQuestionIndex
+          );
+          
+          if (pythonResult.success) {
+            console.log("Python backend processing successful");
             
-            // Add each follow-up question to the store
-            pythonResult.followUpQuestions.forEach(question => {
-              const id = question.id || `followup_${uuidv4()}`;
+            // Add follow-up questions if provided
+            if (pythonResult.followUpQuestions && pythonResult.followUpQuestions.length > 0) {
+              console.log(`Adding ${pythonResult.followUpQuestions.length} follow-up questions`);
               
-              // Add new question to store if it doesn't already exist
-              const questionExists = qaPairs.some(q => q.id === id);
-              if (!questionExists) {
-                addNewQuestion({
-                  question: question.question,
-                  shortText: question.shortText
-                });
-              }
-            });
+              // Add each follow-up question to the store
+              pythonResult.followUpQuestions.forEach(question => {
+                const id = question.id || `followup_${uuidv4()}`;
+                
+                // Add new question to store if it doesn't already exist
+                const questionExists = qaPairs.some(q => q.id === id);
+                if (!questionExists) {
+                  addNewQuestion({
+                    question: question.question,
+                    shortText: question.shortText,
+                    category: question.category || 'research'
+                  });
+                }
+              });
+              
+              // Re-calculate progress after adding new questions
+              recalculateProgress();
+            }
             
-            // Re-calculate progress after adding new questions
-            recalculateProgress();
+            // Causal graph is automatically saved by the PythonAPIService
+            console.log("Causal graph processed and saved");
+          } else {
+            console.error("Python backend processing failed:", pythonResult.error);
           }
-          
-          // Causal graph is automatically saved by the PythonAPIService
-          console.log("Causal graph processed and saved");
-        } else {
-          console.error("Python backend processing failed:", pythonResult.error);
+        } catch (pythonError) {
+          console.error("Error during Python backend processing:", pythonError);
+        } finally {
+          setIsProcessing(false);
         }
-      } catch (pythonError) {
-        console.error("Error during Python backend processing:", pythonError);
-      } finally {
-        setIsProcessing(false);
+      } else {
+        // For tutorial questions, log that we're skipping Python backend
+        console.log("Tutorial question detected, skipping Python backend processing");
       }
       
       // Mark this question as answered - this updates the store progress state
