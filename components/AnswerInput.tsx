@@ -94,6 +94,9 @@ export default function AnswerInput({ onSendMessage, isProcessing = false }: Ans
       // Don't handle keyboard shortcuts if input is focused
       const isInputFocused = document.activeElement === textareaRef.current;
       
+      // Don't handle keyboard shortcuts when loading question or processing
+      if (isQuestionLoading || isProcessing) return;
+      
       // Ctrl/Cmd + Enter to send
       if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
         if (text.trim() && !isRecording && inputMode === "text") {
@@ -276,7 +279,7 @@ export default function AnswerInput({ onSendMessage, isProcessing = false }: Ans
   }
 
   const handleSend = () => {
-    if (text.trim()) {
+    if (text.trim() && !isQuestionLoading && !isProcessing) {
       onSendMessage(text.trim())
       setText("")
     }
@@ -414,23 +417,36 @@ export default function AnswerInput({ onSendMessage, isProcessing = false }: Ans
                 onClick={toggleInputMode}
                 className="h-10 w-10 rounded-full bg-[#e0ddd5] hover:bg-[#d5d2ca] text-[#333333]"
                 aria-label="Switch to voice input"
-                disabled={isProcessing}
+                disabled={isProcessing || isQuestionLoading}
               >
                 <Mic className="h-5 w-5" />
               </Button>
             </motion.div>
 
-            <Textarea
-              ref={textareaRef}
-              value={text}
-              onChange={(e) => setText(e.target.value)}
-              placeholder={isProcessing ? "Processing your answer..." : "Type your answer..."}
-              className="min-h-10 h-10 resize-none bg-white border-[#e0ddd5] rounded-xl focus:ring-blue-400 font-light"
-              aria-label="Answer input"
-              disabled={isProcessing}
-            />
+            {/* 文本模式下的提示信息 */}
+            {(isProcessing || isQuestionLoading) ? (
+              <div className="flex-1 flex items-center justify-center h-10 bg-white border border-[#e0ddd5] rounded-xl">
+                <div className="text-sm text-gray-600 font-light">
+                  {isProcessing
+                    ? "Processing your answer with AI..."
+                    : isQuestionLoading
+                      ? "Waiting for question..."
+                      : "Type your answer..."}
+                </div>
+              </div>
+            ) : (
+              <Textarea
+                ref={textareaRef}
+                value={text}
+                onChange={(e) => setText(e.target.value)}
+                placeholder="Type your answer..."
+                className="min-h-10 h-10 resize-none bg-white border-[#e0ddd5] rounded-xl focus:ring-blue-400 font-light"
+                aria-label="Answer input"
+                disabled={isProcessing || isQuestionLoading}
+              />
+            )}
 
-            {text ? (
+            {text && !isProcessing && !isQuestionLoading ? (
               <motion.div whileTap={{ scale: 0.96 }} className="flex-shrink-0">
                 <Button
                   type="button"
@@ -438,7 +454,7 @@ export default function AnswerInput({ onSendMessage, isProcessing = false }: Ans
                   onClick={() => setText("")}
                   className="h-10 w-10 rounded-full bg-[#e0ddd5] hover:bg-[#d5d2ca] text-[#333333]"
                   aria-label="Clear text"
-                  disabled={isProcessing}
+                  disabled={isProcessing || isQuestionLoading}
                 >
                   <X className="h-5 w-5" />
                 </Button>
@@ -450,7 +466,7 @@ export default function AnswerInput({ onSendMessage, isProcessing = false }: Ans
                 type="button"
                 size="icon"
                 onClick={handleSend}
-                disabled={!text.trim() || isProcessing}
+                disabled={!text.trim() || isProcessing || isQuestionLoading}
                 className="h-10 w-10 rounded-full bg-[#333333] hover:bg-[#222222] text-white"
                 aria-label="Send message"
               >
@@ -462,7 +478,7 @@ export default function AnswerInput({ onSendMessage, isProcessing = false }: Ans
       </div>
 
       <div className="text-xs text-gray-500 text-center mt-2 font-light h-5">
-        {!isProcessing && (
+        {!isProcessing && !isQuestionLoading && (
           <>
             {inputMode === "text" && (
               <>

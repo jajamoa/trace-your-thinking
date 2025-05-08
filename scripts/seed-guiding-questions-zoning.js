@@ -1,14 +1,14 @@
-// Run this script to initialize the guiding questions database
-// node scripts/seed-guiding-questions.js
+// Run this script to initialize the guiding questions database for upzoning research
+// node scripts/seed-guiding-questions-zoning.js
 
 const { MongoClient } = require("mongodb");
-require("dotenv").config({ path: ".env.local" });
+require("dotenv").config({ path: ".env.zoning.local" });
 
-// Default guiding questions
+// Default guiding questions for upzoning study
 const initialGuidingQuestions = [
   {
     id: "gq0a",
-    text: "Welcome to the Trace Your Thinking interview system. This platform is designed to capture your research insights in a comfortable and intuitive way. Would you like me to guide you through using this system?",
+    text: "Welcome to the Trace Your Thinking interview system. This platform is designed to capture your thoughts about urban zoning and housing development. Would you like me to guide you through using this system?",
     shortText: "Welcome",
     category: "tutorial",
     isActive: true,
@@ -32,7 +32,7 @@ const initialGuidingQuestions = [
   },
   {
     id: "gq0d",
-    text: "You can switch between voice and text modes at any time. In voice mode, the microphone button will show as red when recording is active. During transcription, you'll see 'Transcribing your speech...' and your answer will be automatically submitted once ready. Remember, in voice mode, always press the microphone button or Space key to begin and end your recording. Feel comfortable with the system now?",
+    text: "You can switch between voice and text modes at any time. In voice mode, the microphone button will show as red when recording is active. During transcription, you'll see 'Transcribing your speech...' and your answer will be automatically submitted once ready. Feel comfortable with the system now?",
     shortText: "Mode switching guide",
     category: "tutorial",
     isActive: true,
@@ -40,7 +40,7 @@ const initialGuidingQuestions = [
   },
   {
     id: "gq0e",
-    text: "As the interview progresses, you'll notice the progress bar at the top of the screen showing your current position. Based on your responses, the system may generate follow-up questions to dive deeper into specific topics. These new questions will be added to your interview flow automatically. Don't be surprised if the progress bar adjusts as new questions are added. This helps us capture your thinking process more thoroughly.",
+    text: "As the interview progresses, you'll notice the progress bar at the top of the screen showing your current position. Based on your responses, the system may generate follow-up questions to dive deeper into specific topics. These new questions will be added to your interview flow automatically. This helps us capture your thinking process more thoroughly.",
     shortText: "Progress tracking",
     category: "tutorial",
     isActive: true,
@@ -48,7 +48,7 @@ const initialGuidingQuestions = [
   },
   {
     id: "gq0f",
-    text: "Excellent! We're now ready to begin the research interview. Remember you can switch input methods anytime. For voice recording, you'll need to explicitly start and stop recording using the microphone button or Space key. Take your time with each response and provide as much detail as you'd like. Let's start with our first research question.",
+    text: "Excellent! We're now ready to begin the interview about urban zoning policies. Take your time with each response and provide as much detail as you'd like. Let's start with our first question.",
     shortText: "Start interview",
     category: "tutorial",
     isActive: true,
@@ -57,8 +57,8 @@ const initialGuidingQuestions = [
   // Phase 1: Node Discovery Questions - Primary stance exploration
   {
     id: "gq1",
-    text: "To what extent do you believe that open science practices improve research quality? Please explain your reasoning.",
-    shortText: "Stance on open science",
+    text: "To what extent do you support or oppose upzoning policies that allow for higher density housing in traditionally single-family neighborhoods? Please explain your reasoning.",
+    shortText: "Stance on upzoning",
     category: "research",
     isActive: true,
     order: 6,
@@ -66,75 +66,91 @@ const initialGuidingQuestions = [
   // Phase 1: Node Discovery Questions - Discovering key concepts/nodes
   {
     id: "gq2",
-    text: "What specific aspects of open science (such as data sharing, pre-registration, open access publishing, etc.) do you think are most important for research quality?",
-    shortText: "Important aspects",
+    text: "What do you think are the most significant impacts, positive or negative, of increasing housing density in residential neighborhoods?",
+    shortText: "Upzoning impacts",
     category: "research",
     isActive: true,
     order: 7,
   },
   {
     id: "gq3",
-    text: "How do you think transparency in research methods affects the reliability of scientific findings?",
-    shortText: "Transparency effects",
+    text: "How do you think upzoning policies might affect housing affordability in urban areas?",
+    shortText: "Housing affordability",
     category: "research",
     isActive: true,
     order: 8,
   },
   {
     id: "gq4",
-    text: "What role do you believe peer review plays in maintaining research quality in an open science framework?",
-    shortText: "Peer review role",
+    text: "What impact do you believe increased housing density might have on neighborhood character and quality of life?",
+    shortText: "Neighborhood character",
     category: "research",
     isActive: true,
     order: 9,
   },
   {
     id: "gq5",
-    text: "How might institutional incentives influence researchers' adoption of open science practices?",
-    shortText: "Institutional incentives",
+    text: "How do you think upzoning might affect transportation systems and traffic congestion in cities?",
+    shortText: "Transportation impacts",
     category: "research",
     isActive: true,
     order: 10,
   },
   {
     id: "gq6",
-    text: "What challenges or barriers do you see in implementing open science practices across different research fields?",
-    shortText: "Implementation challenges",
+    text: "What role do you believe local government should play in regulating housing development and density?",
+    shortText: "Government role",
     category: "research",
     isActive: true,
     order: 11,
   },
   {
     id: "gq7",
-    text: "How do you think open data practices specifically contribute to research reproducibility?",
-    shortText: "Open data impact",
+    text: "How might environmental concerns factor into decisions about urban density and zoning?",
+    shortText: "Environmental factors",
     category: "research",
     isActive: true,
     order: 12,
   },
   {
     id: "gq8",
-    text: "In what ways might open science practices affect researchers at different career stages differently?",
-    shortText: "Career stage effects",
+    text: "What economic effects, both positive and negative, might result from changing zoning laws to allow more multi-family housing?",
+    shortText: "Economic effects",
     category: "research",
     isActive: true,
     order: 13,
   },
-  // Phase 2 questions will be generated dynamically based on the nodes discovered
   {
     id: "gq9",
-    text: "Thank you for sharing your perspectives. As we conclude, is there anything else about open science and research quality that you'd like to add?",
+    text: "How do you think the interests of current residents versus future residents should be balanced when making zoning decisions?",
+    shortText: "Current vs future residents",
+    category: "research",
+    isActive: true,
+    order: 14,
+  },
+  {
+    id: "gq10",
+    text: "What role do you think social equity and access to opportunity play in discussions about zoning and housing policy?",
+    shortText: "Social equity",
+    category: "research",
+    isActive: true,
+    order: 15,
+  },
+  // Phase 2 questions will be generated dynamically based on the nodes discovered
+  {
+    id: "gq11",
+    text: "Thank you for sharing your perspectives. As we conclude, is there anything else about urban zoning policies and housing development that you'd like to add?",
     shortText: "Final thoughts",
     category: "conclusion",
     isActive: true,
-    order: 14,
+    order: 16,
   },
 ];
 
 async function seedGuidingQuestions() {
   // Check environment variables
   if (!process.env.MONGODB_URI) {
-    console.error("MONGODB_URI environment variable is not defined.");
+    console.error("MONGODB_URI environment variable is not defined in .env.zoning.local");
     process.exit(1);
   }
 
@@ -170,7 +186,7 @@ async function seedGuidingQuestions() {
     // Insert new guiding questions
     const result = await collection.insertMany(initialGuidingQuestions);
     console.log(
-      `${result.insertedCount} guiding questions have been added to the database.`
+      `${result.insertedCount} upzoning guiding questions have been added to the database.`
     );
 
     // Add timestamps
@@ -183,7 +199,7 @@ async function seedGuidingQuestions() {
     }
 
     console.log("Added timestamps to all guiding questions.");
-    console.log("Database seeding completed successfully!");
+    console.log("Database seeding for upzoning study completed successfully!");
   } catch (error) {
     console.error("An error occurred while seeding the database:", error);
   } finally {
