@@ -447,27 +447,73 @@ class QuestionGenerator:
         
         # If we're focusing on node discovery or forced to generate questions
         if focus_on_nodes or (force_generate and current_phase == "node_discovery"):
-            # Generate more node discovery questions
-            node_questions = self._generate_forced_node_discovery_questions(scm, current_questions)
-            additional_questions.extend(node_questions)
+            try:
+                # Generate more node discovery questions
+                node_questions = self._generate_forced_node_discovery_questions(scm, current_questions)
+                if isinstance(node_questions, list):
+                    additional_questions.extend(node_questions)
+                else:
+                    logger.error(f"_generate_forced_node_discovery_questions returned non-list: {type(node_questions)}")
+            except Exception as e:
+                logger.error(f"Error generating node discovery questions: {str(e)}")
             
         # If we need to force generate questions for edge construction
         elif force_generate and current_phase == "edge_construction":
-            # Generate more edge construction questions
-            edge_questions = self._generate_forced_edge_construction_questions(scm, current_questions)
-            additional_questions.extend(edge_questions)
+            try:
+                # Generate more edge construction questions
+                edge_questions = self._generate_forced_edge_construction_questions(scm, current_questions)
+                if isinstance(edge_questions, list):
+                    additional_questions.extend(edge_questions)
+                else:
+                    logger.error(f"_generate_forced_edge_construction_questions returned non-list: {type(edge_questions)}")
+            except Exception as e:
+                logger.error(f"Error generating edge construction questions: {str(e)}")
             
         # If we still don't have enough questions, add some general questions
         if not additional_questions or force_generate:
-            additional_questions.extend(self._generate_general_questions(current_questions))
+            try:
+                general_questions = self._generate_general_questions(current_questions)
+                if isinstance(general_questions, list):
+                    additional_questions.extend(general_questions)
+                else:
+                    logger.error(f"_generate_general_questions returned non-list: {type(general_questions)}")
+            except Exception as e:
+                logger.error(f"Error generating general questions: {str(e)}")
             
         # Ensure we have at least 1-3 questions
         if additional_questions:
             logger.info(f"Generated {len(additional_questions)} additional questions")
-            return additional_questions[:3]  # Limit to 3 questions max
+            # Make sure each question is a proper question object
+            formatted_questions = []
+            for q in additional_questions[:3]:
+                if isinstance(q, str):
+                    # Convert string questions to proper format
+                    formatted_questions.append({
+                        "id": f"followup_{uuid.uuid4().hex[:8]}_{int(time.time())}",
+                        "question": q,
+                        "shortText": q[:30] + "..." if len(q) > 30 else q,
+                        "answer": ""
+                    })
+                elif isinstance(q, dict) and "question" in q:
+                    # Add missing fields if needed
+                    if "id" not in q:
+                        q["id"] = f"followup_{uuid.uuid4().hex[:8]}_{int(time.time())}"
+                    if "shortText" not in q:
+                        q["shortText"] = q["question"][:30] + "..." if len(q["question"]) > 30 else q["question"]
+                    if "answer" not in q:
+                        q["answer"] = ""
+                    formatted_questions.append(q)
+            return formatted_questions
         
         # Fallback to a single general question if nothing else worked
-        return ["Could you elaborate more on your previous answer?"]
+        fallback_question = {
+            "id": f"followup_{uuid.uuid4().hex[:8]}_{int(time.time())}",
+            "question": "Could you elaborate more on your previous answer?",
+            "shortText": "Further elaboration",
+            "answer": ""
+        }
+        logger.info("Using fallback question as no others were generated")
+        return [fallback_question]  # Return as a list with a properly formatted question
     
     def _generate_forced_node_discovery_questions(self, scm, current_questions):
         """

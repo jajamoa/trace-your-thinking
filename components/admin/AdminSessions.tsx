@@ -26,7 +26,7 @@ import {
 } from "@/components/ui/tooltip";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { AlertCircle, CheckCircle, Trash, Search, RefreshCw, Edit, Copy, MoveHorizontal, Download, FileJson, Network } from "lucide-react";
+import { AlertCircle, CheckCircle, Trash, Search, RefreshCw, Edit, Copy, MoveHorizontal, Download, FileJson, Network, ChevronLeft, ChevronRight } from "lucide-react";
 import Link from 'next/link';
 
 type SessionStatus = 'in_progress' | 'completed' | 'abandoned';
@@ -45,6 +45,13 @@ interface Session {
   order?: number; // For drag-and-drop ordering
 }
 
+interface PaginationInfo {
+  currentPage: number;
+  totalPages: number;
+  totalItems: number;
+  itemsPerPage: number;
+}
+
 export default function AdminSessions() {
   const [sessions, setSessions] = useState<Session[]>([]);
   const [loading, setLoading] = useState(true);
@@ -55,19 +62,34 @@ export default function AdminSessions() {
   const [draggingSession, setDraggingSession] = useState<Session | null>(null);
   const [dragOverSession, setDragOverSession] = useState<Session | null>(null);
   const [showOrderControls, setShowOrderControls] = useState(false);
+  // Pagination states
+  const [pagination, setPagination] = useState<PaginationInfo>({
+    currentPage: 1,
+    totalPages: 1,
+    totalItems: 0,
+    itemsPerPage: 30
+  });
 
-  const fetchSessions = async () => {
+  const fetchSessions = async (page = 1) => {
     setLoading(true);
     try {
-      const response = await fetch('/api/admin/sessions');
+      const response = await fetch(`/api/admin/sessions?page=${page}&limit=${pagination.itemsPerPage}`);
       if (!response.ok) throw new Error('Failed to fetch session data');
       const data = await response.json();
+      
       // Add order property to sessions if not already present
       const orderedSessions = data.sessions.map((session: Session, index: number) => ({
         ...session,
         order: session.order || index
       }));
+      
       setSessions(orderedSessions);
+      setPagination({
+        ...pagination,
+        currentPage: data.pagination.currentPage,
+        totalPages: data.pagination.totalPages,
+        totalItems: data.pagination.totalItems
+      });
     } catch (err: any) {
       setError(err.message || 'Unable to load session data');
       console.error('Session fetch error:', err);
@@ -77,8 +99,8 @@ export default function AdminSessions() {
   };
 
   useEffect(() => {
-    fetchSessions();
-  }, []);
+    fetchSessions(pagination.currentPage);
+  }, [pagination.currentPage, pagination.itemsPerPage]);
 
   const handleAction = async () => {
     if (!confirmSession || !actionType) return;
@@ -89,7 +111,7 @@ export default function AdminSessions() {
       
       if (!response.ok) throw new Error(`Operation failed: ${actionType}`);
       
-      await fetchSessions(); // Refetch sessions list
+      await fetchSessions(pagination.currentPage); // Refetch sessions list
       setConfirmSession(null);
       setActionType(null);
     } catch (err: any) {
@@ -98,12 +120,29 @@ export default function AdminSessions() {
     }
   };
 
-  // Filter sessions
-  const filteredSessions = sessions.filter(session => {
+  // Go to specific page
+  const goToPage = (page: number) => {
+    if (page < 1 || page > pagination.totalPages) return;
+    setPagination(prev => ({...prev, currentPage: page}));
+  };
+
+  // Filter sessions handled on server-side with pagination,
+  // but we still need local filtering for search functionality
+  const filteredSessions = searchTerm ? sessions.filter(session => {
     return session.id.includes(searchTerm) || 
            session.prolificId.includes(searchTerm) ||
            session.status.includes(searchTerm);
-  }).sort((a, b) => (a.order || 0) - (b.order || 0));
+  }).sort((a, b) => (a.order || 0) - (b.order || 0)) : sessions;
+
+  // Handle search with debounce
+  const handleSearch = (value: string) => {
+    setSearchTerm(value);
+    if (!value) {
+      // If search is cleared, reset to first page
+      setPagination(prev => ({...prev, currentPage: 1}));
+      fetchSessions(1);
+    }
+  };
 
   const getStatusBadge = (status: SessionStatus) => {
     switch(status) {
@@ -293,6 +332,69 @@ export default function AdminSessions() {
     }
   };
 
+  // Render pagination controls
+  const renderPagination = () => {
+    return (
+      <div className="flex items-center justify-center mt-6 space-x-2">
+        <Button 
+          variant="outline" 
+          size="sm" 
+          disabled={pagination.currentPage <= 1}
+          onClick={() => goToPage(pagination.currentPage - 1)}
+        >
+          <ChevronLeft className="h-4 w-4 mr-1" /> Previous
+        </Button>
+        
+        <div className="flex items-center space-x-1">
+          {[...Array(pagination.totalPages)].map((_, index) => {
+            const pageNumber = index + 1;
+            
+            // Show only a window of pages around current page
+            if (
+              pageNumber === 1 || 
+              pageNumber === pagination.totalPages ||
+              (pageNumber >= pagination.currentPage - 2 && 
+               pageNumber <= pagination.currentPage + 2)
+            ) {
+              return (
+                <Button
+                  key={pageNumber}
+                  variant={pagination.currentPage === pageNumber ? "default" : "outline"}
+                  size="sm"
+                  className={pagination.currentPage === pageNumber ? "bg-[#333333]" : ""}
+                  onClick={() => goToPage(pageNumber)}
+                >
+                  {pageNumber}
+                </Button>
+              );
+            } else if (
+              (pageNumber === pagination.currentPage - 3 && pagination.currentPage > 3) ||
+              (pageNumber === pagination.currentPage + 3 && pagination.currentPage < pagination.totalPages - 2)
+            ) {
+              // Show ellipsis for gaps
+              return <span key={pageNumber}>...</span>;
+            }
+            return null;
+          })}
+        </div>
+        
+        <Button 
+          variant="outline" 
+          size="sm" 
+          disabled={pagination.currentPage >= pagination.totalPages}
+          onClick={() => goToPage(pagination.currentPage + 1)}
+        >
+          Next <ChevronRight className="h-4 w-4 ml-1" />
+        </Button>
+        
+        <span className="text-sm text-gray-500 ml-2">
+          Page {pagination.currentPage} of {pagination.totalPages} 
+          ({pagination.totalItems} total sessions)
+        </span>
+      </div>
+    );
+  };
+
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
@@ -301,7 +403,7 @@ export default function AdminSessions() {
           <Button 
             variant="ghost" 
             size="icon" 
-            onClick={fetchSessions} 
+            onClick={() => fetchSessions(pagination.currentPage)} 
             className="ml-2" 
             title="Refresh"
           >
@@ -344,7 +446,7 @@ export default function AdminSessions() {
           <Input
             placeholder="Search sessions..."
             value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+            onChange={(e) => handleSearch(e.target.value)}
             className="pl-8 w-64 bg-[#f5f2eb] border-[#e0ddd5] focus:ring-blue-400"
           />
         </div>
@@ -514,6 +616,9 @@ export default function AdminSessions() {
               ))}
             </TableBody>
           </Table>
+          
+          {/* Render pagination controls */}
+          {pagination.totalPages > 1 && renderPagination()}
         </div>
       )}
 

@@ -4,6 +4,7 @@ import { create } from "zustand"
 import { persist } from "zustand/middleware"
 import { SyncService } from "./sync-service"
 import { v4 as uuidv4 } from "uuid"
+import { PythonAPIService } from "./python-api-service"
 
 export interface Message {
   id: string
@@ -18,11 +19,24 @@ export interface QAPair {
   shortText: string
   answer: string
   category?: string  // Optional category field to identify tutorial vs research questions
+  processed?: boolean // Track if this QA has been processed by the LLM
+  processingState?: 'pending' | 'processing' | 'completed' | 'error' // Track processing state
+  processingError?: string // Store any error that occurred during processing
+  version?: number // Version number to handle concurrent updates
+  lastUpdated?: number // Timestamp of last update
 }
 
 export interface Progress {
   current: number
   total: number
+}
+
+export interface PendingRequest {
+  id: string
+  qaPairId: string
+  timestamp: number
+  status: 'pending' | 'processing' | 'completed' | 'error'
+  error?: string
 }
 
 type SessionStatus = "in_progress" | "completed"
@@ -36,6 +50,9 @@ interface StoreState {
   progress: Progress
   status: SessionStatus
   currentQuestionIndex: number
+  pendingRequests: PendingRequest[] // Queue of pending requests
+  processingLock: boolean // Lock to prevent concurrent processing
+  optimisticUpdates: Map<string, QAPair> // Store for tracking optimistic updates
 
   setProlificId: (id: string) => void
   setSessionId: (id: string) => void
@@ -56,6 +73,13 @@ interface StoreState {
   checkSessionStatus: () => Promise<void>
   initializeWithGuidingQuestions: () => Promise<void>
   recalculateProgress: () => void
+  addPendingRequest: (qaPairId: string) => string // Add async request to queue
+  updatePendingRequest: (requestId: string, updates: Partial<PendingRequest>) => void // Update request status
+  processNextPendingRequest: () => Promise<void> // Process next request in queue
+  hasPendingRequests: () => boolean // Check if there are any pending requests
+  isLastQAPairAnswered: () => boolean // Check if the last QA pair is answered
+  getUnprocessedQAs: () => QAPair[] // Get all unprocessed QA pairs
+  syncProcessingQueue: () => void // Sync the processing queue with QA pairs
 }
 
 // Initial seed data
@@ -80,6 +104,409 @@ export const useStore = create<StoreState>()(
       progress: initialProgress,
       status: "in_progress",
       currentQuestionIndex: 0,
+      pendingRequests: [], // Initialize empty request queue
+      processingLock: false, // Initialize processing lock
+      optimisticUpdates: new Map(), // Initialize optimistic updates
+
+      // Add async request to queue
+      addPendingRequest: (qaPairId) => {
+        const requestId = `req_${uuidv4()}`;
+        
+        // Mark the QA pair as pending processing
+        const state = get();
+        const qaPairIndex = state.qaPairs.findIndex(qa => qa.id === qaPairId);
+        
+        if (qaPairIndex >= 0) {
+          const qaPair = state.qaPairs[qaPairIndex];
+          const updatedQAPair = {
+            ...qaPair,
+            processingState: 'pending' as 'pending',
+            version: (qaPair.version || 0) + 1,
+            lastUpdated: Date.now()
+          };
+          
+          const newQAPairs = [...state.qaPairs];
+          newQAPairs[qaPairIndex] = updatedQAPair;
+          
+          // Track this as an optimistic update
+          const newOptimisticUpdates = new Map(state.optimisticUpdates);
+          newOptimisticUpdates.set(qaPairId, updatedQAPair);
+          
+          set({ 
+            qaPairs: newQAPairs,
+            optimisticUpdates: newOptimisticUpdates
+          });
+        }
+        
+        set((state) => ({
+          pendingRequests: [
+            ...state.pendingRequests,
+            {
+              id: requestId,
+              qaPairId,
+              timestamp: Date.now(),
+              status: 'pending'
+            }
+          ]
+        }));
+        return requestId;
+      },
+
+      // Update request status with proper concurrency control
+      updatePendingRequest: (requestId, updates) => {
+        // Get the request first to update the corresponding QA pair
+        const state = get();
+        const request = state.pendingRequests.find(req => req.id === requestId);
+        
+        if (request && updates.status) {
+          // Update the QA pair processing state with version control
+          const qaPairIndex = state.qaPairs.findIndex(qa => qa.id === request.qaPairId);
+          
+          if (qaPairIndex >= 0) {
+            const qaPair = state.qaPairs[qaPairIndex];
+            
+            // Create updated QA pair with incremented version
+            const updatedQAPair = {
+              ...qaPair,
+              processingState: updates.status as 'pending' | 'processing' | 'completed' | 'error',
+              processingError: updates.error,
+              processed: updates.status === 'completed' ? true : qaPair.processed,
+              version: (qaPair.version || 0) + 1,
+              lastUpdated: Date.now()
+            };
+            
+            const newQAPairs = [...state.qaPairs];
+            newQAPairs[qaPairIndex] = updatedQAPair;
+            
+            // Update optimistic updates map
+            const newOptimisticUpdates = new Map(state.optimisticUpdates);
+            newOptimisticUpdates.set(request.qaPairId, updatedQAPair);
+            
+            set({ 
+              qaPairs: newQAPairs,
+              optimisticUpdates: newOptimisticUpdates
+            });
+          }
+        }
+        
+        // Update request status in pendingRequests array
+        set((state) => ({
+          pendingRequests: state.pendingRequests.map(req => 
+            req.id === requestId ? { ...req, ...updates } : req
+          )
+        }));
+      },
+
+      // Process next request in queue with improved concurrency control
+      processNextPendingRequest: async () => {
+        const state = get();
+        
+        // If locked, another process is already running
+        if (state.processingLock) {
+          console.log('Processing already in progress, skipping');
+          return;
+        }
+        
+        // Find next pending request
+        const nextRequest = state.pendingRequests.find(req => req.status === 'pending');
+        if (!nextRequest) return;
+        
+        try {
+          // Set processing lock
+          set({ processingLock: true });
+          
+          // Mark as processing
+          get().updatePendingRequest(nextRequest.id, { status: 'processing' });
+          
+          // Find corresponding QA pair
+          const qaPair = state.qaPairs.find(qa => qa.id === nextRequest.qaPairId);
+          if (!qaPair) {
+            get().updatePendingRequest(nextRequest.id, { status: 'error', error: 'QA pair not found' });
+            set({ processingLock: false }); // Release lock
+            return;
+          }
+          
+          // Get existing QA pairs for context
+          const index = state.qaPairs.findIndex(qa => qa.id === nextRequest.qaPairId);
+          
+          // Ensure all QA pairs have the correct format
+          const validQAPairs = state.qaPairs.map(qa => {
+            // Ensure each QA pair is a proper object with required fields
+            return {
+              id: qa.id,
+              question: qa.question || '',
+              shortText: qa.shortText || '',
+              answer: qa.answer || '',
+              category: qa.category || 'research'
+            };
+          });
+          
+          // Send request to Python backend
+          const response = await PythonAPIService.processAnswer(
+            state.sessionId || '',
+            state.prolificId || '',
+            qaPair,
+            validQAPairs, // Use the validated QA pairs
+            index,
+            null
+          );
+          
+          if (response.success) {
+            // Update with transaction-like approach to prevent race conditions
+            set((state) => {
+              // Get current state after async operation completed
+              const currentQAPairs = [...state.qaPairs];
+              const currentIndex = currentQAPairs.findIndex(qa => qa.id === qaPair.id);
+              
+              // If QA pair no longer exists, skip update
+              if (currentIndex < 0) {
+                return state;
+              }
+              
+              // Check if local state has been updated during processing
+              const currentQAPair = currentQAPairs[currentIndex];
+              const optimisticQAPair = state.optimisticUpdates.get(qaPair.id);
+              
+              // If local version is newer than when we started processing, be careful with updates
+              if (optimisticQAPair && 
+                  optimisticQAPair.version !== undefined && 
+                  currentQAPair.version !== undefined &&
+                  optimisticQAPair.version > currentQAPair.version) {
+                console.log('Local state has newer version, careful merge required');
+                // We'll still add follow-up questions but preserve other local changes
+              }
+              
+              // Add follow-up questions if provided
+              if (response.followUpQuestions && response.followUpQuestions.length > 0) {
+                // Add version and timestamp to follow-up questions
+                const versionedFollowUps = response.followUpQuestions.map(q => ({
+                  ...q,
+                  version: 1,
+                  lastUpdated: Date.now()
+                }));
+                
+                // Filter out any potentially empty or invalid questions from backend
+                const validFollowUps = versionedFollowUps.filter(q => {
+                  // Ensure question has meaningful content
+                  const hasValidQuestion = q.question && 
+                                         q.question.trim().length > 10 && 
+                                         q.question !== "placeholder";
+                  // Ensure shortText is present
+                  const hasValidShortText = q.shortText && q.shortText.trim().length > 0;
+                  
+                  if (!hasValidQuestion || !hasValidShortText) {
+                    console.warn("Filtered out invalid follow-up question from backend:", q);
+                    return false;
+                  }
+                  return true;
+                });
+                
+                // Only add valid follow-up questions
+                if (validFollowUps.length > 0) {
+                  // Insert follow-up questions at the end of the array, not after current question
+                  currentQAPairs.push(...validFollowUps);
+                  
+                  // Update the parent QA pair as processed with proper version increment
+                  currentQAPairs[currentIndex] = {
+                    ...currentQAPairs[currentIndex],
+                    processed: true,
+                    processingState: 'completed' as 'completed',
+                    version: (currentQAPair.version || 0) + 1,
+                    lastUpdated: Date.now()
+                  };
+                  
+                  // Update progress
+                  const progress = {
+                    current: state.progress.current,
+                    total: currentQAPairs.length
+                  };
+                  
+                  // Remove from optimistic updates as server processing is complete
+                  const newOptimisticUpdates = new Map(state.optimisticUpdates);
+                  newOptimisticUpdates.delete(qaPair.id);
+                  
+                  // Schedule the next request processing with a slight delay to allow UI updates
+                  setTimeout(() => {
+                    // Sync the processing queue with QA pairs to ensure follow-up questions get processed
+                    get().syncProcessingQueue();
+                  }, 300);
+                  
+                  return { 
+                    qaPairs: currentQAPairs, 
+                    progress,
+                    optimisticUpdates: newOptimisticUpdates
+                  };
+                } else {
+                  console.log("No valid follow-up questions received from backend");
+                  
+                  // Still mark the current QA as processed, even if no follow-up questions were added
+                  currentQAPairs[currentIndex] = {
+                    ...currentQAPairs[currentIndex],
+                    processed: true,
+                    processingState: 'completed' as 'completed',
+                    version: (currentQAPair.version || 0) + 1,
+                    lastUpdated: Date.now()
+                  };
+                  
+                  // Remove from optimistic updates
+                  const newOptimisticUpdates = new Map(state.optimisticUpdates);
+                  newOptimisticUpdates.delete(qaPair.id);
+                  
+                  // Since no valid follow-up questions, check if there are other unprocessed questions
+                  setTimeout(() => {
+                    get().syncProcessingQueue();
+                  }, 300);
+                  
+                  return { 
+                    qaPairs: currentQAPairs,
+                    optimisticUpdates: newOptimisticUpdates 
+                  };
+                }
+              }
+              
+              // Just mark as completed if no follow-up questions
+              currentQAPairs[currentIndex] = {
+                ...currentQAPairs[currentIndex],
+                processed: true,
+                processingState: 'completed' as 'completed',
+                version: (currentQAPair.version || 0) + 1,
+                lastUpdated: Date.now()
+              };
+              
+              // Remove from optimistic updates
+              const newOptimisticUpdates = new Map(state.optimisticUpdates);
+              newOptimisticUpdates.delete(qaPair.id);
+              
+              // Since no valid follow-up questions, check if there are other unprocessed questions
+              setTimeout(() => {
+                get().syncProcessingQueue();
+              }, 300);
+              
+              return { 
+                qaPairs: currentQAPairs,
+                optimisticUpdates: newOptimisticUpdates 
+              };
+            });
+            
+            // Mark request as completed
+            get().updatePendingRequest(nextRequest.id, { status: 'completed' });
+          } else {
+            // Mark request as error
+            get().updatePendingRequest(nextRequest.id, { 
+              status: 'error', 
+              error: response.error || 'Error processing request' 
+            });
+          }
+        } catch (error) {
+          console.error('Error processing async request:', error);
+          get().updatePendingRequest(nextRequest.id, { 
+            status: 'error', 
+            error: error instanceof Error ? error.message : 'Unknown error' 
+          });
+        } finally {
+          // Always release the lock
+          set({ processingLock: false });
+          
+          // Schedule next processing with a delay
+          setTimeout(() => {
+            // Check again for pending requests
+            const state = get();
+            const hasPending = state.pendingRequests.some(req => req.status === 'pending');
+            if (hasPending) {
+              get().processNextPendingRequest();
+            }
+          }, 100);
+        }
+      },
+
+      // Get all unprocessed QA pairs that have answers
+      getUnprocessedQAs: () => {
+        const state = get();
+        return state.qaPairs.filter(qa => 
+          !qa.processed && 
+          qa.answer && 
+          qa.answer.trim() !== '' &&
+          qa.category !== 'tutorial'
+        );
+      },
+
+      // Sync the processing queue with QA pairs
+      syncProcessingQueue: () => {
+        const state = get();
+        
+        // Find QA pairs that are answered but not processed
+        const unprocessedQAs = state.getUnprocessedQAs();
+        
+        if (unprocessedQAs.length === 0) {
+          return; // Nothing to sync
+        }
+        
+        // Create a new queue based on unprocessed QAs
+        const newQueue: PendingRequest[] = [];
+        
+        // Filter existing requests to keep only active ones
+        const activeRequests = state.pendingRequests.filter(req => 
+          req.status === 'pending' || req.status === 'processing'
+        );
+        
+        // Add existing active requests to the new queue
+        newQueue.push(...activeRequests);
+        
+        // Add requests for unprocessed QAs that aren't already in the queue
+        const existingQAIds = new Set(activeRequests.map(req => req.qaPairId));
+        
+        for (const qa of unprocessedQAs) {
+          if (!existingQAIds.has(qa.id)) {
+            newQueue.push({
+              id: `req_${uuidv4()}`,
+              qaPairId: qa.id,
+              timestamp: Date.now(),
+              status: 'pending'
+            });
+          }
+        }
+        
+        // Update the queue
+        set({ pendingRequests: newQueue });
+        
+        // Start processing if there are requests and none are currently processing
+        const isProcessing = activeRequests.some(req => req.status === 'processing');
+        if (newQueue.length > 0 && !isProcessing) {
+          setTimeout(() => get().processNextPendingRequest(), 100);
+        }
+      },
+
+      // Check if there are any pending requests
+      hasPendingRequests: () => {
+        const state = get();
+        // Include both pending and processing requests
+        const hasPending = state.pendingRequests.some(req => 
+          req.status === 'pending' || req.status === 'processing'
+        );
+        
+        // Also check if there are any unprocessed QA pairs
+        const hasUnprocessedQAs = state.getUnprocessedQAs().length > 0;
+        
+        // Consider as pending if either condition is true
+        const result = hasPending || hasUnprocessedQAs;
+        
+        // Log for debugging
+        if (result) {
+          console.log("hasPendingRequests: true - ", 
+            hasPending ? "Has pending/processing requests" : "Has unprocessed QAs");
+        } else {
+          console.log("hasPendingRequests: false - No pending work");
+        }
+        
+        return result;
+      },
+
+      // Check if the last QA pair is answered
+      isLastQAPairAnswered: () => {
+        const state = get();
+        const lastQAPair = state.qaPairs[state.qaPairs.length - 1];
+        return Boolean(lastQAPair && lastQAPair.answer && lastQAPair.answer.trim() !== '');
+      },
 
       setProlificId: (id) => {
         localStorage.setItem("prolificId", id)
@@ -196,8 +623,33 @@ export const useStore = create<StoreState>()(
         }
       },
 
+      // Modified addMessage to prevent duplicates
       addMessage: (message) =>
         set((state) => {
+          // Check for possible duplicates
+          const isDuplicate = state.messages.some(m => {
+            // Check if message IDs have same QA reference or timestamps are very close
+            const [msgType1, role1, qaId1, timestamp1] = m.id.split('_');
+            const [msgType2, role2, qaId2, timestamp2] = message.id.split('_');
+            
+            // If both are answers (user messages) to same question in a short time window
+            if (role1 === role2 && role1 === 'a' && qaId1 === qaId2 &&
+                timestamp1 && timestamp2 &&
+                Math.abs(parseInt(timestamp1) - parseInt(timestamp2)) < 1000) {
+              return true;
+            }
+            
+            // Or if text content and role are identical for very recent messages
+            return m.role === message.role && 
+                   m.text === message.text && 
+                   Date.now() - parseInt(m.id.split('_')[3] || '0') < 1000;
+          });
+          
+          if (isDuplicate) {
+            console.log('Prevented duplicate message:', message.id);
+            return state;
+          }
+          
           // If we're adding a user message and it's answering a question
           const currentQAPair = state.currentQuestionIndex < state.qaPairs.length 
             ? state.qaPairs[state.currentQuestionIndex] 
@@ -212,12 +664,14 @@ export const useStore = create<StoreState>()(
           let newQAPairs = [...state.qaPairs];
           
           if (isAnsweringQuestion) {
-            // Update existing pair
+            // Update existing pair with version control
             newQAPairs = newQAPairs.map((pair, index) => {
               if (index === state.currentQuestionIndex) {
                 return {
                   ...pair,
-                  answer: message.text
+                  answer: message.text,
+                  version: (pair.version || 0) + 1,
+                  lastUpdated: Date.now()
                 };
               }
               return pair;
@@ -272,7 +726,7 @@ export const useStore = create<StoreState>()(
                 
                 if (prevMsg && prevMsg.role === "bot" && prevMsg.text === currentQAPair.question) {
                   messagesUpdated = true;
-                  // 保持原ID但更新文本内容
+                  // Keep original ID but update text content
                   return {
                     ...msg,
                     text: updates.answer || ""
@@ -282,9 +736,9 @@ export const useStore = create<StoreState>()(
               return msg;
             });
             
-            // 如果没有找到对应消息进行更新，可能需要添加新消息
+            // If no corresponding message was found for update, might need to add a new message
             if (!messagesUpdated) {
-              // 在这种情况下，我们需要添加一个用户答案消息
+              // In this case, we need to add a user answer message
               const timestamp = Date.now();
               updatedMessages.push({
                 id: `msg_a_${id}_${timestamp}`,

@@ -33,6 +33,26 @@ export class PythonAPIService {
         currentQuestionIndex
       });
 
+      // Ensure the qaPair is well-formed
+      const validQAPair = {
+        id: qaPair.id,
+        question: qaPair.question || '',
+        shortText: qaPair.shortText || '',
+        answer: qaPair.answer || '',
+        category: qaPair.category || 'research'
+      };
+
+      // Ensure all qaPairs have the proper format
+      const validQAPairs = qaPairs.map(qa => {
+        return {
+          id: qa.id || `qa_${Math.random().toString(36).substring(2, 9)}`,
+          question: qa.question || '',
+          shortText: qa.shortText || '',
+          answer: qa.answer || '',
+          category: qa.category || 'research'
+        };
+      });
+
       // Make API call to Next.js API route (not directly to Python backend)
       const response = await fetch('/api/process-answer', {
         method: 'POST',
@@ -42,8 +62,8 @@ export class PythonAPIService {
         body: JSON.stringify({
           sessionId,
           prolificId,
-          qaPair,
-          qaPairs,
+          qaPair: validQAPair,
+          qaPairs: validQAPairs,
           currentQuestionIndex,
           existingCausalGraph
         }),

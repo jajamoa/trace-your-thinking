@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useRef } from "react"
+import { useState, useEffect, useRef, useMemo } from "react"
 import { useRouter } from "next/navigation"
 import { motion } from "framer-motion"
 import ChatPanel from "@/components/ChatPanel"
@@ -15,6 +15,18 @@ import { SyncService } from "@/lib/sync-service"
 import { PythonAPIService } from "@/lib/python-api-service"
 import { v4 as uuidv4 } from "uuid"
 import LoadingTransition from "@/components/LoadingTransition"
+import React from "react"
+
+// Create a memoized AnswerInput component to prevent unnecessary re-renders
+const MemoizedAnswerInput = React.memo(
+  AnswerInput,
+  (prevProps, nextProps) => {
+    // Only re-render if isProcessing changes or if onSendMessage function changes
+    // This prevents re-renders when current question changes
+    return prevProps.isProcessing === nextProps.isProcessing &&
+           prevProps.onSendMessage === nextProps.onSendMessage;
+  }
+);
 
 // Debounce function to prevent too frequent calls
 const debounce = (fn: Function, ms = 1000) => {
@@ -50,10 +62,11 @@ export default function InterviewPage() {
     recalculateProgress,
     sessionId,
     currentQuestionIndex,
-    addNewQuestion
+    addNewQuestion,
+    pendingRequests
   } = useStore()
 
-  // 在组件挂载时输出调试信息
+  // Output debug information when component mounts
   useEffect(() => {
     console.log("==== Component mounted, outputting Store state ====")
     logStoreState()
@@ -62,6 +75,10 @@ export default function InterviewPage() {
     // Ensure progress is correctly calculated on page load
     console.log("Ensuring progress accuracy on interview page load")
     recalculateProgress()
+    
+    // Sync processing queue with QA pairs
+    console.log("Syncing processing queue with QA pairs")
+    useStore.getState().syncProcessingQueue()
   }, [recalculateProgress])
 
   // Reference to track the last saved state
@@ -152,11 +169,19 @@ export default function InterviewPage() {
       return
     }
 
-    // Check if all questions have been answered (progress is 100%)
-    if (progress.current === progress.total && progress.total > 0) {
-      console.log("All questions answered, redirecting to review page")
-      navigateTo("/review", "Preparing your answers for review...")
-      return
+    // Check if all questions have been answered (progress is 100%) AND all questions are processed
+    // Only redirect to review page when both conditions are met
+    const areAllQuestionsAnswered = progress.current === progress.total && progress.total > 0;
+    const hasPendingProcessing = useStore.getState().hasPendingRequests();
+    
+    if (areAllQuestionsAnswered) {
+      if (!hasPendingProcessing) {
+        console.log("All questions answered and processed, redirecting to review page")
+        navigateTo("/review", "Preparing your answers for review...")
+        return
+      } else {
+        console.log("All questions answered but some are still being processed, waiting for completion...")
+      }
     }
 
     // If there are no messages but QA pairs exist, rebuild messages from QA pairs
@@ -235,10 +260,7 @@ export default function InterviewPage() {
       const isTutorialQuestion = currentQuestion.category === "tutorial";
       
       if (!isTutorialQuestion) {
-        // Only process non-tutorial questions with the Python backend
-        // Set loading state for Python backend processing
-        setIsProcessing(true);
-        
+        // Add QA processing to async queue instead of synchronous waiting
         try {
           // Get the updated QA Pair with answer for sending to Python backend
           const updatedQAPair = {
@@ -246,51 +268,24 @@ export default function InterviewPage() {
             answer: text
           };
           
-          // Call Python backend to process the answer
-          console.log("Calling Python backend to process answer...");
-          const pythonResult = await PythonAPIService.processAnswer(
-            sessionId || '',
-            prolificId || '',
-            updatedQAPair,
-            qaPairs,
-            currentQuestionIndex
-          );
+          // Ensure the QA pair has the correct format
+          const validQAPair = {
+            id: updatedQAPair.id,
+            question: updatedQAPair.question || '',
+            shortText: updatedQAPair.shortText || '',
+            answer: updatedQAPair.answer || '',
+            category: updatedQAPair.category || 'research'
+          };
           
-          if (pythonResult.success) {
-            console.log("Python backend processing successful");
-            
-            // Add follow-up questions if provided
-            if (pythonResult.followUpQuestions && pythonResult.followUpQuestions.length > 0) {
-              console.log(`Adding ${pythonResult.followUpQuestions.length} follow-up questions`);
-              
-              // Add each follow-up question to the store
-              pythonResult.followUpQuestions.forEach(question => {
-                const id = question.id || `followup_${uuidv4()}`;
-                
-                // Add new question to store if it doesn't already exist
-                const questionExists = qaPairs.some(q => q.id === id);
-                if (!questionExists) {
-                  addNewQuestion({
-                    question: question.question,
-                    shortText: question.shortText,
-                    category: question.category || 'research'
-                  });
-                }
-              });
-              
-              // Re-calculate progress after adding new questions
-              recalculateProgress();
-            }
-            
-            // Causal graph is automatically saved by the PythonAPIService
-            console.log("Causal graph processed and saved");
-          } else {
-            console.error("Python backend processing failed:", pythonResult.error);
-          }
-        } catch (pythonError) {
-          console.error("Error during Python backend processing:", pythonError);
-        } finally {
-          setIsProcessing(false);
+          // Add to pending request queue
+          console.log("Adding to async processing queue...");
+          const requestId = useStore.getState().addPendingRequest(validQAPair.id);
+          console.log(`Added to pending requests with ID: ${requestId}`);
+          
+          // Start processing the first request in the queue (if no request is currently being processed)
+          useStore.getState().processNextPendingRequest();
+        } catch (queueError) {
+          console.error("Error queueing request for async processing:", queueError);
         }
       } else {
         // For tutorial questions, log that we're skipping Python backend
@@ -335,9 +330,16 @@ export default function InterviewPage() {
           
           // Check if progress is 100% after animation
           if (targetProgress === qaPairs.length && qaPairs.length > 0) {
-            console.log("Animation finished and progress is 100%, preparing to navigate to review")
-            navigateTo("/review", "Preparing your answers for review...")
-            return
+            // Also check if there are any pending processing requests
+            const hasPendingProcessing = useStore.getState().hasPendingRequests();
+            
+            if (!hasPendingProcessing) {
+              console.log("Animation finished, progress is 100%, and all questions processed - navigating to review")
+              navigateTo("/review", "Preparing your answers for review...")
+              return
+            } else {
+              console.log("Progress is 100% but some questions are still being processed, waiting for completion...")
+            }
           }
         }
       }
@@ -377,6 +379,11 @@ export default function InterviewPage() {
     total: qaPairs.length,
   }
 
+  // Get processing count for the status indicator
+  const processingCount = pendingRequests.filter(req => 
+    req.status === 'pending' || req.status === 'processing'
+  ).length;
+
   // Add special handling for returning from other pages like Review
   useEffect(() => {
     const syncWithServer = async () => {
@@ -390,6 +397,9 @@ export default function InterviewPage() {
             console.log("Successfully synced with server data");
             // Force recalculation after sync
             recalculateProgress();
+            
+            // Sync processing queue with QA pairs
+            useStore.getState().syncProcessingQueue();
           } else {
             console.warn("Failed to sync with server, falling back to local recalculation");
             recalculateProgress();
@@ -405,6 +415,24 @@ export default function InterviewPage() {
     // Run the sync when component mounts
     syncWithServer();
   }, [sessionId, recalculateProgress]); // Only run when sessionId changes or on first mount
+
+  // Monitor pending requests to auto-navigate to review when all processing is complete
+  useEffect(() => {
+    // Skip if already navigating
+    if (isNavigating) return;
+    
+    // If we have no pending requests and all questions are answered, navigate to review
+    const hasPendingProcessing = pendingRequests.some(req => 
+      req.status === 'pending' || req.status === 'processing'
+    );
+    
+    const areAllQuestionsAnswered = progress.current === progress.total && progress.total > 0;
+    
+    if (!hasPendingProcessing && areAllQuestionsAnswered && qaPairs.length > 0) {
+      console.log("All questions answered and processing completed, navigating to review page");
+      navigateTo("/review", "Preparing your answers for review...");
+    }
+  }, [pendingRequests, progress, qaPairs.length, isNavigating]);
 
   // Show loading transition when navigating
   if (isNavigating) {
@@ -430,12 +458,12 @@ export default function InterviewPage() {
               <div className="text-lg font-light">{currentQuestion.question}</div>
             </div>
           )}
-          <ElegantProgressBar progress={displayProgress} />
+          <ElegantProgressBar progress={displayProgress} processingCount={processingCount} />
         </div>
         <div className="flex-1 overflow-y-auto pt-6">
           <ChatPanel />
         </div>
-        <AnswerInput key={currentQuestionId} onSendMessage={handleAnswerSubmit} isProcessing={isProcessing} />
+        <MemoizedAnswerInput onSendMessage={handleAnswerSubmit} isProcessing={isProcessing} />
       </div>
       
       <Footer showLogo={false} />

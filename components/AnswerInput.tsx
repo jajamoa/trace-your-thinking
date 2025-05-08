@@ -27,7 +27,19 @@ export default function AnswerInput({ onSendMessage, isProcessing = false }: Ans
   const [text, setText] = useState("")
   const [inputMode, setInputMode] = useState<"voice" | "text">("voice") // 始终使用默认值
   const textareaRef = useRef<HTMLTextAreaElement>(null)
-  const { isRecording, setIsRecording, messages } = useStore()
+  const { 
+    isRecording, 
+    setIsRecording, 
+    messages, 
+    addPendingRequest, 
+    updatePendingRequest, 
+    processNextPendingRequest, 
+    hasPendingRequests,
+    pendingRequests,
+    getNextQuestion,
+    qaPairs,
+    progress
+  } = useStore()
   const [isTranscribing, setIsTranscribing] = useState(false)
   const [waitingForQuestion, setWaitingForQuestion] = useState(false)
   
@@ -71,6 +83,17 @@ export default function AnswerInput({ onSendMessage, isProcessing = false }: Ans
       window.removeEventListener('force-cancel-recording', handleForcedCancel);
     };
   }, [isRecording, setIsRecording]);
+
+  // Process async requests
+  useEffect(() => {
+    // If there are pending requests and no request is currently processing, start processing
+    const hasPending = pendingRequests.some(req => req.status === 'pending');
+    const hasProcessing = pendingRequests.some(req => req.status === 'processing');
+    
+    if (hasPending && !hasProcessing) {
+      processNextPendingRequest();
+    }
+  }, [pendingRequests, processNextPendingRequest]);
 
   // Check if there is a loading bot message (question is still "typing")
   const isQuestionLoading = useMemo(() => {
@@ -151,12 +174,12 @@ export default function AnswerInput({ onSendMessage, isProcessing = false }: Ans
     }
   }, [isRecording])
 
-  // 在客户端加载时从存储读取偏好设置
+  // Load input mode preference from storage on client-side
   useEffect(() => {
-    // 仅在客户端运行时读取 localStorage
+    // Only read localStorage when running on client
     if (typeof window !== 'undefined') {
       const savedMode = localStorage.getItem(INPUT_MODE_PREF_KEY)
-      // 仅接受有效值
+      // Only accept valid values
       if (savedMode === 'voice' || savedMode === 'text') {
         setInputMode(savedMode as "voice" | "text")
       }
@@ -357,6 +380,18 @@ export default function AnswerInput({ onSendMessage, isProcessing = false }: Ans
     }
   }, []); // Keep empty dependency array to avoid hydration mismatches
 
+  // Get the count of requests being processed
+  const processingCount = pendingRequests.filter(req => 
+    req.status === 'pending' || req.status === 'processing'
+  ).length;
+
+  // Add check for 100% progress with pending AI requests
+  const isAllQuestionsAnswered = progress?.current === progress?.total && progress?.total > 0;
+  const isAIProcessingInBackground = isAllQuestionsAnswered && hasPendingRequests();
+  
+  // Combined processing state - either current question processing or background processing
+  const isAnyProcessing = isProcessing || isAIProcessingInBackground;
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -375,7 +410,7 @@ export default function AnswerInput({ onSendMessage, isProcessing = false }: Ans
                 onClick={toggleRecording}
                 className="h-10 w-10 rounded-full border-[#e0ddd5]"
                 aria-label={isRecording ? "Stop recording" : "Start recording"}
-                disabled={isTranscribing || isQuestionLoading || isProcessing}
+                disabled={isTranscribing || isQuestionLoading || isAnyProcessing}
               >
                 {isRecording ? <MicOff className="h-5 w-5" /> : <Mic className="h-5 w-5" />}
               </Button>
@@ -383,15 +418,17 @@ export default function AnswerInput({ onSendMessage, isProcessing = false }: Ans
 
             <div className="flex-1 flex items-center justify-center h-10">
               <div className="text-sm text-gray-600 font-light">
-                {isProcessing
-                  ? "Processing your answer with AI..."
-                  : isTranscribing
-                    ? "Transcribing your speech..."
-                    : isQuestionLoading
-                      ? "Waiting for question..."
-                      : isRecording
-                        ? "Listening... Press mic button or Space to stop"
-                        : "Press mic button or Space key to start speaking"}
+                {isAIProcessingInBackground 
+                  ? `AI is processing ${processingCount} question${processingCount !== 1 ? 's' : ''} in the background...`
+                  : isProcessing
+                    ? "Processing your answer with AI..."
+                    : isTranscribing
+                      ? "Transcribing your speech..."
+                      : isQuestionLoading
+                        ? "Waiting for question..."
+                        : isRecording
+                          ? "Listening... Press mic button or Space to stop"
+                          : "Press mic button or Space key to start speaking"}
               </div>
             </div>
 
@@ -402,7 +439,7 @@ export default function AnswerInput({ onSendMessage, isProcessing = false }: Ans
                 onClick={toggleInputMode}
                 className="h-10 w-10 rounded-full bg-[#e0ddd5] hover:bg-[#d5d2ca] text-[#333333]"
                 aria-label="Switch to text input"
-                disabled={isTranscribing || isProcessing}
+                disabled={isTranscribing || isAnyProcessing}
               >
                 <MessageSquare className="h-5 w-5" />
               </Button>
@@ -417,21 +454,23 @@ export default function AnswerInput({ onSendMessage, isProcessing = false }: Ans
                 onClick={toggleInputMode}
                 className="h-10 w-10 rounded-full bg-[#e0ddd5] hover:bg-[#d5d2ca] text-[#333333]"
                 aria-label="Switch to voice input"
-                disabled={isProcessing || isQuestionLoading}
+                disabled={isAnyProcessing || isQuestionLoading}
               >
                 <Mic className="h-5 w-5" />
               </Button>
             </motion.div>
 
-            {/* 文本模式下的提示信息 */}
-            {(isProcessing || isQuestionLoading) ? (
+            {/* Text mode prompt information */}
+            {(isAnyProcessing || isQuestionLoading) ? (
               <div className="flex-1 flex items-center justify-center h-10 bg-white border border-[#e0ddd5] rounded-xl">
                 <div className="text-sm text-gray-600 font-light">
-                  {isProcessing
-                    ? "Processing your answer with AI..."
-                    : isQuestionLoading
-                      ? "Waiting for question..."
-                      : "Type your answer..."}
+                  {isAIProcessingInBackground
+                    ? `AI is processing ${processingCount} question${processingCount !== 1 ? 's' : ''} in the background...`
+                    : isProcessing
+                      ? "Processing your answer with AI..."
+                      : isQuestionLoading
+                        ? "Waiting for question..."
+                        : "Type your answer..."}
                 </div>
               </div>
             ) : (
@@ -442,11 +481,11 @@ export default function AnswerInput({ onSendMessage, isProcessing = false }: Ans
                 placeholder="Type your answer..."
                 className="min-h-10 h-10 resize-none bg-white border-[#e0ddd5] rounded-xl focus:ring-blue-400 font-light"
                 aria-label="Answer input"
-                disabled={isProcessing || isQuestionLoading}
+                disabled={isAnyProcessing || isQuestionLoading}
               />
             )}
 
-            {text && !isProcessing && !isQuestionLoading ? (
+            {text && !isAnyProcessing && !isQuestionLoading ? (
               <motion.div whileTap={{ scale: 0.96 }} className="flex-shrink-0">
                 <Button
                   type="button"
@@ -454,7 +493,7 @@ export default function AnswerInput({ onSendMessage, isProcessing = false }: Ans
                   onClick={() => setText("")}
                   className="h-10 w-10 rounded-full bg-[#e0ddd5] hover:bg-[#d5d2ca] text-[#333333]"
                   aria-label="Clear text"
-                  disabled={isProcessing || isQuestionLoading}
+                  disabled={isAnyProcessing || isQuestionLoading}
                 >
                   <X className="h-5 w-5" />
                 </Button>
@@ -466,7 +505,7 @@ export default function AnswerInput({ onSendMessage, isProcessing = false }: Ans
                 type="button"
                 size="icon"
                 onClick={handleSend}
-                disabled={!text.trim() || isProcessing || isQuestionLoading}
+                disabled={!text.trim() || isAnyProcessing || isQuestionLoading}
                 className="h-10 w-10 rounded-full bg-[#333333] hover:bg-[#222222] text-white"
                 aria-label="Send message"
               >
@@ -478,7 +517,7 @@ export default function AnswerInput({ onSendMessage, isProcessing = false }: Ans
       </div>
 
       <div className="text-xs text-gray-500 text-center mt-2 font-light h-5">
-        {!isProcessing && !isQuestionLoading && (
+        {!isAnyProcessing && !isQuestionLoading && (
           <>
             {inputMode === "text" && (
               <>
@@ -493,6 +532,9 @@ export default function AnswerInput({ onSendMessage, isProcessing = false }: Ans
               </>
             )}
           </>
+        )}
+        {isAIProcessingInBackground && (
+          <span className="text-amber-600">Please wait while AI processes your responses...</span>
         )}
       </div>
     </motion.div>

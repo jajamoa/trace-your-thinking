@@ -24,13 +24,14 @@ class QwenLLMExtractor:
     Also provides edge and function parameter extraction capabilities.
     """
     
-    def __init__(self, api_key=None, model="qwen-plus"):
+    def __init__(self, api_key=None, model="qwen-plus", temperature=0.1):
         """
         Initialize the LLM extractor with DashScope API configuration.
         
         Args:
             api_key (str, optional): DashScope API key. Defaults to environment variable.
             model (str, optional): Model name to use. Defaults to "qwen-plus".
+            temperature (float, optional): Temperature parameter for LLM output. Lower values (0.01-0.1) produce more deterministic responses. Defaults to 0.1.
         """
         # Try to load API key from parent directory .env or .env.local file
         parent_env_path = Path(__file__).parent.parent / '.env'
@@ -50,9 +51,10 @@ class QwenLLMExtractor:
             logger.error(error_msg)
             raise ValueError(error_msg)
         
-        logger.info(f"LLM Extractor initialized with model: {model}")
-        # Set model
+        logger.info(f"LLM Extractor initialized with model: {model}, temperature: {temperature}")
+        # Set model and temperature
         self.model = model
+        self.temperature = temperature
         
         # Node tracking for frequency analysis
         self.node_candidates = Counter()
@@ -483,7 +485,7 @@ class QwenLLMExtractor:
                 response = dashscope.Generation.call(
                     model=self.model,
                     prompt=prompt,
-                    temperature=0.3,  # Low temperature for more deterministic outputs
+                    temperature=self.temperature,  # Use instance temperature parameter for consistent outputs
                     max_tokens=2000,
                     result_format='json'
                 )

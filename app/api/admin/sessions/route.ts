@@ -17,7 +17,7 @@ const verifyAdmin = async (req: NextRequest) => {
   return null; // Verification successful
 };
 
-// Get all sessions
+// Get all sessions with pagination
 export async function GET(req: NextRequest) {
   // Verify admin authentication
   const authError = await verifyAdmin(req);
@@ -27,12 +27,36 @@ export async function GET(req: NextRequest) {
     // Connect to database
     await connectToDatabase();
     
-    // Get all sessions, sorted by creation date in descending order
+    // Parse pagination parameters from query
+    const url = new URL(req.url);
+    const pageParam = url.searchParams.get('page');
+    const limitParam = url.searchParams.get('limit');
+    
+    const page = pageParam ? parseInt(pageParam) : 1;
+    const limit = limitParam ? parseInt(limitParam) : 30;
+    const skip = (page - 1) * limit;
+    
+    // Get total count for pagination
+    const total = await Session.countDocuments({});
+    const totalPages = Math.ceil(total / limit);
+    
+    // Get paginated sessions, sorted by creation date in descending order
     const sessions = await Session.find({})
       .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit)
       .lean();
     
-    return NextResponse.json({ sessions });
+    // Return sessions with pagination metadata
+    return NextResponse.json({
+      sessions,
+      pagination: {
+        currentPage: page,
+        totalPages,
+        totalItems: total,
+        itemsPerPage: limit
+      }
+    });
   } catch (error: any) {
     console.error('Error fetching sessions:', error);
     return NextResponse.json(
