@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Trace Your Thinking - Fallback Page</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: #f5f2eb;
+      color: #333333;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 2rem;
+      text-align: center;
+    }
+    h1 {
+      font-size: 2.5rem;
+      font-weight: 300;
+      margin-bottom: 1rem;
+    }
+    .highlight {
+      color: #3b82f6;
+      font-weight: 400;
+    }
+    p {
+      font-size: 1.1rem;
+      line-height: 1.6;
+      margin-bottom: 2rem;
+      color: #666;
+    }
+    .card {
+      background-color: white;
+      border-radius: 1rem;
+      padding: 2rem;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      margin-bottom: 2rem;
+      border: 1px solid #e0ddd5;
+    }
+    .button {
+      display: inline-block;
+      background-color: #333;
+      color: white;
+      padding: 0.75rem 1.5rem;
+      border-radius: 9999px;
+      text-decoration: none;
+      font-weight: 500;
+      margin-top: 1rem;
+    }
+    .footer {
+      margin-top: auto;
+      padding: 1rem;
+      text-align: center;
+      font-size: 0.8rem;
+      color: #666;
+    }
+    .error-box {
+      background-color: #fed7d7;
+      border: 1px solid #f56565;
+      padding: 1rem;
+      border-radius: 0.5rem;
+      margin-bottom: 2rem;
+    }
+    .reload-button {
+      background-color: #4299e1;
+      color: white;
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 0.25rem;
+      cursor: pointer;
+      font-size: 1rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="error-box">
+      <h2>Application Error</h2>
+      <p>We're having trouble loading the application. This is a static fallback page.</p>
+      <button class="reload-button" onclick="window.location.href='/'">Reload Application</button>
+    </div>
+
+    <h1>Trace Your <span class="highlight">Thinking</span></h1>
+    <p>We're building a map of public reasoning — your perspective matters.</p>
+
+    <div class="card">
+      <h2>Welcome</h2>
+      <p>Our application appears to be having technical difficulties. Please try again later.</p>
+      <p>If you're participating in our research study, you can also contact the research team for assistance.</p>
+      
+      <p>
+        <a href="/" class="button">Try Again</a>
+      </p>
+    </div>
+  </div>
+
+  <div class="footer">
+    © MIT · <a href="/about">About this study</a>
+  </div>
+
+  <script>
+    // Redirect to homepage after 5 seconds
+    setTimeout(function() {
+      window.location.href = '/';
+    }, 5000);
+  </script>
+</body>
+</html> 

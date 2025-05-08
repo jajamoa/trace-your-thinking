@@ -237,3 +237,20 @@ Returns the next pending question, or null if all questions have been answered.
 ### `markQuestionAsAnswered(questionId)`
 
 Marks a question as answered, removing it from the pending questions queue.
+
+```
+
+## Environment Variables
+
+The application uses the following environment variables:
+
+- `MONGODB_URI`: MongoDB connection string
+- `ADMIN_USERNAME`: Admin panel username
+- `ADMIN_PASSWORD`: Admin panel password
+- `NEXT_PUBLIC_BASE_URL`: Base URL for the application
+- `DASHSCOPE_API_KEY`: API key for DashScope LLM services
+- `NEXT_PUBLIC_RESEARCH_TOPIC`: Research topic identifier (e.g., "zoning", "tiktok", "general")
+- `DEBUG_LLM_IO`: Debug flag for LLM input/output logging
+- `NEXT_PUBLIC_DEBUG_UI`: When set to "true", displays debugging information panel on the UI
+
+Create a `.env.local` file in the project root with these variables before starting the application.
