@@ -238,7 +238,7 @@ Returns the next pending question, or null if all questions have been answered.
 
 Marks a question as answered, removing it from the pending questions queue.
 
-```
+
 
 ## Environment Variables
 
