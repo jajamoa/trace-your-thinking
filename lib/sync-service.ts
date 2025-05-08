@@ -4,6 +4,11 @@ import { useStore } from './store'
 import { v4 as uuidv4 } from 'uuid'
 import { QAPair } from './store'
 
+// Flag to prevent concurrent sync operations
+let isSyncingSession = false;
+// Flag specifically for session creation to prevent duplicates
+let isCreatingNewSession = false;
+
 /**
  * Synchronization service for handling data sync between local state and database
  */
@@ -12,9 +17,18 @@ export class SyncService {
    * Synchronize the local store state with the remote database
    * This is a robust implementation that handles various edge cases
    */
-  static async syncSession(retryCount = 0): Promise<{ success: boolean; error?: string; sessionId?: string }> {
+  static async syncSession(retryCount = 0, allowCreation = false): Promise<{ success: boolean; error?: string; sessionId?: string }> {
     const state = useStore.getState()
     const maxRetries = 2 // Maximum number of retry attempts
+    
+    // Prevent concurrent sync operations
+    if (isSyncingSession) {
+      console.log("Sync operation already in progress, skipping this request");
+      return { success: false, error: "Sync operation already in progress" };
+    }
+    
+    // Set sync flag
+    isSyncingSession = true;
     
     try {
       // If we have a session ID, try to update existing session
@@ -30,6 +44,7 @@ export class SyncService {
           // Check if session is completed - don't update completed sessions
           const sessionData = await checkResponse.json()
           if (sessionData.status === "completed") {
+            isSyncingSession = false;
             return { success: true, sessionId: state.sessionId }
           }
           
@@ -51,23 +66,41 @@ export class SyncService {
           })
           
           if (updateResponse.ok) {
+            isSyncingSession = false;
             return { success: true, sessionId: state.sessionId }
           }
           
           console.log(`Failed to update session: ${state.sessionId}`)
         }
         
-        // If session doesn't exist or update failed, clear sessionId and create a new one
-        console.log("Session not found or update failed, will create a new one")
+        // If session doesn't exist or update failed, clear sessionId
+        console.log("Session not found or update failed")
         useStore.setState({ sessionId: null })
+      }
+      
+      // Only proceed to create new session if explicitly allowed
+      if (!allowCreation) {
+        console.log("Session creation not allowed in this context, returning without creating new session");
+        isSyncingSession = false;
+        return { success: false, error: "Session creation not allowed in this context" };
       }
       
       // Only proceed if we have a prolificId
       if (!state.prolificId) {
+        isSyncingSession = false;
         return { success: false, error: "No prolificId available for creating a session" }
       }
       
-      // Create new session if no session ID or previous session not found
+      // Create new session - only if explicitly allowed and not already creating one
+      if (isCreatingNewSession) {
+        console.log("Session creation already in progress, skipping duplicate creation");
+        isSyncingSession = false;
+        return { success: false, error: "Session creation already in progress" };
+      }
+      
+      // Set creation flag
+      isCreatingNewSession = true;
+      
       console.log("Creating new session...")
       const createResponse = await fetch("/api/sessions", {
         method: "POST",
@@ -90,6 +123,8 @@ export class SyncService {
           // Update sessionId in store
           console.log(`New session created successfully: ${data.sessionId}`)
           useStore.setState({ sessionId: data.sessionId })
+          isSyncingSession = false;
+          isCreatingNewSession = false;
           return { success: true, sessionId: data.sessionId }
         }
       }
@@ -105,7 +140,9 @@ export class SyncService {
         console.log(`Retrying session creation (attempt ${retryCount + 1} of ${maxRetries})...`);
         // Wait a bit before retrying
         await new Promise(resolve => setTimeout(resolve, 1000));
-        return this.syncSession(retryCount + 1);
+        isSyncingSession = false;
+        isCreatingNewSession = false;
+        return this.syncSession(retryCount + 1, allowCreation);
       }
       
       throw new Error(errorMessage);
@@ -116,13 +153,22 @@ export class SyncService {
         console.log(`Retrying after error (attempt ${retryCount + 1} of ${maxRetries})...`);
         // Wait a bit before retrying
         await new Promise(resolve => setTimeout(resolve, 1000));
-        return this.syncSession(retryCount + 1);
+        isSyncingSession = false;
+        return this.syncSession(retryCount + 1, allowCreation);
       }
       
+      isSyncingSession = false;
+      isCreatingNewSession = false;
       return { 
         success: false, 
         error: error instanceof Error ? error.message : "Unknown sync error" 
       }
+    } finally {
+      // Ensure flags are reset if something goes wrong
+      setTimeout(() => {
+        isSyncingSession = false;
+        isCreatingNewSession = false;
+      }, 5000);
     }
   }
 
@@ -282,7 +328,8 @@ export class SyncService {
       }
       
       // Create session in database and wait for it to complete
-      const syncResult = await this.syncSession()
+      // Allow creation since this is explicitly called to create a new session
+      const syncResult = await this.syncSession(0, true)
       
       // Only return success if we got a valid sessionId
       if (syncResult.success && syncResult.sessionId) {

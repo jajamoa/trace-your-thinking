@@ -382,7 +382,8 @@ export const useStore = create<StoreState>()(
         
         try {
           // Use the simplified sync service instead of complex logic
-          const result = await SyncService.syncSession()
+          // Don't allow session creation here, only updates
+          const result = await SyncService.syncSession(0, false)
           
           if (result.success) {
             console.log("Session saved successfully with ID:", result.sessionId)

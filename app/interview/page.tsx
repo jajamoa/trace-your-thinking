@@ -126,7 +126,7 @@ export default function InterviewPage() {
     }, 800)
   }
   
-  // Redirect if no ProlificID or if session is completed
+  // Redirect if no ProlificID or if session is completed or if no sessionId
   useEffect(() => {
     // Skip if we're already navigating
     if (isNavigating) return
@@ -134,6 +134,13 @@ export default function InterviewPage() {
     // Check if user has a valid Prolific ID
     if (!prolificId) {
       console.log("No Prolific ID found, redirecting to landing page")
+      navigateTo("/", "Redirecting to login...")
+      return
+    }
+    
+    // If no sessionId, redirect to home page instead of creating one
+    if (!sessionId) {
+      console.log("No Session ID found, redirecting to landing page")
       navigateTo("/", "Redirecting to login...")
       return
     }
@@ -162,20 +169,20 @@ export default function InterviewPage() {
       recalculateProgress()
     }
     
-    // If no questions, initialize with guiding questions
-    if (qaPairs.length === 0) {
-      console.log("No questions found, initializing with guiding questions")
+    // If no questions but we have a valid sessionId, try to get questions
+    if (qaPairs.length === 0 && sessionId) {
+      console.log("No questions found but have sessionId, initializing with guiding questions")
       setIsNavigating(true)
       setNavigatingMessage("Loading questions...")
       
       initializeWithGuidingQuestions().then(() => {
         console.log("Guiding questions loaded")
-        saveSession().then(() => {
-          setIsNavigating(false)
-        })
+        // Use debounced save to avoid multiple calls
+        debouncedSaveSession()
+        setIsNavigating(false)
       })
     }
-  }, [prolificId, router, status, progress, qaPairs.length, messages.length, initializeWithGuidingQuestions, saveSession, recalculateProgress, isNavigating])
+  }, [prolificId, router, status, progress, qaPairs.length, messages.length, initializeWithGuidingQuestions, saveSession, recalculateProgress, isNavigating, sessionId])
 
   // Save session when QA pairs change
   useEffect(() => {

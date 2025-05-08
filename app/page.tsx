@@ -50,7 +50,7 @@ export default function Home() {
   const [prolificId, setProlificId] = useState("")
   const [error, setError] = useState("")
   const [isLoading, setIsLoading] = useState(false)
-  const { setProlificId: setStoreProlificId, prolificId: existingProlificId, status } = useStore()
+  const { setProlificId: setStoreProlificId, prolificId: existingProlificId, status, sessionId } = useStore()
   const { isMobile } = useDeviceDetect()
   // Use state to safely handle research topic in client component 
   const [researchTopic, setResearchTopic] = useState<string | null>(null)
@@ -74,9 +74,9 @@ export default function Home() {
       router.push("/thank-you")
       return
     }
-
-    // If user already has a Prolific ID and session is in progress, go to interview page
-    if (existingProlificId && status === "in_progress") {
+    
+    // If user already has a Prolific ID and session is in progress AND has a valid sessionId, go to interview page
+    if (existingProlificId && status === "in_progress" && sessionId) {
       router.push("/interview")
       return
     }
@@ -85,7 +85,7 @@ export default function Home() {
     if (existingProlificId) {
       setProlificId(existingProlificId)
     }
-  }, [existingProlificId, router, status, isMobile])
+  }, [existingProlificId, router, status, isMobile, sessionId])
 
   const validateInput = (value: string) => {
     setProlificId(value)
