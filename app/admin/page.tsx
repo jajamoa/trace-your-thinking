@@ -7,6 +7,7 @@ import dynamic from 'next/dynamic';
 const AdminSessions = dynamic(() => import('@/components/admin/AdminSessions'));
 const AdminQuestions = dynamic(() => import('@/components/admin/AdminQuestions'));
 const AdminSystemStatus = dynamic(() => import('@/components/admin/AdminSystemStatus'));
+const AdminSettings = dynamic(() => import('@/components/admin/AdminSettings'));
 
 export default async function AdminPage() {
   // Simple cookie check for server rendering
@@ -33,7 +34,7 @@ export default async function AdminPage() {
       </div>
       
       <Tabs defaultValue="sessions" className="w-full">
-        <TabsList className="grid w-full grid-cols-3 mb-8 bg-[#f5f2eb] rounded-md">
+        <TabsList className="grid w-full grid-cols-4 mb-8 bg-[#f5f2eb] rounded-md">
           <TabsTrigger 
             value="sessions"
             className="data-[state=active]:bg-[#333333] data-[state=active]:text-white"
@@ -45,6 +46,12 @@ export default async function AdminPage() {
             className="data-[state=active]:bg-[#333333] data-[state=active]:text-white"
           >
             Guiding Questions
+          </TabsTrigger>
+          <TabsTrigger 
+            value="settings"
+            className="data-[state=active]:bg-[#333333] data-[state=active]:text-white"
+          >
+            Settings
           </TabsTrigger>
           <TabsTrigger 
             value="system"
@@ -60,6 +67,10 @@ export default async function AdminPage() {
         
         <TabsContent value="questions" className="bg-white rounded-lg p-6 shadow-sm">
           <AdminQuestions />
+        </TabsContent>
+        
+        <TabsContent value="settings" className="bg-white rounded-lg p-6 shadow-sm">
+          <AdminSettings />
         </TabsContent>
         
         <TabsContent value="system" className="bg-white rounded-lg p-6 shadow-sm">

@@ -1,3 +1,92 @@
+# Backend for Trace Your Thinking
+
+This is the Flask backend for the Trace Your Thinking application, providing API endpoints for interview data collection and analysis.
+
+## Project Structure
+
+The backend follows a modular structure:
+- `app.py`: Application factory
+- `wsgi.py`: WSGI entry point for production
+- `run.py`: Development server runner
+- `config.py`: Configuration management
+- `models/`: Data models
+- `services/`: Business logic services
+- `api/`: API endpoints
+- `utils/`: Utility modules
+
+## Local Development Setup
+
+### Prerequisites
+- Python 3.8 or higher
+- pip package manager
+
+### Installation
+
+1. Navigate to the backend directory:
+```bash
+cd backend
+```
+
+2. Install dependencies:
+```bash
+pip install -r requirements.txt
+```
+
+3. Run the development server:
+```bash
+python run.py
+```
+
+The server will be available at http://localhost:5001 (or the port specified in your environment).
+
+## Running with Gunicorn
+
+For a more production-like environment, you can use Gunicorn:
+
+```bash
+cd backend
+gunicorn wsgi:application
+```
+
+## Deploying to Render.com
+
+1. Create a new Web Service on Render.com
+
+2. Connect your GitHub repository
+
+3. Configure these settings:
+   - **Name**: trace-your-thinking-backend
+   - **Environment**: Python
+   - **Build Command**: `pip install -r backend/requirements.txt`
+   - **Start Command**: `cd backend && gunicorn wsgi:application`
+
+4. Add environment variables:
+   - `DASHSCOPE_API_KEY`: Your DashScope API key
+   - `FLASK_ENV`: Set to "production"
+   - Any other required environment variables
+
+5. Click "Create Web Service"
+
+## API Endpoints
+
+- `GET /healthz`: Health check endpoint
+- `GET /api/status`: API status information
+- `POST /api/process_answer`: Process interview answers and generate follow-up questions
+
+## Troubleshooting
+
+- **ModuleNotFoundError**: Ensure you are running commands from the correct directory and Python path is set correctly
+- **Import Errors**: The application uses absolute imports when running from the backend directory
+- **Port already in use**: You can change the port in your environment variables
+- **KeyError in SCM Model**: If you encounter a KeyError related to missing fields in the SCM model, ensure you're using the latest version. A bug related to missing keys when loading existing models has been fixed in the current version.
+- **LLM-related errors**: Check that you have set the correct API key for DashScope in your environment variables
+
+## Recent Fixes
+
+- **2023-05-08**: Fixed an issue where loading an existing SCM model was failing with KeyError for missing required fields
+- **2023-05-08**: Resolved import issues by updating relative imports to absolute imports throughout the codebase
+- **2023-05-08**: Added run.py for easier development and testing
+
 # Structural Causal Model (SCM) Interview Framework
 
 This project implements a semi-structured interview framework for building Structural Causal Models (SCMs) from qualitative interviews. It focuses on cognitively-informed elicitation strategies for domains like urban upzoning.

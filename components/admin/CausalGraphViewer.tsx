@@ -10,7 +10,8 @@ import ReactFlow, {
   useEdgesState,
   Position,
   Handle,
-  ReactFlowInstance
+  ReactFlowInstance,
+  MarkerType
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -23,70 +24,42 @@ interface ICausalGraphData {
   agent_id: string;
   nodes: { [nodeId: string]: INode };
   edges: { [edgeId: string]: IEdge };
-  qas: IQA[];
-}
-
-interface INodeAppearance {
-  qa_ids: string[];
-  frequency: number;
+  qa_history: { [qaId: string]: IQA };
 }
 
 interface INode {
   id: string;
   label: string;
-  type: string;
-  range?: number[];
-  values?: boolean[];
-  semantic_role: string;
-  appearance: INodeAppearance;
+  is_stance: boolean;
+  confidence: number;
+  source_qa: string[];
   incoming_edges: string[];
   outgoing_edges: string[];
 }
 
-interface IEdgeFunction {
-  target: string;
-  inputs: string[];
-  function_type: string;
-  parameters: {
-    weights?: number[];
-    bias?: number;
-    threshold?: number;
-    direction?: string;
-  };
-  noise_std: number;
-  support_qas: string[];
-  confidence?: number;
+interface IEvidence {
+  qa_id: string;
+  confidence: number;
 }
 
 interface IEdge {
-  from: string;
-  to: string;
-  function: IEdgeFunction;
-  support_qas: string[];
+  source: string;
+  target: string;
+  aggregate_confidence: number;
+  evidence: IEvidence[];
+  modifier: number;
 }
 
-interface IBeliefStructure {
-  from: string;
-  to: string;
-  direction: string;
-}
-
-interface IBeliefStrength {
-  estimated_probability: number;
-  confidence_rating: number;
-}
-
-interface IParsedBelief {
-  belief_structure: IBeliefStructure;
-  belief_strength: IBeliefStrength;
-  counterfactual?: string;
+interface IExtractedPair {
+  source: string;
+  target: string;
+  confidence: number;
 }
 
 interface IQA {
-  qa_id: string;
   question: string;
   answer: string;
-  parsed_belief: IParsedBelief;
+  extracted_pairs: IExtractedPair[];
 }
 
 interface ICausalGraph {
@@ -100,28 +73,20 @@ interface ICausalGraph {
 
 // Custom node types
 const nodeTypes = {
-  externalState: ({ data }: { data: any }) => (
-    <div className="px-4 py-2 shadow-md rounded-md bg-blue-50 border border-blue-200">
-      <div className="font-bold text-xs text-blue-700">{data.semantic_role}</div>
-      <div className="font-bold text-[#333333]">{data.label}</div>
-      <Handle type="target" position={Position.Top} className="w-2 h-2 !bg-blue-500" />
-      <Handle type="source" position={Position.Bottom} className="w-2 h-2 !bg-blue-500" />
-    </div>
-  ),
-  internalAffect: ({ data }: { data: any }) => (
-    <div className="px-4 py-2 shadow-md rounded-md bg-purple-50 border border-purple-200">
-      <div className="font-bold text-xs text-purple-700">{data.semantic_role}</div>
-      <div className="font-bold text-[#333333]">{data.label}</div>
-      <Handle type="target" position={Position.Top} className="w-2 h-2 !bg-purple-500" />
-      <Handle type="source" position={Position.Bottom} className="w-2 h-2 !bg-purple-500" />
-    </div>
-  ),
-  behavioralIntention: ({ data }: { data: any }) => (
+  stanceNode: ({ data }: { data: any }) => (
     <div className="px-4 py-2 shadow-md rounded-md bg-amber-50 border border-amber-200">
-      <div className="font-bold text-xs text-amber-700">{data.semantic_role}</div>
+      <div className="font-bold text-xs text-amber-700">Stance Node</div>
       <div className="font-bold text-[#333333]">{data.label}</div>
       <Handle type="target" position={Position.Top} className="w-2 h-2 !bg-amber-500" />
       <Handle type="source" position={Position.Bottom} className="w-2 h-2 !bg-amber-500" />
+    </div>
+  ),
+  beliefNode: ({ data }: { data: any }) => (
+    <div className="px-4 py-2 shadow-md rounded-md bg-blue-50 border border-blue-200">
+      <div className="font-bold text-xs text-blue-700">Belief Node</div>
+      <div className="font-bold text-[#333333]">{data.label}</div>
+      <Handle type="target" position={Position.Top} className="w-2 h-2 !bg-blue-500" />
+      <Handle type="source" position={Position.Bottom} className="w-2 h-2 !bg-blue-500" />
     </div>
   ),
 };
@@ -205,15 +170,23 @@ export default function CausalGraphViewer({ sessionId, qaPairId, className }: Ca
     const transformedEdges: Edge[] = [];
     
     // Get QA info for the current graph
-    const qa = graphData.qas && graphData.qas.length > 0 
-      ? (graphData.qas.find(qa => qa.qa_id === `qa_${graph.qaPairId}`) || 
-         graphData.qas.find(qa => qa.qa_id === graph.qaPairId))
-      : null;
+    let currentQA = null;
+    if (graphData.qa_history && Object.keys(graphData.qa_history).length > 0) {
+      // Try to find QA with matching ID to the graph's qaPairId
+      const qaId = `qa_${graph.qaPairId}`;
+      if (graphData.qa_history[qaId]) {
+        currentQA = graphData.qa_history[qaId];
+      } else {
+        // Otherwise take the most recent QA
+        const qaIds = Object.keys(graphData.qa_history);
+        currentQA = graphData.qa_history[qaIds[qaIds.length - 1]];
+      }
+    }
     
-    if (qa) {
+    if (currentQA) {
       setQaInfo({
-        question: qa.question,
-        answer: qa.answer
+        question: currentQA.question,
+        answer: currentQA.answer
       });
     } else {
       setQaInfo(null);
@@ -258,20 +231,8 @@ export default function CausalGraphViewer({ sessionId, qaPairId, className }: Ca
         const node = graphData.nodes[nodeId];
         if (!node) return; // Skip if node doesn't exist
         
-        let nodeType = 'default';
-        
-        // Map semantic role to node type
-        switch (node.semantic_role) {
-          case 'external_state':
-            nodeType = 'externalState';
-            break;
-          case 'internal_affect':
-            nodeType = 'internalAffect';
-            break;
-          case 'behavioral_intention':
-            nodeType = 'behavioralIntention';
-            break;
-        }
+        // Determine node type based on is_stance flag
+        const nodeType = node.is_stance ? 'stanceNode' : 'beliefNode';
 
         // Calculate position based on the node's layer and relative position within that layer
         let xPos = 0;
@@ -309,10 +270,8 @@ export default function CausalGraphViewer({ sessionId, qaPairId, className }: Ca
           type: nodeType,
           data: {
             label: node.label,
-            type: node.type,
-            values: node.values,
-            range: node.range,
-            semantic_role: node.semantic_role
+            confidence: node.confidence,
+            is_stance: node.is_stance
           },
           position: { 
             x: xPos + Math.random() * 20 - 10,
@@ -322,45 +281,45 @@ export default function CausalGraphViewer({ sessionId, qaPairId, className }: Ca
       });
     }
 
-    // Transform edges - Add null check before using Object.entries
+    // Transform edges
     if (graphData.edges) {
       Object.entries(graphData.edges).forEach(([edgeId, edge]) => {
-        if (!edge || !edge.function) return; // Skip if edge or function doesn't exist
+        if (!edge) return; // Skip if edge doesn't exist
         
-        const edgeFunction = edge.function;
-        
-        // Determine edge style based on function type and parameters
+        // Determine edge style based on confidence and modifier
         let style = {};
         let label = '';
         
-        if (edgeFunction.function_type === 'sigmoid') {
-          // Label with weight and bias
-          const weight = edgeFunction.parameters?.weights?.[0] || 0;
-          const bias = edgeFunction.parameters?.bias || 0;
-          label = `W: ${weight.toFixed(1)}, B: ${bias.toFixed(1)}`;
-          
-          // Style based on weight (positive = solid, negative = dashed)
-          if (weight < 0) {
-            style = { strokeDasharray: '5,5', stroke: '#a87c7c' };
-          } else {
-            style = { stroke: '#8a936a' };
-          }
-        } else if (edgeFunction.function_type === 'threshold') {
-          // Label with threshold and direction
-          const threshold = edgeFunction.parameters?.threshold || 0;
-          const direction = edgeFunction.parameters?.direction || 'greater';
-          label = `T: ${threshold.toFixed(1)} (${direction})`;
-          style = { strokeWidth: 2, stroke: '#8f8574' };
+        // Add confidence to label
+        label = `${Math.round(edge.aggregate_confidence * 100)}%`;
+        
+        // Style based on modifier (positive = solid, negative = dashed)
+        if (edge.modifier < 0) {
+          label = `${label} (-)`;
+          style = { strokeDasharray: '5,5', stroke: '#a87c7c' }; // Negative influence
+        } else {
+          label = `${label} (+)`;
+          style = { stroke: '#8a936a' }; // Positive influence
         }
+        
+        // Width based on confidence
+        const strokeWidth = 1 + edge.aggregate_confidence * 2;
+        style = { ...style, strokeWidth };
         
         transformedEdges.push({
           id: edgeId,
-          source: edge.from,
-          target: edge.to,
+          source: edge.source,
+          target: edge.target,
           label,
           labelStyle: { fill: '#5c5c5c', fontWeight: 500, fontSize: 12 },
           style,
-          animated: false // Disable animation
+          animated: false, // Disable animation
+          markerEnd: {
+            type: MarkerType.ArrowClosed,
+            width: 15,
+            height: 15,
+            color: edge.modifier < 0 ? '#a87c7c' : '#8a936a',
+          }
         });
       });
     }
@@ -494,6 +453,12 @@ export default function CausalGraphViewer({ sessionId, qaPairId, className }: Ca
           defaultEdgeOptions={{
             style: { stroke: '#8f8574' },
             animated: false, // Disable edge animation
+            markerEnd: {
+              type: MarkerType.ArrowClosed,
+              color: '#8f8574',
+              width: 15,
+              height: 15
+            }
           }}
           onInit={(instance) => {
             reactFlowInstance.current = instance;
@@ -506,15 +471,11 @@ export default function CausalGraphViewer({ sessionId, qaPairId, className }: Ca
               <h4 className="text-xs font-semibold mb-2 text-[#5c5c5c]">Node Types</h4>
               <div className="flex items-center mb-2">
                 <div className="w-3 h-3 bg-blue-500 mr-2 rounded-sm"></div>
-                <span className="text-xs text-[#5c5c5c]">External State</span>
-              </div>
-              <div className="flex items-center mb-2">
-                <div className="w-3 h-3 bg-purple-500 mr-2 rounded-sm"></div>
-                <span className="text-xs text-[#5c5c5c]">Internal Affect</span>
+                <span className="text-xs text-[#5c5c5c]">Belief Node</span>
               </div>
               <div className="flex items-center">
                 <div className="w-3 h-3 bg-amber-500 mr-2 rounded-sm"></div>
-                <span className="text-xs text-[#5c5c5c]">Behavioral Intention</span>
+                <span className="text-xs text-[#5c5c5c]">Stance Node</span>
               </div>
             </div>
           </Panel>
