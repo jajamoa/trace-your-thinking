@@ -9,6 +9,7 @@ interface INode {
   source_qa: string[];        // QA IDs that support this node
   incoming_edges: string[];
   outgoing_edges: string[];
+  status?: 'candidate' | 'anchor';  // Node status - candidate or anchor
 }
 
 // Interface for evidence on an edge
@@ -46,6 +47,15 @@ export interface ICausalGraphData {
   nodes: { [nodeId: string]: INode };
   edges: { [edgeId: string]: IEdge };
   qa_history: { [qaId: string]: IQA };
+  timestamp?: number; // Numeric timestamp in milliseconds for synchronization
+  
+  // Additional fields from backend CBN structure
+  stance_node_id?: string;
+  step?: string;
+  anchor_queue?: string[];
+  node_counter?: number;
+  edge_counter?: number;
+  qa_counter?: number;
 }
 
 // Causal graph document interface for MongoDB
@@ -67,7 +77,8 @@ const NodeSchema = new Schema({
   confidence: { type: Number, default: 0.9 },
   source_qa: [{ type: String }],
   incoming_edges: [{ type: String }],
-  outgoing_edges: [{ type: String }]
+  outgoing_edges: [{ type: String }],
+  status: { type: String, enum: ['candidate', 'anchor'], default: 'anchor' }
 });
 
 // Evidence schema
@@ -104,7 +115,16 @@ const CausalGraphDataSchema = new Schema({
   agent_id: { type: String, required: true },
   nodes: { type: Schema.Types.Mixed, required: true }, // Map of nodeId to node object
   edges: { type: Schema.Types.Mixed, required: true }, // Map of edgeId to edge object
-  qa_history: { type: Schema.Types.Mixed, required: true } // Map of qaId to QA object
+  qa_history: { type: Schema.Types.Mixed, required: true }, // Map of qaId to QA object
+  timestamp: { type: Number }, // Numeric timestamp in milliseconds for synchronization
+  
+  // Additional fields from backend CBN structure
+  stance_node_id: { type: String },
+  step: { type: String },
+  anchor_queue: [{ type: String }], // Array of node IDs
+  node_counter: { type: Number },
+  edge_counter: { type: Number },
+  qa_counter: { type: Number }
 });
 
 // Main CausalGraph schema

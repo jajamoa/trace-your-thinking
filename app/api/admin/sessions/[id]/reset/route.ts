@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import connectToDatabase from '@/lib/mongodb';
 import Session from '@/models/Session';
+import CausalGraph from '@/models/CausalGraph';
 
 // Admin authentication middleware function
 const verifyAdmin = async () => {
@@ -43,6 +44,16 @@ export async function POST(
       );
     }
     
+    // Delete all causal graphs associated with this session
+    // This ensures no outdated graph data will be loaded after reset
+    try {
+      await CausalGraph.deleteMany({ sessionId: id });
+      console.log(`Deleted all causal graphs for session ${id}`);
+    } catch (error) {
+      console.error(`Error deleting causal graphs for session ${id}:`, error);
+      // Continue with session reset even if graph deletion fails
+    }
+    
     // Reset the session
     session.status = 'in_progress';
     session.progress = { current: 0, total: session.progress.total || 0 };
@@ -50,11 +61,18 @@ export async function POST(
     session.completedAt = undefined;
     session.updatedAt = new Date();
     
+    // Clear messages array
+    session.messages = [];
+    
     // Clear answers but keep questions
     if (session.qaPairs && Array.isArray(session.qaPairs)) {
       session.qaPairs = session.qaPairs.map((pair: any) => ({
         ...pair,
-        answer: ''
+        answer: '',
+        // Reset processing state flags
+        lastUpdated: undefined,
+        processingState: undefined,
+        processed: false
       }));
     }
     

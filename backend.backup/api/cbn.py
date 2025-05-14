@@ -14,30 +14,94 @@ from utils.helpers import get_timestamp, validate_request_data, extract_question
 # Create Blueprint
 cbn_bp = Blueprint('cbn', __name__)
 
-# Create service instances lazily
-_llm_service = None
+# Create a dictionary to store session-specific LLMService instances
+_llm_services = {}
+# Shared service instances
 _cbn_service = None
 _question_service = None
+# Last cleanup timestamp
+_last_cleanup_time = time.time()
+# Cleanup interval (12 hours)
+_cleanup_interval = 12 * 60 * 60
 
-def get_services():
+def cleanup_llm_services():
     """
-    Get or initialize service instances lazily.
+    Remove inactive LLMService instances to prevent memory leaks.
+    Called periodically during API requests.
+    """
+    global _llm_services, _last_cleanup_time
+    
+    current_time = time.time()
+    # Only run cleanup if enough time has passed
+    if current_time - _last_cleanup_time < _cleanup_interval:
+        return
+    
+    # Import session manager to use its utilities
+    from session_manager import session_manager
+    
+    # Trigger session manager cleanup and get inactive sessions
+    inactive_sessions = session_manager.cleanup_inactive_sessions()
+    
+    # Remove inactive services
+    services_removed = 0
+    for session_id in inactive_sessions:
+        if session_id in _llm_services:
+            del _llm_services[session_id]
+            services_removed += 1
+    
+    # Also check for any LLMServices without corresponding session data
+    orphaned_services = []
+    for session_id in _llm_services.keys():
+        if session_id not in session_manager._session_last_activity:
+            orphaned_services.append(session_id)
+    
+    # Remove orphaned services
+    for session_id in orphaned_services:
+        del _llm_services[session_id]
+        services_removed += 1
+    
+    # Update cleanup timestamp
+    _last_cleanup_time = current_time
+    
+    if services_removed > 0:
+        logger.info(f"Cleaned up {services_removed} inactive LLMService instances (including {len(orphaned_services)} orphaned)")
+        logger.info(f"Current active LLMService count: {len(_llm_services)}")
+
+def get_services(session_id=None):
+    """
+    Get or initialize service instances.
+    Always creates/retrieves a session-specific LLMService.
+    
+    Args:
+        session_id (str, optional): Session identifier for persistent node tracking
     
     Returns:
         Tuple containing LLMService, CBNService, and QuestionService instances
     """
-    global _llm_service, _cbn_service, _question_service
+    global _llm_services, _cbn_service, _question_service
     
-    if _llm_service is None:
-        _llm_service = LLMService()
-        
+    # Periodically clean up inactive services
+    cleanup_llm_services()
+    
+    # Create or retrieve session-specific LLMService
+    if session_id:
+        if session_id not in _llm_services:
+            logger.info(f"Creating new LLMService for session: {session_id}")
+            _llm_services[session_id] = LLMService(session_id=session_id)
+        llm_service = _llm_services[session_id]
+    else:
+        # Fallback for requests without session_id
+        logger.warning("No session_id provided, creating temporary LLMService")
+        llm_service = LLMService()
+    
+    # Initialize shared services if needed
     if _cbn_service is None:
         _cbn_service = CBNService()
         
     if _question_service is None:
         _question_service = QuestionService()
         
-    return _llm_service, _cbn_service, _question_service
+    return llm_service, _cbn_service, _question_service
 
 @cbn_bp.route('/api/process_answer', methods=['POST'])
 def process_answer():
@@ -48,9 +112,6 @@ def process_answer():
         # Use a single log header for the request
         request_id = f"req_{int(time.time()*1000)}"
         log_phase_header(f"PROCESS ANSWER API [{request_id}]")
-        
-        # Get services
-        llm_service, cbn_service, question_service = get_services()
         
         # Get request data
         data = request.json
@@ -74,6 +135,9 @@ def process_answer():
         qa_pairs = data.get('qaPairs', [])
         current_index = data.get('currentQuestionIndex', 0)
         existing_causal_graph = data.get('existingCausalGraph')
+        
+        # Get services with session_id
+        llm_service, cbn_service, question_service = get_services(session_id=session_id)
         
         # Log processing info once
         question = qa_pair.get('question', '')

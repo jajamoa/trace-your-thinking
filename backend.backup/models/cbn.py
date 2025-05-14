@@ -12,7 +12,7 @@ class CausalBayesianNetwork:
             agent_id: Unique identifier for the agent/user
             existing_model: Optional existing CBN data to load
         """
-        # Define default structure
+        # Define default structure based on simplified schema
         default_structure = {
             "agent_id": agent_id,
             "nodes": {},
@@ -66,13 +66,12 @@ class CausalBayesianNetwork:
             # No stance node found, create a default one
             stance_node_id = f"n_{uuid.uuid4().hex[:8]}"
             self.data["nodes"][stance_node_id] = {
-                "id": stance_node_id,
                 "label": default_label,
-                "is_stance": True,
                 "confidence": 1.0,
                 "source_qa": [],
                 "incoming_edges": [],
-                "outgoing_edges": []
+                "outgoing_edges": [],
+                "is_stance": True
             }
         elif len(stance_nodes) > 1:
             # Multiple stance nodes found, keep the best one
@@ -238,14 +237,14 @@ class CausalBayesianNetwork:
         """
         node_id = f"n_{uuid.uuid4().hex[:8]}"
         
+        # Use simplified node schema
         self.data["nodes"][node_id] = {
-            "id": node_id,
             "label": label,
-            "is_stance": is_stance,
             "confidence": confidence,
             "source_qa": source_qa or [],
             "incoming_edges": [],
-            "outgoing_edges": []
+            "outgoing_edges": [],
+            "is_stance": is_stance
         }
         
         return node_id
@@ -272,6 +271,7 @@ class CausalBayesianNetwork:
         if qa_id:
             evidence.append({"qa_id": qa_id, "confidence": confidence})
         
+        # Use simplified edge schema
         self.data["edges"][edge_id] = {
             "source": source_node_id,
             "target": target_node_id,

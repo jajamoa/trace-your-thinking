@@ -1,241 +1,265 @@
-# Backend for Trace Your Thinking
+# Backend System for Trace Your Thinking
 
-This is the Flask backend for the Trace Your Thinking application, providing API endpoints for interview data collection and analysis.
+This backend system powers the "Trace Your Thinking" application, which builds structural causal models (SCMs) from user conversations.
 
-## Project Structure
+## Components
 
-The backend follows a modular structure:
-- `app.py`: Application factory
-- `wsgi.py`: WSGI entry point for production
-- `run.py`: Development server runner
-- `config.py`: Configuration management
-- `models/`: Data models
-- `services/`: Business logic services
-- `api/`: API endpoints
-- `utils/`: Utility modules
+- `app.py` - Flask application with API endpoints
+- `llm_extractor.py` - LLM-based node and edge extractor
+- `cbn_manager.py` - Causal Belief Network manager
+- `question_generator.py` - Follow-up question generator
+- `llm_logger.py` - Minimalist LLM call logging system
 
-## Local Development Setup
+## LLM Call Logging System
 
-### Prerequisites
-- Python 3.8 or higher
-- pip package manager
+The backend includes a lightweight, modular logging system for LLM calls that allows you to control which types of calls have detailed logs.
 
-### Installation
+### How It Works
 
-1. Navigate to the backend directory:
-```bash
-cd backend
+The logging system is completely separated from the LLM extraction logic:
+
+1. `llm_logger.py` provides a simple, reusable logging interface
+2. LLM calls in `llm_extractor.py` use the logger to record prompts and responses
+3. Configuration is done through environment variables
+
+### Available Call Types
+
+The following LLM call types can be separately controlled:
+
+- `node_extraction` - Extraction of nodes from QA pairs
+- `edge_extraction` - Extraction of edges (causal relationships)
+- `function_params` - Extraction of causal function parameters
+- `belief_extraction` - Extraction of user beliefs about relationships
+- `topic_extraction` - Extraction of topics from questions
+
+### Configuration
+
+Logging is controlled through environment variables in your `.env` or `.env.local` file:
+
 ```
+# Global control for all LLM calls
+DEBUG_LLM_IO=true|false
+
+# Type-specific control (overrides global setting)
+DEBUG_LLM_IO_NODE_EXTRACTION=true|false
+DEBUG_LLM_IO_EDGE_EXTRACTION=true|false
+DEBUG_LLM_IO_FUNCTION_PARAMS=true|false
+DEBUG_LLM_IO_BELIEF_EXTRACTION=true|false
+DEBUG_LLM_IO_TOPIC_EXTRACTION=true|false
+```
+
+### Usage Example
+
+To enable only node extraction and function parameter logging:
+
+```
+# .env or .env.local file
+DEBUG_LLM_IO=false
+DEBUG_LLM_IO_NODE_EXTRACTION=true
+DEBUG_LLM_IO_FUNCTION_PARAMS=true
+```
+
+### Developer Integration
+
+To use the logger in your own code:
+
+```python
+from llm_logger import llm_logger, LLM_CALL_TYPES
+
+# Log a prompt if enabled for this call type
+llm_logger.log_prompt(LLM_CALL_TYPES["NODE_EXTRACTION"], prompt)
+
+# Make your API call...
+response = some_llm_api.call(prompt)
+
+# Log the response if enabled for this call type
+llm_logger.log_response(LLM_CALL_TYPES["NODE_EXTRACTION"], response)
+```
+
+## Starting the Application
+
+1. Ensure you have a `.env` or `.env.local` file with your DashScope API key:
+   ```
+   DASHSCOPE_API_KEY=your_api_key_here
+   ```
 
 2. Install dependencies:
-```bash
-pip install -r requirements.txt
-```
+   ```
+   pip install -r requirements.txt
+   ```
 
-3. Run the development server:
-```bash
-python run.py
-```
+3. Run the application:
+   ```
+   python app.py
+   ```
 
-The server will be available at http://localhost:5001 (or the port specified in your environment).
+The API will be available at http://localhost:5001/ 
 
-## Running with Gunicorn
+## CBN Data Structure Example
 
-For a more production-like environment, you can use Gunicorn:
-
-```bash
-cd backend
-gunicorn wsgi:application
-```
-
-## Deploying to Render.com
-
-1. Create a new Web Service on Render.com
-
-2. Connect your GitHub repository
-
-3. Configure these settings:
-   - **Name**: trace-your-thinking-backend
-   - **Environment**: Python
-   - **Build Command**: `pip install -r backend/requirements.txt`
-   - **Start Command**: `cd backend && gunicorn wsgi:application`
-
-4. Add environment variables:
-   - `DASHSCOPE_API_KEY`: Your DashScope API key
-   - `FLASK_ENV`: Set to "production"
-   - Any other required environment variables
-
-5. Click "Create Web Service"
-
-## API Endpoints
-
-- `GET /healthz`: Health check endpoint
-- `GET /api/status`: API status information
-- `POST /api/process_answer`: Process interview answers and generate follow-up questions
-
-## Troubleshooting
-
-- **ModuleNotFoundError**: Ensure you are running commands from the correct directory and Python path is set correctly
-- **Import Errors**: The application uses absolute imports when running from the backend directory
-- **Port already in use**: You can change the port in your environment variables
-- **KeyError in SCM Model**: If you encounter a KeyError related to missing fields in the SCM model, ensure you're using the latest version. A bug related to missing keys when loading existing models has been fixed in the current version.
-- **LLM-related errors**: Check that you have set the correct API key for DashScope in your environment variables
-
-## Recent Fixes
-
-- **2023-05-08**: Fixed an issue where loading an existing SCM model was failing with KeyError for missing required fields
-- **2023-05-08**: Resolved import issues by updating relative imports to absolute imports throughout the codebase
-- **2023-05-08**: Added run.py for easier development and testing
-
-# Structural Causal Model (SCM) Interview Framework
-
-This project implements a semi-structured interview framework for building Structural Causal Models (SCMs) from qualitative interviews. It focuses on cognitively-informed elicitation strategies for domains like urban upzoning.
-
-## Architecture Overview
-
-The system uses a three-phase strategy for constructing SCMs:
-
-1. **Node Discovery & Establishment**: Identifying important concepts and establishing them as nodes
-2. **Anchor Expansion**: Exploring causal relationships between established nodes
-3. **Function Fitting**: Determining the nature and parameters of causal relationships
-
-### System Components
-
-The backend consists of four main components:
-
-- `app.py`: Main Flask application implementing the API endpoints
-- `scm_extractor.py`: Extracts nodes, edges, and function parameters from QA pairs
-- `scm_manager.py`: Manages the SCM graph, including node merging and edge updates
-- `question_generator.py`: Generates follow-up questions based on the current state of the SCM
-
-## Data Flow
-
-1. A question-answer pair is sent to the `/api/process_answer` endpoint
-2. The SCM extractor identifies potential nodes and relationships
-3. The SCM manager updates the graph structure
-4. The question generator creates follow-up questions based on the current phase
-5. The updated SCM and follow-up questions are returned to the client
-
-## SCM Structure
-
-The SCM follows a structured JSON format:
+Below is an example of the Causal Belief Network (CBN) data structure used in the application:
 
 ```json
 {
   "agent_id": "user123",
   "nodes": {
-    "n_123": {
-      "id": "n_123",
-      "label": "Housing Affordability",
-      "type": "binary",
-      "values": [true, false],
-      "semantic_role": "external_state",
-      "appearance": {
-        "qa_ids": ["qa_1", "qa_2"],
-        "frequency": 2
-      },
-      "incoming_edges": ["e_1"],
-      "outgoing_edges": ["e_2"]
+    "n1": {
+      "label": "Climate Change",
+      "aggregate_confidence": 0.85,
+      "evidence": [
+        {
+          "qa_id": "qa1",
+          "confidence": 0.8,
+          "importance": 0.9
+        },
+        {
+          "qa_id": "qa2",
+          "confidence": 0.9,
+          "importance": 0.85
+        }
+      ],
+      "incoming_edges": ["e2"],
+      "outgoing_edges": ["e1"],
+      "importance": 0.9
+    },
+    "n2": {
+      "label": "Carbon Emissions",
+      "aggregate_confidence": 0.8,
+      "evidence": [
+        {
+          "qa_id": "qa1",
+          "confidence": 0.8,
+          "importance": 0.7
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": ["e2"],
+      "importance": 0.7
+    },
+    "n3": {
+      "label": "Sea Level Rise",
+      "aggregate_confidence": 0.75,
+      "evidence": [
+        {
+          "qa_id": "qa2",
+          "confidence": 0.75,
+          "importance": 0.6
+        }
+      ],
+      "incoming_edges": ["e1"],
+      "outgoing_edges": [],
+      "importance": 0.6
     }
   },
   "edges": {
-    "e_1": {
-      "from": "n_123",
-      "to": "n_456",
-      "function": {
-        "target": "n_456",
-        "inputs": ["n_123"],
-        "function_type": "sigmoid",
-        "parameters": {
-          "weights": [0.8],
-          "bias": 0.2
-        },
-        "noise_std": 0.1,
-        "support_qas": ["qa_1"],
-        "confidence": 0.7
-      },
-      "support_qas": ["qa_1"]
+    "e1": {
+      "source": "n1",
+      "target": "n3",
+      "aggregate_confidence": 0.8,
+      "evidence": [
+        {
+          "qa_id": "qa2",
+          "confidence": 0.8,
+          "original_modifier": 1.0
+        }
+      ],
+      "modifier": 0.8,
+      "source_label": "Climate Change",
+      "target_label": "Sea Level Rise"
+    },
+    "e2": {
+      "source": "n2",
+      "target": "n1",
+      "aggregate_confidence": 0.75,
+      "evidence": [
+        {
+          "qa_id": "qa1",
+          "confidence": 0.75,
+          "original_modifier": 1.0
+        }
+      ],
+      "modifier": 0.75,
+      "source_label": "Carbon Emissions",
+      "target_label": "Climate Change"
     }
   },
-  "qas": [
-    {
-      "qa_id": "qa_1",
-      "question": "What do you think about housing policies?",
-      "answer": "I think zoning policies affect housing affordability significantly.",
-      "parsed_belief": {
-        "belief_structure": {
-          "from": "n_789",
-          "to": "n_123",
-          "direction": "positive"
+  "qa_history": {
+    "qa1": {
+      "question": "How do you think carbon emissions affect climate change?",
+      "answer": "I believe carbon emissions are a major factor causing climate change because greenhouse gases lead to global warming.",
+      "extracted_pairs": [
+        {
+          "edge_id": "e2",
+          "source": "n2",
+          "target": "n1",
+          "source_label": "Carbon Emissions",
+          "target_label": "Climate Change",
+          "confidence": 0.75,
+          "modifier": 0.75
+        }
+      ],
+      "extracted_nodes": [
+        {
+          "node_id": "n2",
+          "label": "Carbon Emissions",
+          "confidence": 0.8,
+          "importance": 0.7
         },
-        "belief_strength": {
-          "estimated_probability": 0.7,
-          "confidence_rating": 0.6
+        {
+          "node_id": "n1",
+          "label": "Climate Change",
+          "confidence": 0.8,
+          "importance": 0.9
+        }
+      ]
+    },
+    "qa2": {
+      "question": "What impact does climate change have on sea levels?",
+      "answer": "Climate change causes polar ice caps to melt, leading to sea level rise which threatens coastal areas.",
+      "extracted_pairs": [
+        {
+          "edge_id": "e1",
+          "source": "n1",
+          "target": "n3",
+          "source_label": "Climate Change",
+          "target_label": "Sea Level Rise",
+          "confidence": 0.8,
+          "modifier": 0.8
+        }
+      ],
+      "extracted_nodes": [
+        {
+          "node_id": "n1",
+          "label": "Climate Change",
+          "confidence": 0.9,
+          "importance": 0.85
         },
-        "counterfactual": "If zoning policies were different, housing affordability would change."
-      }
+        {
+          "node_id": "n3",
+          "label": "Sea Level Rise",
+          "confidence": 0.75,
+          "importance": 0.6
+        }
+      ]
     }
-  ]
-}
-```
-
-## Cognitive Foundations
-
-The system is grounded in several cognitive theories:
-
-- Mental Models (Johnson-Laird, 1983)
-- Basic-Level Categories (Rosch, 1978)
-- Discourse Entity Grounding (Grosz & Sidner, 1986)
-
-## Node Classification
-
-Nodes are classified into three semantic roles:
-
-1. **External State**: World states observed or believed (e.g., noise level, housing prices)
-2. **Internal Affect**: Emotions, preferences, perceived costs (e.g., stress, satisfaction)
-3. **Behavioral Intention**: Action tendencies or decision intents (e.g., support for policy)
-
-## API Usage
-
-### Process Answer Endpoint
-
-```
-POST /api/process_answer
-```
-
-Request body:
-```json
-{
-  "sessionId": "session123",
-  "prolificId": "user123",
-  "qaPair": {
-    "id": "qa_1",
-    "question": "What do you think about housing policies?",
-    "answer": "I think zoning policies affect housing affordability significantly."
   },
-  "qaPairs": [...],
-  "currentQuestionIndex": 0,
-  "existingCausalGraph": {...}
+  "phase": "edge_construction",
+  "anchor_queue": ["n1"]
 }
 ```
 
-Response:
-```json
-{
-  "success": true,
-  "sessionId": "session123",
-  "prolificId": "user123",
-  "qaPair": {...},
-  "followUpQuestions": [...],
-  "causalGraph": {...},
-  "timestamp": 1620000000
-}
-```
+### Process Variables
 
-## Deployment
+The CBN system includes process variables that manage the interview flow but are not part of the core data schema:
 
-The application runs on port 5001 by default. You can customize this by setting the `PORT` environment variable.
+1. **phase** - Tracks the current interview phase:
+   - `node_discovery`: Initial phase focused on identifying key concepts
+   - `edge_construction`: Second phase building connections between nodes
+   - `edge_refinement`: Final phase refining and validating relationships
 
-```
-PORT=5001 python app.py
-``` 
+2. **anchor_queue** - List of important nodes identified for follow-up questions. Nodes become anchors when:
+   - They appear in multiple QA pairs (high frequency)
+   - They have high importance (>= 0.8)
+   - They have high confidence (>= 0.8)
+
+These process variables guide the question generation and help the system transition between different interview stages. 

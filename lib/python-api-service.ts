@@ -30,7 +30,8 @@ export class PythonAPIService {
         prolificId, 
         questionId: qaPair.id,
         totalQaPairs: qaPairs.length,
-        currentQuestionIndex
+        currentQuestionIndex,
+        graphTimestamp: existingCausalGraph?.timestamp
       });
 
       // Ensure the qaPair is well-formed
@@ -52,6 +53,11 @@ export class PythonAPIService {
           category: qa.category || 'research'
         };
       });
+
+      // Ensure the causal graph has a timestamp if it exists
+      if (existingCausalGraph && !existingCausalGraph.timestamp) {
+        existingCausalGraph.timestamp = Date.now();
+      }
 
       // Make API call to Next.js API route (not directly to Python backend)
       const response = await fetch('/api/process-answer', {

@@ -6,7 +6,6 @@ import uuid
 import time
 import random
 import logging
-from llm_logger import llm_logger
 
 logger = logging.getLogger(__name__)
 
@@ -18,7 +17,7 @@ class QuestionGenerator:
     def __init__(self):
         """Initialize the question generator"""
         # Templates for different question types
-        self.step1_templates = [
+        self.phase1_templates = [
             "Could you tell me more about {node}?",
             "What factors do you think influence {node}?",
             "How would you describe {node} in your own words?",
@@ -26,33 +25,29 @@ class QuestionGenerator:
             "What comes to mind when you think about {node}?"
         ]
         
-        # Combined templates for Step 2 that cover both relationship discovery and strength
-        self.step2_combined_templates = {
-            # Upstream templates (what affects this node)
-            "upstream": [
-                "What factors do you think influence {node}, and how strong is their impact?",
-                "What causes changes in {node}? Are these influences strong or weak?",
-                "What might lead to increases or decreases in {node}, and how significant are these effects?",
-                "What do you think are the main causes of {node}, and how certain are you about these relationships?",
-                "What factors affect {node}, and which ones have the strongest influence?"
-            ],
-            # Downstream templates (what does this node affect)
-            "downstream": [
-                "How does {node} affect other aspects of this issue, and how strong are these effects?",
-                "What consequences might result from changes in {node}? Which effects are most significant?",
-                "What happens when {node} increases or decreases? How direct are these relationships?",
-                "How does {node} influence your overall stance, and how important is this connection?",
-                "What effects does {node} have on other factors, and how would you rate the strength of these relationships?"
-            ],
-            # Relationship strength/modifier templates (for existing edges)
-            "relationship": [
-                "How would you describe the relationship between {from_node} and {to_node}? Is it a strong or weak connection?",
-                "Does {from_node} have a positive or negative effect on {to_node}, and how significant is this effect?",
-                "How confident are you that changes in {from_node} lead to changes in {to_node}?",
-                "Is the effect of {from_node} on {to_node} immediate, or does it take time to develop?",
-                "Would small changes in {from_node} lead to noticeable changes in {to_node}, or would it take larger shifts?"
-            ]
-        }
+        self.phase2_upstream_templates = [
+            "What factors do you think influence {node}?",
+            "What causes changes in {node}?",
+            "What might lead to increases or decreases in {node}?",
+            "What do you think are the root causes of {node}?",
+            "What factors might affect how {node} develops or changes?"
+        ]
+        
+        self.phase2_downstream_templates = [
+            "How does {node} affect other aspects of this issue?",
+            "What consequences might result from changes in {node}?",
+            "What happens when {node} increases or decreases?",
+            "How does {node} influence your overall stance?",
+            "What effects does {node} have on other factors you've mentioned?"
+        ]
+        
+        self.phase3_function_templates = [
+            "How strong is the influence of {from_node} on {to_node}?",
+            "Is the effect of {from_node} on {to_node} immediate or does it only happen under certain conditions?",
+            "Would you say the relationship between {from_node} and {to_node} is linear, or does it have a threshold?",
+            "How confident are you about the connection between {from_node} and {to_node}?",
+            "Can small changes in {from_node} lead to large changes in {to_node}, or is the effect more proportional?"
+        ]
         
         self.clarification_templates = [
             "When you mention {node}, do you mean {specific_concept} or something else?",
@@ -70,13 +65,13 @@ class QuestionGenerator:
             "common_cause": "Both {node1} and {node2} seem important in your thinking. Do you think they might have a common cause?"
         }
     
-    def generate_follow_up_questions(self, agent_scm, current_step, anchor_queue, existing_question_texts=None):
+    def generate_follow_up_questions(self, agent_scm, current_phase, anchor_queue, existing_question_texts=None):
         """
-        Generate follow-up questions based on the current SCM state and step.
+        Generate follow-up questions based on the current SCM state and phase.
         
         Args:
             agent_scm (dict): The current SCM
-            current_step (int): The current interview step (1 or 2)
+            current_phase (int): The current interview phase (1, 2, or 3)
             anchor_queue (list): List of anchor node IDs
             existing_question_texts (list, optional): List of existing question texts to avoid duplicates
             
@@ -86,30 +81,30 @@ class QuestionGenerator:
         if existing_question_texts is None:
             existing_question_texts = []
         
-        llm_logger.log_separator("QUESTION GENERATION START")
-        logger.info(f"Generating follow-up questions for step {current_step}")
         follow_up_questions = []
         
-        # Generate questions based on the current step
-        if current_step == 1:
-            # Step 1: Node Discovery
-            llm_logger.log_separator("STEP 1: NODE DISCOVERY QUESTIONS")
-            questions = self._generate_step1_questions(agent_scm, existing_question_texts)
+        # Generate questions based on the current phase
+        if current_phase == 1:
+            # Phase 1: Node Discovery
+            questions = self._generate_phase1_questions(agent_scm, existing_question_texts)
             follow_up_questions.extend(questions)
         
-        elif current_step == 2:
-            # Step 2: Combined Anchor Expansion & Relationship Qualification
-            llm_logger.log_separator("STEP 2: RELATIONSHIP QUESTIONS")
-            questions = self._generate_step2_combined_questions(agent_scm, anchor_queue, existing_question_texts)
+        elif current_phase == 2:
+            # Phase 2: Anchor Expansion
+            questions = self._generate_phase2_questions(agent_scm, anchor_queue, existing_question_texts)
+            follow_up_questions.extend(questions)
+        
+        elif current_phase == 3:
+            # Phase 3: Function Fitting
+            questions = self._generate_phase3_questions(agent_scm, existing_question_texts)
             follow_up_questions.extend(questions)
         
         # Always check for potential motifs to complete
-        llm_logger.log_separator("MOTIF PATTERN QUESTIONS")
         motif_questions = self._generate_motif_questions(agent_scm, existing_question_texts)
         follow_up_questions.extend(motif_questions)
         
-        # Limit number of questions based on step
-        max_questions = 3 if current_step == 1 else 2
+        # Limit number of questions based on phase
+        max_questions = 3 if current_phase == 1 else (2 if current_phase == 2 else 1)
         if len(follow_up_questions) > max_questions:
             follow_up_questions = follow_up_questions[:max_questions]
         
@@ -119,36 +114,34 @@ class QuestionGenerator:
             q["shortText"] = q.get("shortText") or q["question"][:50] + "..."
             q["answer"] = q.get("answer") or ""
         
-        logger.info(f"Generated {len(follow_up_questions)} follow-up questions")
-        llm_logger.log_separator("QUESTION GENERATION COMPLETE")
         return follow_up_questions
     
-    def _generate_step1_questions(self, agent_scm, existing_question_texts):
+    def _generate_phase1_questions(self, agent_scm, existing_question_texts):
         """
-        Generate questions for Step 1 (Node Discovery).
+        Generate questions for Phase 1 (Node Discovery).
         
         Args:
             agent_scm (dict): The current SCM
             existing_question_texts (list): List of existing question texts
             
         Returns:
-            list: List of Step 1 questions
+            list: List of Phase 1 questions
         """
         questions = []
         
-        # Find potential nodes to ask about - focus on candidate nodes
+        # Find potential nodes to ask about
         candidates = []
         for node_id, node in agent_scm.get('nodes', {}).items():
-            # Focus on nodes with status = 'candidate' 
-            if node.get('status') == 'candidate':
+            # Focus on nodes with frequency = 1 (mentioned but not confirmed)
+            if node.get('appearance', {}).get('frequency', 0) == 1:
                 candidates.append((node_id, node))
         
-        # Sort by frequency and importance (higher first) and select top candidates
-        candidates.sort(key=lambda x: (x[1].get('frequency', 1), x[1].get('importance', 0)), reverse=True)
+        # Sort by frequency (higher first) and select top 3
+        candidates.sort(key=lambda x: x[1].get('appearance', {}).get('frequency', 0), reverse=True)
         
         # Generate a question for each candidate (up to 3)
         for node_id, node in candidates[:3]:
-            template = random.choice(self.step1_templates)
+            template = random.choice(self.phase1_templates)
             question_text = template.format(node=node.get('label', 'this factor'))
             
             # Skip if similar question already exists
@@ -180,10 +173,9 @@ class QuestionGenerator:
         
         return questions
     
-    def _generate_step2_combined_questions(self, agent_scm, anchor_queue, existing_question_texts):
+    def _generate_phase2_questions(self, agent_scm, anchor_queue, existing_question_texts):
         """
-        Generate combined questions for Step 2 (Anchor Expansion & Relationship Qualification).
-        This combines the previous Step 2 and Step 3 functionality.
+        Generate questions for Phase 2 (Anchor Expansion).
         
         Args:
             agent_scm (dict): The current SCM
@@ -191,7 +183,7 @@ class QuestionGenerator:
             existing_question_texts (list): List of existing question texts
             
         Returns:
-            list: List of combined Step 2 questions
+            list: List of Phase 2 questions
         """
         questions = []
         
@@ -199,27 +191,79 @@ class QuestionGenerator:
         if not anchor_queue:
             return questions
         
-        # First, try to find edges that need qualification (strength/modifier info)
-        edge_candidates = []
-        for edge_id, edge in agent_scm.get('edges', {}).items():
-            from_node_id = edge.get('source')
-            to_node_id = edge.get('target')
+        # Select an anchor to focus on
+        # Prioritize anchors with fewer connections
+        anchor_connections = {}
+        for anchor_id in anchor_queue:
+            if anchor_id in agent_scm.get('nodes', {}):
+                node = agent_scm['nodes'][anchor_id]
+                connections = len(node.get('incoming_edges', [])) + len(node.get('outgoing_edges', []))
+                anchor_connections[anchor_id] = connections
+        
+        # Sort by connections (fewer first)
+        sorted_anchors = sorted(anchor_connections.items(), key=lambda x: x[1])
+        
+        # Get the anchor with fewest connections
+        if sorted_anchors:
+            anchor_id, _ = sorted_anchors[0]
+            anchor_node = agent_scm['nodes'][anchor_id]
             
-            if from_node_id in agent_scm.get('nodes', {}) and to_node_id in agent_scm.get('nodes', {}):
-                from_node = agent_scm['nodes'][from_node_id]
-                to_node = agent_scm['nodes'][to_node_id]
+            # Generate upstream question (what affects this anchor)
+            upstream_template = random.choice(self.phase2_upstream_templates)
+            upstream_question = upstream_template.format(node=anchor_node.get('label', 'this factor'))
+            
+            if not any(self._similar_questions(upstream_question, existing) for existing in existing_question_texts):
+                questions.append({
+                    "question": upstream_question,
+                    "shortText": f"Influences on {anchor_node.get('label', 'factor')}",
+                    "type": "anchor_upstream",
+                    "node_id": anchor_id
+                })
+            
+            # Generate downstream question (what does this anchor affect)
+            downstream_template = random.choice(self.phase2_downstream_templates)
+            downstream_question = downstream_template.format(node=anchor_node.get('label', 'this factor'))
+            
+            if not any(self._similar_questions(downstream_question, existing) for existing in existing_question_texts):
+                questions.append({
+                    "question": downstream_question,
+                    "shortText": f"Effects of {anchor_node.get('label', 'factor')}",
+                    "type": "anchor_downstream",
+                    "node_id": anchor_id
+                })
+        
+        return questions
+    
+    def _generate_phase3_questions(self, agent_scm, existing_question_texts):
+        """
+        Generate questions for Phase 3 (Function Fitting).
+        
+        Args:
+            agent_scm (dict): The current SCM
+            existing_question_texts (list): List of existing question texts
+            
+        Returns:
+            list: List of Phase 3 questions
+        """
+        questions = []
+        
+        # Find edges that could use function fitting
+        candidates = []
+        for edge_id, edge in agent_scm.get('edges', {}).items():
+            # Focus on edges with minimal function information
+            if edge.get('function', {}).get('function_type') == 'sigmoid':  # Default type
+                from_node_id = edge.get('from')
+                to_node_id = edge.get('to')
                 
-                # Prioritize edges between anchor nodes
-                is_anchor_edge = (from_node.get('status') == 'anchor' and to_node.get('status') == 'anchor')
-                edge_candidates.append((edge_id, from_node, to_node, is_anchor_edge))
+                if from_node_id in agent_scm.get('nodes', {}) and to_node_id in agent_scm.get('nodes', {}):
+                    from_node = agent_scm['nodes'][from_node_id]
+                    to_node = agent_scm['nodes'][to_node_id]
+                    candidates.append((edge_id, from_node, to_node))
         
-        # Sort edge candidates, prioritizing anchor-to-anchor edges
-        edge_candidates.sort(key=lambda x: (0 if x[3] else 1))
-        
-        # If we have edge candidates, ask about relationship strength for one of them
-        if edge_candidates:
-            edge_id, from_node, to_node, _ = edge_candidates[0]  # Take the highest priority edge
-            template = random.choice(self.step2_combined_templates['relationship'])
+        # Generate a question for a random candidate
+        if candidates:
+            edge_id, from_node, to_node = random.choice(candidates)
+            template = random.choice(self.phase3_function_templates)
             question_text = template.format(
                 from_node=from_node.get('label', 'the first factor'),
                 to_node=to_node.get('label', 'the second factor')
@@ -229,49 +273,12 @@ class QuestionGenerator:
                 questions.append({
                     "question": question_text,
                     "shortText": f"Relationship: {from_node.get('label', 'factor')} → {to_node.get('label', 'factor')}",
-                    "type": "relationship_qualification",
+                    "type": "function_fitting",
                     "edge_id": edge_id
                 })
         
-        # Then, focus on expanding anchor nodes (finding new relationships)
-        # Select an anchor to focus on (prioritize those with fewer connections)
-        anchor_connections = {}
-        for anchor_id in anchor_queue:
-            if anchor_id in agent_scm.get('nodes', {}) and agent_scm['nodes'][anchor_id].get('status') == 'anchor':
-                node = agent_scm['nodes'][anchor_id]
-                connections = len(node.get('incoming_edges', [])) + len(node.get('outgoing_edges', []))
-                anchor_connections[anchor_id] = connections
-        
-        # Sort by connections (fewer first)
-        sorted_anchors = sorted(anchor_connections.items(), key=lambda x: x[1])
-        
-        # Get the anchor with fewest connections
-        if sorted_anchors and len(questions) < 2:  # Only if we don't already have enough questions
-            anchor_id, _ = sorted_anchors[0]
-            anchor_node = agent_scm['nodes'][anchor_id]
-            
-            # Randomly choose upstream or downstream question
-            if random.choice([True, False]):
-                # Generate upstream question (what affects this anchor)
-                template = random.choice(self.step2_combined_templates['upstream'])
-                question_text = template.format(node=anchor_node.get('label', 'this factor'))
-                question_type = "anchor_upstream_with_strength"
-            else:
-                # Generate downstream question (what does this anchor affect)
-                template = random.choice(self.step2_combined_templates['downstream'])
-                question_text = template.format(node=anchor_node.get('label', 'this factor'))
-                question_type = "anchor_downstream_with_strength"
-            
-            if not any(self._similar_questions(question_text, existing) for existing in existing_question_texts):
-                questions.append({
-                    "question": question_text,
-                    "shortText": f"About {anchor_node.get('label', 'factor')} relationships",
-                    "type": question_type,
-                    "node_id": anchor_id
-                })
-        
         return questions
-
+    
     def _generate_motif_questions(self, agent_scm, existing_question_texts):
         """
         Generate questions based on graph motifs to complete patterns.
@@ -422,13 +429,13 @@ class QuestionGenerator:
         
         return overlap >= threshold
     
-    def generate_additional_questions(self, scm, current_step, current_questions, force_generate=False, focus_on_nodes=False):
+    def generate_additional_questions(self, scm, current_phase, current_questions, force_generate=False, focus_on_nodes=False):
         """
         Generate additional questions when more are needed to reach minimum requirements.
         
         Args:
             scm (dict): The current state of the Structural Causal Model
-            current_step (str): The current step of the interview
+            current_phase (str): The current phase of the interview
             current_questions (list): List of questions already asked
             force_generate (bool): Whether to force generation of questions
             focus_on_nodes (bool): Whether to focus specifically on discovering more nodes
@@ -436,13 +443,10 @@ class QuestionGenerator:
         Returns:
             list: List of additional questions
         """
-        llm_logger.log_separator("ADDITIONAL QUESTION GENERATION")
-        logger.info(f"Generating additional questions (force={force_generate}, focus_on_nodes={focus_on_nodes})")
         additional_questions = []
         
         # If we're focusing on node discovery or forced to generate questions
-        if focus_on_nodes or (force_generate and current_step == "node_discovery"):
-            llm_logger.log_separator("FORCED NODE DISCOVERY QUESTIONS")
+        if focus_on_nodes or (force_generate and current_phase == "node_discovery"):
             try:
                 # Generate more node discovery questions
                 node_questions = self._generate_forced_node_discovery_questions(scm, current_questions)
@@ -454,8 +458,7 @@ class QuestionGenerator:
                 logger.error(f"Error generating node discovery questions: {str(e)}")
             
         # If we need to force generate questions for edge construction
-        elif force_generate and current_step == "edge_construction":
-            llm_logger.log_separator("FORCED EDGE CONSTRUCTION QUESTIONS")
+        elif force_generate and current_phase == "edge_construction":
             try:
                 # Generate more edge construction questions
                 edge_questions = self._generate_forced_edge_construction_questions(scm, current_questions)
@@ -468,7 +471,6 @@ class QuestionGenerator:
             
         # If we still don't have enough questions, add some general questions
         if not additional_questions or force_generate:
-            llm_logger.log_separator("GENERAL QUESTIONS")
             try:
                 general_questions = self._generate_general_questions(current_questions)
                 if isinstance(general_questions, list):
@@ -501,8 +503,6 @@ class QuestionGenerator:
                     if "answer" not in q:
                         q["answer"] = ""
                     formatted_questions.append(q)
-            logger.info(f"Generated {len(formatted_questions)} additional questions")
-            llm_logger.log_separator("ADDITIONAL QUESTION GENERATION COMPLETE")
             return formatted_questions
         
         # Fallback to a single general question if nothing else worked
@@ -513,7 +513,6 @@ class QuestionGenerator:
             "answer": ""
         }
         logger.info("Using fallback question as no others were generated")
-        llm_logger.log_separator("ADDITIONAL QUESTION GENERATION COMPLETE")
         return [fallback_question]  # Return as a list with a properly formatted question
     
     def _generate_forced_node_discovery_questions(self, scm, current_questions):
@@ -603,7 +602,7 @@ class QuestionGenerator:
     
     def _generate_general_questions(self, current_questions):
         """
-        Generate general questions that can work in any step.
+        Generate general questions that can work in any phase.
         """
         general_questions = [
             "Could you elaborate more on your previous answer?",

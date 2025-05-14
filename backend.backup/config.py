@@ -20,6 +20,9 @@ class Config:
         self.PORT = int(os.environ.get("PORT", 5001))
         self.FLASK_ENV = os.environ.get("FLASK_ENV", "development")
         
+        # Frontend NextJS application URL - default to typical NextJS dev server
+        self.API_BASE_URL = os.environ.get('API_BASE_URL', 'http://localhost:3000')
+        
         # LLM configuration
         self.DASHSCOPE_API_KEY = os.environ.get('DASHSCOPE_API_KEY')
         self.LLM_MODEL = os.environ.get('LLM_MODEL', 'qwen-turbo')

@@ -1,8 +1,9 @@
 "use client"
 
-import { useEffect, useRef } from "react"
+import { useEffect, useRef, useState } from "react"
 import { usePathname, useRouter } from "next/navigation"
 import { useStore } from "@/lib/store"
+import { QAPair } from "@/lib/store"
 
 /**
  * Global session state checker component
@@ -11,11 +12,12 @@ import { useStore } from "@/lib/store"
  * 2. Redirecting users based on session state
  * 3. Ensuring session status is the primary determining factor for page routing
  * 4. Resetting state and redirecting to home if session not found on server (404)
+ * 5. Detecting if session was reset on the server and syncing local state accordingly
  */
 export default function SessionCheck() {
   const router = useRouter()
   const pathname = usePathname()
-  const { prolificId, status, sessionId, checkSessionStatus } = useStore()
+  const { prolificId, status, sessionId, checkSessionStatus, qaPairs, messages } = useStore()
   
   // Add a pending check reference to avoid checking too frequently
   const isCheckPendingRef = useRef(false)
@@ -25,6 +27,8 @@ export default function SessionCheck() {
   const hasRedirectedRef = useRef(false)
   // Track last session ID to detect changes
   const lastSessionIdRef = useRef(sessionId)
+  // Track lastUpdated timestamp to detect session resets
+  const [lastKnownUpdated, setLastKnownUpdated] = useState<number>(0)
   
   // Only redirect if we haven't already redirected in this render cycle
   const safeRedirect = (path: string) => {
@@ -32,6 +36,91 @@ export default function SessionCheck() {
       console.log(`Redirecting from ${pathname} to ${path}`)
       hasRedirectedRef.current = true
       router.push(path)
+    }
+  }
+  
+  // Track the latest QA timestamps on first load and when they change
+  useEffect(() => {
+    if (qaPairs && qaPairs.length > 0) {
+      // Find the latest timestamp among all QA pairs
+      const latestTimestamp = qaPairs.reduce((latest, qa) => {
+        const qaTimestamp = qa.lastUpdated || 0
+        return qaTimestamp > latest ? qaTimestamp : latest
+      }, 0)
+      
+      // Only update if we have a newer timestamp
+      if (latestTimestamp > lastKnownUpdated) {
+        setLastKnownUpdated(latestTimestamp)
+        console.log(`Updated lastKnownUpdated to ${new Date(latestTimestamp).toISOString()}`)
+      }
+    }
+  }, [qaPairs, lastKnownUpdated])
+
+  // Function to detect server resets
+  const checkForServerReset = async () => {
+    if (!sessionId) return false
+    
+    try {
+      // Fetch the latest session data directly from the server
+      const response = await fetch(`/api/sessions/${sessionId}`)
+      if (!response.ok) return false
+      
+      const data = await response.json()
+      if (!data.success || !data.session) return false
+      
+      // Verify sessionId matches and session belongs to this user
+      if (data.session.id !== sessionId || (prolificId && data.session.prolificId !== prolificId)) {
+        console.warn('Session data mismatch - possible security issue', {
+          expectedSessionId: sessionId,
+          actualSessionId: data.session.id,
+          expectedProlificId: prolificId,
+          actualProlificId: data.session.prolificId
+        })
+        return false
+      }
+      
+      const serverQAPairs = data.session.qaPairs || [] as QAPair[]
+      
+      // Case 1: Session was reset - all answers are now empty
+      const allAnswersEmpty = serverQAPairs.every((qa: QAPair) => !qa.answer || qa.answer.trim() === '')
+      
+      // Case 2: Messages were cleared - fewer messages on server
+      const serverMessages = data.session.messages || []
+      const localMessages = messages || []
+      
+      // Case 3: If any QA on server has a newer timestamp than our "lastKnownUpdated"
+      let hasNewerTimestamp = false
+      let latestServerTimestamp = 0
+      
+      for (const qa of serverQAPairs as QAPair[]) {
+        const serverTimestamp = qa.lastUpdated || 0
+        latestServerTimestamp = Math.max(latestServerTimestamp, serverTimestamp)
+        
+        // If server has a newer timestamp but empty answer, this likely indicates a reset
+        if (serverTimestamp > lastKnownUpdated && (!qa.answer || qa.answer.trim() === '')) {
+          hasNewerTimestamp = true
+        }
+      }
+      
+      const wasReset = allAnswersEmpty || (hasNewerTimestamp && latestServerTimestamp > lastKnownUpdated)
+      
+      if (wasReset) {
+        console.log('Detected session reset on server:', {
+          allAnswersEmpty,
+          hasNewerTimestamp,
+          latestServerTimestamp,
+          lastKnownUpdated
+        })
+        
+        // Use the server state to replace local state
+        window.location.reload()
+        return true
+      }
+      
+      return false
+    } catch (error) {
+      console.error('Error checking for server reset:', error)
+      return false
     }
   }
 
@@ -73,6 +162,13 @@ export default function SessionCheck() {
         isCheckPendingRef.current = true
         lastCheckedTimeRef.current = now
         
+        // First check if the session was reset on the server
+        const wasReset = await checkForServerReset()
+        if (wasReset) {
+          console.log("Session was reset on server, local state will be refreshed")
+          return // The page will reload, so no need to continue
+        }
+        
         // Only check if we have a sessionId
         if (sessionId) {
           await checkSessionStatus()
@@ -112,7 +208,7 @@ export default function SessionCheck() {
         
         // Instead we'll use a more reliable approach: new sessions always get an immediate check
         console.log("On interview page with session, performing immediate status check")
-          safeCheckSessionStatus()
+        safeCheckSessionStatus()
       }
       
       // If we don't have a prolificId but we're on the interview page, something's wrong
@@ -152,7 +248,7 @@ export default function SessionCheck() {
       // Clear timeout on unmount
       return () => clearTimeout(timeoutId)
     }
-  }, [pathname, prolificId, router, status, sessionId, checkSessionStatus])
+  }, [pathname, prolificId, router, status, sessionId, checkSessionStatus, messages, lastKnownUpdated])
 
   // This component doesn't render anything visible
   return null

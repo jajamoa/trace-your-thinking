@@ -1,5 +1,5 @@
 """
-Simplified LLM-based Node Extractor
+LLM-based Node Extractor
 Responsible for extracting nodes from QA pairs using DashScope API.
 Also provides edge extraction and function parameter extraction functionality.
 """
@@ -14,14 +14,16 @@ import dashscope
 from pathlib import Path
 from dotenv import load_dotenv
 
+# Import the LLMLogger
+from llm_logger import llm_logger, LLM_CALL_TYPES
+
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
 class QwenLLMExtractor:
     """
-    Simplified extractor that focuses on nodes with a stance node as starting point.
-    Also provides edge and function parameter extraction capabilities.
+    Extractor that uses LLM to identify nodes and causal relationships from text.
     """
     
     def __init__(self, api_key=None, model="qwen-plus", temperature=0.1):
@@ -58,22 +60,19 @@ class QwenLLMExtractor:
         
         # Node tracking for frequency analysis
         self.node_candidates = Counter()
-        # Track stance node
-        self.stance_node_created = False
         # Minimum frequency to promote a node candidate
         self.min_node_frequency = 2
     
     def extract_nodes(self, qa_pair, ensure_stance_node=True):
         """
         Extract potential nodes from a QA pair using LLM.
-        Always ensures a stance node is created if none exists.
         
         Args:
             qa_pair (dict): A question-answer pair
-            ensure_stance_node (bool): Whether to ensure a stance node is created
+            ensure_stance_node (bool): Parameter kept for backward compatibility, but ignored
             
         Returns:
-            dict: Dictionary of extracted nodes with metadata
+            dict: Dictionary of extracted nodes with metadata (without specific IDs)
         """
         question = qa_pair.get('question', '')
         answer = qa_pair.get('answer', '')
@@ -89,37 +88,99 @@ class QwenLLMExtractor:
         elif not qa_id.startswith("qa_"):
             qa_id = f"qa_{qa_id}"
         
+        # Skip if either question or answer is empty
+        if not question or not answer:
+            return {}
+        
+        prompt = self.get_node_extraction_prompt(question, answer)
+        llm_logger.log_separator("NODE EXTRACTION")
+        llm_logger.log_prompt(LLM_CALL_TYPES["NODE_EXTRACTION"], prompt)
+        
+        extracted_output = self._call_llm_for_structured_output(
+            prompt, 
+            LLM_CALL_TYPES["NODE_EXTRACTION"]
+        )
+        
+        # No valid extraction
+        if not extracted_output:
+            return {}
+            
+        # Process and normalize output
+        nodes = {}
+        
+        # Extract nodes from the response
         try:
-            # Extract nodes using LLM
-            extracted_nodes = self._extract_nodes_with_llm(question, answer, qa_id)
+            # If the extracted_output is already a list or dict, no need to parse it
+            if isinstance(extracted_output, (list, dict)):
+                extracted_data = extracted_output
+            else:
+                # Otherwise, clean and parse it as a string
+                clean_json = self._clean_json_string(extracted_output)
+                extracted_data = json.loads(clean_json)
             
-            # If no nodes were extracted or we need to ensure a stance node
-            if (not extracted_nodes or ensure_stance_node) and not self.stance_node_created:
-                stance_node = self._create_stance_node(question, answer, qa_id)
-                if stance_node:
-                    stance_node_id = list(stance_node.keys())[0]
-                    extracted_nodes.update(stance_node)
-                    self.stance_node_created = True
-                    logger.info(f"Created stance node: {extracted_nodes[stance_node_id]['label']}")
+            # Check if we got a valid structure
+            if isinstance(extracted_data, dict) and 'nodes' in extracted_data:
+                # Handle old format: {"nodes": [...]}
+                node_list = extracted_data['nodes']
+            elif isinstance(extracted_data, list):
+                # Handle new format: direct array of nodes
+                node_list = extracted_data
+            else:
+                logger.warning(f"Unexpected response format: {type(extracted_data)}")
+                return {}
+                
+            # Process each node
+            for i, node_data in enumerate(node_list):
+                if not isinstance(node_data, dict):
+                    continue
+                    
+                # Extract basic node properties
+                node_label = node_data.get('label', '').strip()
+                if not node_label:
+                    continue
+                    
+                # Skip if label is too short
+                if len(node_label) < 2:
+                    continue
+                    
+                # Normalize confidence to 0.0-1.0 range
+                confidence = float(node_data.get('confidence', 0.5))
+                confidence = max(0.0, min(1.0, confidence))
+                
+                # Normalize importance to 0.0-1.0 range
+                importance = float(node_data.get('importance', 0.5))
+                importance = max(0.0, min(1.0, importance))
+                
+                # Create temporary key for this batch
+                temp_key = f"temp_{i}"
+                
+                # Track node frequency
+                self.node_candidates[node_label.lower()] += 1
+                
+                # Create node with metadata but without permanent ID
+                nodes[temp_key] = {
+                    'label': node_label,
+                    'confidence': confidence,
+                    'importance': importance,
+                    'source_qa': [qa_id]
+                }
             
-            logger.info(f"Extracted {len(extracted_nodes)} nodes")
-            return extracted_nodes
+            if nodes:
+                logger.info(f"Extracted {len(nodes)} nodes from QA pair")
+                for key, node in nodes.items():
+                    logger.info(f"- {node['label']} (confidence: {node['confidence']:.2f}, importance: {node['importance']:.2f})")
             
+            return nodes
+                
         except Exception as e:
-            logger.error(f"Error extracting nodes with LLM: {e}")
-            # Fallback to creating a stance node if all else fails
-            if ensure_stance_node and not self.stance_node_created:
-                stance_node = self._create_stance_node(question, answer, qa_id)
-                if stance_node:
-                    stance_node_id = list(stance_node.keys())[0]
-                    logger.info(f"Created fallback stance node: {stance_node[stance_node_id]['label']}")
-                    self.stance_node_created = True
-                    return stance_node
+            logger.error(f"Error processing node extraction: {str(e)}")
+            logger.error(f"Raw output: {extracted_output}")
             return {}
     
     def extract_edge(self, qa_pair):
         """
         Extract potential causal relationships (edges) from a QA pair using LLM.
+        Also extracts modifier/strength information in the same call.
         
         Args:
             qa_pair (dict): A question-answer pair
@@ -131,19 +192,22 @@ class QwenLLMExtractor:
         answer = qa_pair.get('answer', '')
         qa_id = qa_pair.get('id')
         
-        logger.info(f"Extracting edge from QA pair {qa_id}")
+        logger.info(f"Extracting edge and modifier from QA pair {qa_id}")
         
-        # Prepare a prompt for edge extraction
-        prompt = self._create_edge_extraction_prompt(question, answer)
+        # Add separators before LLM calls in the important extraction methods
+        llm_logger.log_separator("Edge Extraction Request")
+        
+        # Prepare a prompt for combined edge and modifier extraction
+        prompt = self._create_combined_edge_extraction_prompt(question, answer)
         
         try:
-            # Call the LLM to extract edges
-            extracted_edge_json = self._call_llm_for_structured_output(prompt)
+            # Call the LLM to extract edges with modifiers
+            extracted_edge_json = self._call_llm_for_structured_output(prompt, LLM_CALL_TYPES["EDGE_EXTRACTION"])
             
             if extracted_edge_json and 'edges' in extracted_edge_json and extracted_edge_json['edges']:
                 edge_data = extracted_edge_json['edges'][0]  # Take the first edge
                 
-                # Create edge with metadata
+                # Create edge with metadata including modifier information
                 edge = {
                     "from_label": edge_data.get('from_node', ''),
                     "to_label": edge_data.get('to_node', ''),
@@ -151,12 +215,12 @@ class QwenLLMExtractor:
                     "confidence": edge_data.get('confidence', 0.7),
                     "support_qas": [qa_id],
                     "function_type": edge_data.get('function_type', 'sigmoid'),
-                    "status": "proposed"
+                    "strength": edge_data.get('strength', 0.7)  # Added strength parameter
                 }
                 
                 # Only return if both from and to nodes are present
                 if edge["from_label"] and edge["to_label"]:
-                    logger.info(f"Found edge: {edge['from_label']} → {edge['to_label']} (direction: {edge['direction']})")
+                    logger.info(f"Found edge: {edge['from_label']} → {edge['to_label']} (direction: {edge['direction']}, strength: {edge['strength']})")
                     return edge
             
             logger.info("No edge found in QA pair")
@@ -170,6 +234,8 @@ class QwenLLMExtractor:
     def extract_function_params(self, qa_pair):
         """
         Extract parameters for the causal function from a QA pair using LLM.
+        This is kept for backward compatibility but can be bypassed since parameters
+        are now extracted in the edge extraction step.
         
         Args:
             qa_pair (dict): A question-answer pair
@@ -177,43 +243,8 @@ class QwenLLMExtractor:
         Returns:
             dict or None: Function parameters or None if not extractable
         """
-        question = qa_pair.get('question', '')
-        answer = qa_pair.get('answer', '')
-        
-        logger.info("Extracting function parameters")
-        
-        # Prepare a prompt for function parameter extraction
-        prompt = self._create_function_params_prompt(question, answer)
-        
-        try:
-            # Call the LLM to extract function parameters
-            function_params_json = self._call_llm_for_structured_output(prompt)
-            
-            if function_params_json and 'function_params' in function_params_json:
-                params = function_params_json['function_params']
-                
-                function_params = {
-                    "function_type": params.get('function_type', 'sigmoid'),
-                    "parameters": {
-                        "weights": params.get('weights', [0.5]),
-                        "bias": params.get('bias', 0.0)
-                    },
-                    "noise_std": params.get('noise_std', 0.1)
-                }
-                
-                if 'confidence' in params:
-                    function_params["confidence"] = params.get('confidence')
-                
-                logger.info(f"Extracted function parameters: type={function_params['function_type']}")
-                return function_params
-            
-            logger.info("No function parameters found")
-            return None
-        
-        except Exception as e:
-            logger.error(f"Error extracting function parameters with LLM: {e}")
-            # Fallback to rule-based extraction if LLM fails
-            return self._extract_function_params_rule_based(qa_pair)
+        logger.info("Function parameters already extracted in edge extraction step")
+        return {"confidence": 0.7}  # Return default values
     
     def extract_parsed_belief(self, qa_pair, from_node_id, to_node_id):
         """
@@ -232,12 +263,15 @@ class QwenLLMExtractor:
         
         logger.info("Extracting parsed belief")
         
+        # Add separators before LLM calls in the important extraction methods
+        llm_logger.log_separator("Belief Extraction Request")
+        
         # Prepare a prompt for belief extraction
         prompt = self._create_belief_extraction_prompt(question, answer, from_node_id, to_node_id)
         
         try:
             # Call the LLM to extract beliefs
-            belief_json = self._call_llm_for_structured_output(prompt)
+            belief_json = self._call_llm_for_structured_output(prompt, LLM_CALL_TYPES["BELIEF_EXTRACTION"])
             
             if belief_json and 'parsed_belief' in belief_json:
                 belief_data = belief_json['parsed_belief']
@@ -289,314 +323,55 @@ class QwenLLMExtractor:
                 "counterfactual": ""
             }
     
-    def _extract_nodes_with_llm(self, question, answer, qa_id):
+    def get_node_extraction_prompt(self, question, answer):
         """
-        Extract nodes from QA pair using LLM.
+        Create a prompt for extracting nodes from a question-answer pair.
         
         Args:
             question (str): The question text
             answer (str): The answer text
-            qa_id (str): The QA pair ID
             
         Returns:
-            dict: Dictionary of extracted nodes
-        """
-        # Prepare a prompt for node extraction
-        prompt = self._create_node_extraction_prompt(question, answer)
-        
-        # Call the LLM to extract nodes
-        extracted_nodes_json = self._call_llm_for_structured_output(prompt)
-        extracted_nodes = {}
-        
-        if extracted_nodes_json:
-            logger.info(f"LLM returned {len(extracted_nodes_json.get('nodes', []))} node candidates")
-            
-            # For each identified node
-            for node_data in extracted_nodes_json.get('nodes', []):
-                node_label = node_data.get('label', '')
-                
-                if not node_label:
-                    continue
-                
-                # Update frequency counter
-                self.node_candidates[node_label] += 1
-                
-                # Only add nodes that have appeared multiple times or are important
-                frequency = self.node_candidates[node_label]
-                importance = node_data.get('importance', 0)
-                
-                if frequency >= self.min_node_frequency or importance > 0.7:
-                    # Generate a node ID
-                    node_id = f"n_{self._normalize_text(node_label)}_{uuid.uuid4().hex[:6]}"
-                    
-                    # Get semantic role
-                    semantic_role = node_data.get('semantic_role', 'external_state')
-                    
-                    # Handle stance nodes
-                    is_stance = node_data.get('is_stance', False) or semantic_role == 'behavioral_intention'
-                    if is_stance:
-                        self.stance_node_created = True
-                    
-                    # Create node with metadata
-                    extracted_nodes[node_id] = {
-                        "id": node_id,
-                        "label": node_label,
-                        "type": "binary",  # Default to binary
-                        "values": [True, False],
-                        "semantic_role": semantic_role,
-                        "is_stance": is_stance,
-                        "appearance": {
-                            "qa_ids": [qa_id],
-                            "frequency": frequency
-                        },
-                        "incoming_edges": [],
-                        "outgoing_edges": [],
-                        "status": "anchor" if is_stance else "proposed"  # Stance nodes start as anchors
-                    }
-                    
-                    logger.info(f"Added node: {node_label} (role: {semantic_role}, stance: {is_stance})")
-        
-        return extracted_nodes
-    
-    def _create_stance_node(self, question, answer, qa_id):
-        """
-        Create a stance node based on the question context.
-        
-        Args:
-            question (str): The question text
-            answer (str): The answer text
-            qa_id (str): The QA pair ID
-            
-        Returns:
-            dict: A dictionary containing a single stance node
-        """
-        logger.info("Creating stance node from question context")
-        
-        # Try to extract topic from question
-        topic = self._extract_question_topic(question)
-        
-        # Create stance node label
-        stance_label = f"Stance on {topic}"
-        node_id = f"n_stance_{self._normalize_text(topic)}_{uuid.uuid4().hex[:6]}"
-        
-        # Create the node
-        stance_node = {
-            node_id: {
-                "id": node_id,
-                "label": stance_label,
-                "type": "binary",
-                "values": [True, False],
-                "semantic_role": "behavioral_intention",
-                "is_stance": True,
-                "appearance": {
-                    "qa_ids": [qa_id],
-                    "frequency": 2  # Give it enough frequency to be considered important
-                },
-                "incoming_edges": [],
-                "outgoing_edges": [],
-                "status": "anchor"  # Stance nodes are always anchors
-            }
-        }
-        
-        return stance_node
-    
-    def _extract_question_topic(self, question):
-        """
-        Extract the main topic from a question.
-        
-        Args:
-            question (str): The question text
-            
-        Returns:
-            str: The main topic
-        """
-        # Try to use LLM to extract topic
-        prompt = f"""
-        Extract the main topic or subject from this question:
-        
-        Question: {question}
-        
-        Return only the topic name as a short phrase (2-5 words).
-        """
-        
-        try:
-            response = dashscope.Generation.call(
-                api_key=self.api_key,
-                model=self.model,
-                messages=[
-                    {'role': 'system', 'content': 'Extract the main topic from this question. Be brief and specific.'},
-                    {'role': 'user', 'content': prompt}
-                ],
-                result_format='message',
-                temperature=0.1
-            )
-            
-            if response.status_code == 200:
-                topic = response.output.choices[0].message.content.strip()
-                if topic:
-                    logger.info(f"Extracted topic: {topic}")
-                    return topic
-        except Exception as e:
-            logger.error(f"Error extracting topic with LLM: {e}")
-        
-        # Fallback: Use a simple rule-based approach
-        words = question.strip("?!.,;").split()
-        if len(words) > 3:
-            topic = " ".join(words[3:min(8, len(words))])
-        else:
-            topic = "this topic"
-        
-        logger.info(f"Generated fallback topic: {topic}")
-        return topic
-    
-    def _call_llm_for_structured_output(self, prompt):
-        """
-        Call the LLM API with the given prompt and return structured output.
-        
-        Args:
-            prompt (str): The prompt to send to the LLM
-            
-        Returns:
-            dict: Parsed JSON response from the LLM, or empty dict if parsing fails
-        """
-        logger.info("Calling LLM for structured output")
-        
-        # Print shortened prompt for debugging
-        shortened_prompt = prompt[:100] + "..." if len(prompt) > 100 else prompt
-        logger.debug(f"Prompt (shortened): {shortened_prompt}")
-        
-        # Print full prompt for detailed debugging
-        DEBUG_LLM_IO = os.getenv('DEBUG_LLM_IO', 'false').lower() == 'true'
-        if DEBUG_LLM_IO:
-            logger.info(f"FULL PROMPT TO LLM: {prompt}")
-        
-        # Setup API configuration with authentication
-        dashscope.api_key = self.api_key
-        
-        # Retry mechanism for API calls
-        max_retries = 3
-        retry_delay = 2  # seconds
-        
-        for attempt in range(max_retries):
-            try:
-                # Call the LLM using DashScope API
-                logger.info(f"Calling {self.model} (attempt {attempt+1}/{max_retries})")
-                
-                response = dashscope.Generation.call(
-                    model=self.model,
-                    prompt=prompt,
-                    temperature=self.temperature,  # Use instance temperature parameter for consistent outputs
-                    max_tokens=2000,
-                    result_format='json'
-                )
-                
-                # Log the API response for debugging
-                if DEBUG_LLM_IO:
-                    logger.info(f"LLM API RESPONSE: {json.dumps(response, indent=2)}")
-                
-                # Check if the call was successful
-                if response.status_code == 200:
-                    # Extract and parse the text response
-                    output = response.output.text
-                    
-                    # Log the raw output for debugging
-                    if DEBUG_LLM_IO:
-                        logger.info(f"LLM RAW OUTPUT: {output}")
-                    
-                    # Clean and parse the JSON string
-                    try:
-                        json_data = json.loads(self._clean_json_string(output))
-                        logger.info("Successfully parsed LLM response")
-                        return json_data
-                    except json.JSONDecodeError as e:
-                        logger.error(f"Failed to parse LLM response as JSON: {e}")
-                        logger.error(f"Raw response: {output}")
-                        
-                        # Try to extract JSON using regex as fallback
-                        try:
-                            json_match = re.search(r'(\{.*\})', output, re.DOTALL)
-                            if json_match:
-                                json_str = json_match.group(1)
-                                json_data = json.loads(json_str)
-                                logger.info("Successfully parsed LLM response with regex fallback")
-                                return json_data
-                        except Exception:
-                            pass
-                        
-                        # Return empty dict on failure
-                        if attempt == max_retries - 1:
-                            return {}
-                else:
-                    # Log API errors
-                    error_message = f"LLM API error: {response.status_code}, {response.message}"
-                    logger.error(error_message)
-                    
-                    # Return empty dict on final attempt
-                    if attempt == max_retries - 1:
-                        return {}
-            
-            except Exception as e:
-                logger.error(f"Exception during LLM API call: {e}")
-                
-                # Return empty dict on final attempt
-                if attempt == max_retries - 1:
-                    return {}
-            
-            # Wait before retrying
-            time.sleep(retry_delay * (attempt + 1))  # Exponential backoff
-        
-        # If all retries failed
-        return {}
-    
-    def _clean_json_string(self, json_str):
-        """
-        Clean a string to ensure it contains only valid JSON.
-        """
-        # Find the first { and the last }
-        start = json_str.find('{')
-        end = json_str.rfind('}') + 1
-        
-        if start >= 0 and end > start:
-            return json_str[start:end]
-        
-        return json_str
-    
-    def _create_node_extraction_prompt(self, question, answer):
-        """
-        Create a prompt for extracting nodes from a QA pair.
+            str: A prompt for node extraction
         """
         return f"""
-Extract key concepts or entities that could serve as nodes in a Structural Causal Model (SCM) from the following question-answer pair:
+You are analyzing a conversation about beliefs. Extract important concepts/nodes from this Q&A pair.
 
-Question: {question}
+INSTRUCTION:
+Identify key concepts or beliefs from the user's answer. These could be:
+1. Factors the user believes are important
+2. Concepts that the user has strong opinions about
+3. Entities or ideas that influence the user's thinking
 
-Answer: {answer}
+For each concept, rate:
+- Confidence (0.0-1.0): How confident the user seems about this concept
+- Importance (0.0-1.0): How important this concept appears to be in their belief system
 
-Identify potential nodes with the following criteria:
-1. Focus on meaningful concepts that could have causal relationships
-2. Classify each node into one of these semantic roles:
-   - external_state: World states observed or believed (e.g., noise level, housing prices)
-   - internal_affect: Emotions, preferences, perceived costs (e.g., stress, satisfaction)
-   - behavioral_intention: Action tendencies or decision intents (e.g., support for policy)
-3. Assign an importance score (0.0-1.0) to each node
-4. Mark any nodes that represent the person's stance or overall opinion as is_stance=true
+FORMAT:
+Return ONLY a raw JSON array of objects with 'label', 'confidence', and 'importance' fields.
+Do NOT use markdown formatting or code blocks - return ONLY the JSON array directly.
 
-Format your response as a JSON object with the following structure:
-{{
-  "nodes": [
-    {{
-      "label": "node_label",
-      "semantic_role": "external_state|internal_affect|behavioral_intention",
-      "importance": 0.8,
-      "is_stance": true|false
-    }}
-  ]
-}}
+Example of correct response format:
+[
+  {{
+    "label": "Concept name",
+    "confidence": 0.8,
+    "importance": 0.9
+  }}
+]
+
+QUESTION:
+{question}
+
+ANSWER:
+{answer}
+
+EXTRACTED CONCEPTS (JSON ONLY):
 """
     
-    def _create_edge_extraction_prompt(self, question, answer):
+    def _create_combined_edge_extraction_prompt(self, question, answer):
         """
-        Create a prompt for extracting edges from a QA pair.
+        Create a prompt for extracting both edges and their modifiers from a QA pair.
         """
         return f"""
 Extract causal relationships between concepts from the following question-answer pair:
@@ -608,50 +383,30 @@ Answer: {answer}
 Identify potential causal relationships with the following criteria:
 1. Identify cause-effect relationships between concepts
 2. Determine the direction (positive/negative) of the relationship
-3. Assign a confidence score (0.0-1.0) to each relationship
-4. Suggest a function type (sigmoid, threshold, linear) that best describes the relationship
+3. Assess the strength of the relationship (0.0-1.0)
+4. Assign a confidence score (0.0-1.0) to how certain you are about this relationship
 
-Format your response as a JSON object with the following structure:
+Format your response as a JSON object with the following structure.
+Return ONLY raw JSON - do NOT use markdown formatting or code blocks:
+
 {{
   "edges": [
     {{
       "from_node": "cause_concept",
       "to_node": "effect_concept",
       "direction": "positive|negative",
-      "confidence": 0.7,
-      "function_type": "sigmoid|threshold|linear"
+      "strength": 0.8,
+      "confidence": 0.7
     }}
   ]
 }}
-"""
-    
-    def _create_function_params_prompt(self, question, answer):
-        """
-        Create a prompt for extracting function parameters from a QA pair.
-        """
-        return f"""
-Extract parameters for a causal function from the following question-answer pair:
 
-Question: {question}
+A positive direction means the cause increases the effect.
+A negative direction means the cause decreases the effect.
+Strength indicates how powerful the influence is (0.0=weak, 1.0=strong).
+Confidence indicates how certain you are about the existence of this relationship.
 
-Answer: {answer}
-
-Analyze the text to determine:
-1. The most appropriate function type (sigmoid, threshold, linear)
-2. The strength of the relationship (numeric weight value)
-3. Any bias or threshold in the relationship
-4. The confidence level in this function
-
-Format your response as a JSON object with the following structure:
-{{
-  "function_params": {{
-    "function_type": "sigmoid|threshold|linear",
-    "weights": [0.7],
-    "bias": 0.2,
-    "noise_std": 0.1,
-    "confidence": 0.8
-  }}
-}}
+RESPONSE (JSON ONLY):
 """
     
     def _create_belief_extraction_prompt(self, question, answer, from_node_id, to_node_id):
@@ -671,7 +426,9 @@ For a relationship between two nodes, extract:
 3. The confidence in this belief (0.0-1.0)
 4. A counterfactual statement about this relationship
 
-Format your response as a JSON object with the following structure:
+Format your response as a JSON object with the following structure.
+Return ONLY raw JSON - do NOT use markdown formatting or code blocks:
+
 {{
   "parsed_belief": {{
     "direction": "positive|negative",
@@ -680,6 +437,8 @@ Format your response as a JSON object with the following structure:
     "counterfactual": "If [cause] were different, [effect] would change."
   }}
 }}
+
+RESPONSE (JSON ONLY):
 """
     
     # Fallback rule-based methods
@@ -722,9 +481,7 @@ Format your response as a JSON object with the following structure:
                         "to_label": to_node,
                         "direction": direction,
                         "confidence": 0.7,
-                        "support_qas": [qa_id],
-                        "function_type": "sigmoid",
-                        "status": "proposed"
+                        "support_qas": [qa_id]
                     }
                     
                     logger.info(f"Rule-based extraction found edge: {from_node} → {to_node}")
@@ -732,110 +489,6 @@ Format your response as a JSON object with the following structure:
         
         logger.info("No edge found using rule-based extraction")
         return None
-    
-    def _extract_function_params_rule_based(self, qa_pair):
-        """
-        Extract function parameters using rule-based approach (fallback method).
-        
-        Args:
-            qa_pair (dict): A question-answer pair
-            
-        Returns:
-            dict: Function parameters
-        """
-        answer = qa_pair.get('answer', '')
-        
-        logger.info("Using rule-based function parameter extraction fallback")
-        
-        strength_indicators = {
-            "very strong": 0.9,
-            "strong": 0.8,
-            "moderate": 0.5,
-            "weak": 0.3,
-            "very weak": 0.2
-        }
-        
-        function_params = {
-            "function_type": "sigmoid",
-            "parameters": {
-                "weights": [0.5],
-                "bias": 0.0
-            },
-            "noise_std": 0.1
-        }
-        
-        if "threshold" in answer.lower() or "only when" in answer.lower():
-            function_params["function_type"] = "threshold"
-        elif "linear" in answer.lower() or "proportional" in answer.lower():
-            function_params["function_type"] = "linear"
-        
-        for indicator, value in strength_indicators.items():
-            if indicator in answer.lower():
-                function_params["parameters"]["weights"] = [value]
-                break
-        
-        confidence_match = re.search(r'(?:confidence|certain|sure).*?(\d+)%', answer.lower())
-        if confidence_match:
-            confidence = float(confidence_match.group(1)) / 100.0
-            function_params["confidence"] = confidence
-        
-        logger.info(f"Rule-based extraction determined function type: {function_params['function_type']}")
-        return function_params
-    
-    def _extract_parsed_belief_rule_based(self, qa_pair, from_node_id, to_node_id):
-        """
-        Extract parsed belief using rule-based approach (fallback method).
-        
-        Args:
-            qa_pair (dict): A question-answer pair
-            from_node_id (str): Source node ID
-            to_node_id (str): Target node ID
-            
-        Returns:
-            dict: Parsed belief
-        """
-        answer = qa_pair.get('answer', '')
-        
-        logger.info("Using rule-based belief extraction fallback")
-        
-        belief_strength = 0.7
-        confidence = 0.6
-        
-        if "very strong" in answer.lower():
-            belief_strength = 0.9
-            confidence = 0.8
-        elif "strong" in answer.lower():
-            belief_strength = 0.8
-            confidence = 0.7
-        elif "moderate" in answer.lower():
-            belief_strength = 0.5
-            confidence = 0.6
-        elif "weak" in answer.lower():
-            belief_strength = 0.3
-            confidence = 0.5
-        elif "very weak" in answer.lower():
-            belief_strength = 0.2
-            confidence = 0.4
-        
-        direction = "positive"
-        if "not" in answer.lower() or "n't" in answer.lower() or "negatively" in answer.lower():
-            direction = "negative"
-        
-        parsed_belief = {
-            "belief_structure": {
-                "from": from_node_id,
-                "to": to_node_id,
-                "direction": direction
-            },
-            "belief_strength": {
-                "estimated_probability": belief_strength,
-                "confidence_rating": confidence
-            },
-            "counterfactual": f"If [from_node] were different, [to_node] would change."
-        }
-        
-        logger.info(f"Rule-based extraction determined belief direction: {direction}, strength: {belief_strength}")
-        return parsed_belief
     
     def _normalize_text(self, text):
         """
@@ -846,3 +499,139 @@ Format your response as a JSON object with the following structure:
         if len(normalized) > 20:
             normalized = normalized[:20]
         return normalized 
+    
+    def _call_llm_for_structured_output(self, prompt, call_type):
+        """
+        Call the LLM API with the given prompt and return structured output.
+        
+        Args:
+            prompt (str): The prompt to send to the LLM
+            call_type (str): The type of LLM call for logging
+            
+        Returns:
+            dict: Parsed JSON response from the LLM, or empty dict if parsing fails
+        """
+        logger.info(f"Calling LLM for structured output - type: {call_type}")
+        
+        # Log the prompt if enabled for this call type
+        llm_logger.log_prompt(call_type, prompt)
+        
+        # Setup API configuration with authentication
+        dashscope.api_key = self.api_key
+        
+        # Retry mechanism for API calls
+        max_retries = 3
+        retry_delay = 2  # seconds
+        
+        for attempt in range(max_retries):
+            try:
+                # Call the LLM using DashScope API
+                logger.info(f"Calling {self.model} (attempt {attempt+1}/{max_retries})")
+                
+                response = dashscope.Generation.call(
+                    model=self.model,
+                    prompt=prompt,
+                    temperature=self.temperature,  # Use instance temperature parameter for consistent outputs
+                    max_tokens=2000,
+                    result_format='json'
+                )
+                
+                # Log the API response if enabled for this call type
+                llm_logger.log_response(call_type, response)
+                
+                # Check if the call was successful
+                if response.status_code == 200:
+                    # Extract and parse the text response
+                    output = response.output.text
+                    
+                    # Clean and parse the JSON string
+                    try:
+                        json_data = json.loads(self._clean_json_string(output))
+                        logger.info("Successfully parsed LLM response")
+                        
+                        # Log the parsed JSON if enabled for this call type
+                        llm_logger.log_response(call_type, json_data)
+                        
+                        return json_data
+                    except json.JSONDecodeError as e:
+                        logger.error(f"Failed to parse LLM response as JSON: {e}")
+                        logger.error(f"Raw response: {output}")
+                        
+                        # Try to extract JSON using regex as fallback
+                        try:
+                            json_match = re.search(r'(\{.*\})', output, re.DOTALL)
+                            if json_match:
+                                json_str = json_match.group(1)
+                                json_data = json.loads(json_str)
+                                logger.info("Successfully parsed LLM response with regex fallback")
+                                
+                                # Log the parsed JSON if enabled for this call type
+                                llm_logger.log_response(call_type, json_data)
+                                
+                                return json_data
+                        except Exception:
+                            pass
+                        
+                        # Return empty dict on failure
+                        if attempt == max_retries - 1:
+                            return {}
+                else:
+                    # Log API errors
+                    error_message = f"LLM API error: {response.status_code}, {response.message}"
+                    logger.error(error_message)
+                    
+                    # Return empty dict on final attempt
+                    if attempt == max_retries - 1:
+                        return {}
+            
+            except Exception as e:
+                logger.error(f"Exception during LLM API call: {e}")
+                
+                # Return empty dict on final attempt
+                if attempt == max_retries - 1:
+                    return {}
+            
+            # Wait before retrying
+            time.sleep(retry_delay * (attempt + 1))  # Exponential backoff
+        
+        # If all retries failed
+        return {}
+    
+    def _clean_json_string(self, json_str):
+        """
+        Clean a string to ensure it contains only valid JSON.
+        Handles both object ({...}) and array ([...]) formats,
+        and removes Markdown code block syntax if present.
+        """
+        # If input is already a dict or list, return it as is
+        if isinstance(json_str, (dict, list)):
+            return json_str
+            
+        # Ensure we have a string to work with
+        if not isinstance(json_str, str):
+            return json_str
+            
+        # Remove markdown code block syntax if present
+        if "```json" in json_str or "```" in json_str:
+            # Find content between code block markers
+            import re
+            code_block_match = re.search(r'```(?:json)?\n([\s\S]*?)\n```', json_str)
+            if code_block_match:
+                json_str = code_block_match.group(1)
+        
+        # Try to find JSON array
+        if '[' in json_str and ']' in json_str:
+            array_start = json_str.find('[')
+            array_end = json_str.rfind(']') + 1
+            if array_start >= 0 and array_end > array_start:
+                return json_str[array_start:array_end]
+        
+        # Try to find JSON object
+        if '{' in json_str and '}' in json_str:
+            obj_start = json_str.find('{')
+            obj_end = json_str.rfind('}') + 1
+            if obj_start >= 0 and obj_end > obj_start:
+                return json_str[obj_start:obj_end]
+        
+        # If we couldn't extract a clean JSON structure, return the original
+        return json_str.strip() 

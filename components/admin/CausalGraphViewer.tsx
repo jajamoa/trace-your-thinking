@@ -35,6 +35,7 @@ interface INode {
   source_qa: string[];
   incoming_edges: string[];
   outgoing_edges: string[];
+  status?: 'candidate' | 'anchor';
 }
 
 interface IEvidence {
@@ -87,6 +88,14 @@ const nodeTypes = {
       <div className="font-bold text-[#333333]">{data.label}</div>
       <Handle type="target" position={Position.Top} className="w-2 h-2 !bg-blue-500" />
       <Handle type="source" position={Position.Bottom} className="w-2 h-2 !bg-blue-500" />
+    </div>
+  ),
+  candidateNode: ({ data }: { data: any }) => (
+    <div className="px-4 py-2 shadow-md rounded-md bg-gray-100 border border-gray-200">
+      <div className="font-bold text-xs text-gray-500">Candidate Node</div>
+      <div className="font-bold text-gray-600">{data.label}</div>
+      <Handle type="target" position={Position.Top} className="w-2 h-2 !bg-gray-400" />
+      <Handle type="source" position={Position.Bottom} className="w-2 h-2 !bg-gray-400" />
     </div>
   ),
 };
@@ -143,11 +152,15 @@ export default function CausalGraphViewer({ sessionId, qaPairId, className }: Ca
       if (sortedGraphs.length > 0) {
         transformGraphToReactFlow(sortedGraphs[0]);
       } else {
-        setError('No causal graphs found for this session');
+        // Instead of setting an error, set a "no data" state
+        setNodes([]);
+        setEdges([]);
+        setQaInfo(null);
       }
     } catch (err: any) {
-      setError(err.message || 'Failed to fetch causal graphs');
       console.error('Error fetching causal graphs:', err);
+      // Set a more user-friendly error message
+      setError('No causal graph data is available for this session. This may be a new or reset session.');
     } finally {
       setLoading(false);
     }
@@ -231,8 +244,13 @@ export default function CausalGraphViewer({ sessionId, qaPairId, className }: Ca
         const node = graphData.nodes[nodeId];
         if (!node) return; // Skip if node doesn't exist
         
-        // Determine node type based on is_stance flag
-        const nodeType = node.is_stance ? 'stanceNode' : 'beliefNode';
+        // Determine node type based on status and is_stance flag
+        let nodeType = 'beliefNode';
+        if (node.is_stance) {
+          nodeType = 'stanceNode';
+        } else if (node.status === 'candidate') {
+          nodeType = 'candidateNode';
+        }
 
         // Calculate position based on the node's layer and relative position within that layer
         let xPos = 0;
@@ -266,12 +284,13 @@ export default function CausalGraphViewer({ sessionId, qaPairId, className }: Ca
         }
         
         transformedNodes.push({
-          id: node.id,
+          id: nodeId, // Use nodeId as the id to ensure it matches edge connections
           type: nodeType,
           data: {
             label: node.label,
             confidence: node.confidence,
-            is_stance: node.is_stance
+            is_stance: node.is_stance,
+            status: node.status || 'anchor'  // Default to anchor if not specified
           },
           position: { 
             x: xPos + Math.random() * 20 - 10,
@@ -358,8 +377,8 @@ export default function CausalGraphViewer({ sessionId, qaPairId, className }: Ca
 
   if (error) {
     return (
-      <Alert variant="destructive" className={`${className}`}>
-        <AlertDescription className="text-[#933a3a]">{error}</AlertDescription>
+      <Alert className={`${className}`}>
+        <AlertDescription className="text-gray-600">{error}</AlertDescription>
       </Alert>
     );
   }
@@ -367,7 +386,7 @@ export default function CausalGraphViewer({ sessionId, qaPairId, className }: Ca
   if (causalGraphs.length === 0) {
     return (
       <div className={`text-center p-8 ${className}`}>
-        <p className="text-[#8a7f6c]">No causal graphs available for this session.</p>
+        <p className="text-[#8a7f6c]">No causal graphs available for this session yet. The graph will appear after the user answers some questions.</p>
       </div>
     );
   }
@@ -471,7 +490,11 @@ export default function CausalGraphViewer({ sessionId, qaPairId, className }: Ca
               <h4 className="text-xs font-semibold mb-2 text-[#5c5c5c]">Node Types</h4>
               <div className="flex items-center mb-2">
                 <div className="w-3 h-3 bg-blue-500 mr-2 rounded-sm"></div>
-                <span className="text-xs text-[#5c5c5c]">Belief Node</span>
+                <span className="text-xs text-[#5c5c5c]">Belief Node (Anchor)</span>
+              </div>
+              <div className="flex items-center mb-2">
+                <div className="w-3 h-3 bg-gray-400 mr-2 rounded-sm"></div>
+                <span className="text-xs text-[#5c5c5c]">Candidate Node</span>
               </div>
               <div className="flex items-center">
                 <div className="w-3 h-3 bg-amber-500 mr-2 rounded-sm"></div>

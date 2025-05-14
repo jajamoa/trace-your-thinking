@@ -33,16 +33,19 @@ class QuestionService:
         """
         logger.info(f"Generating follow-up questions for CBN with {len(cbn.nodes)} nodes and {len(cbn.edges)} edges")
         
-        # Determine phase based on CBN state
-        phase_num = 1 if len(cbn.nodes) < 5 else 2  # Use phase 1 for node discovery, phase 2 for edge construction
+        # Determine phase based on CBN state - simplified to two phases:
+        # Phase 1: Node discovery (fewer than 5 nodes)
+        # Phase 2: Relationship construction (5 or more nodes)
+        phase_num = 1 if len(cbn.nodes) < 5 else 2
         
         # Generate questions using external generator if available
         if self.generator:
             try:
                 # Call external generator
+                phase_name = "node_discovery" if phase_num == 1 else "relationship_construction"
                 follow_up_questions = self.generator.generate_follow_up_questions(
                     cbn.to_dict(),
-                    "node_discovery" if phase_num == 1 else "edge_construction",
+                    phase_name,
                     list(cbn.nodes.keys()),  # Use node IDs as anchor nodes
                     current_question_texts
                 )
@@ -87,7 +90,7 @@ class QuestionService:
         """
         # Determine phase to use
         phase_num = 1 if focus_on_nodes or len(cbn.nodes) < 5 else 2
-        phase_name = "node_discovery" if phase_num == 1 else "edge_construction"
+        phase_name = "node_discovery" if phase_num == 1 else "relationship_construction"
         
         logger.info(f"Generating additional questions for phase: {phase_name} (force: {force_generate})")
         
@@ -157,7 +160,9 @@ class QuestionService:
                 generic_questions = [
                     "What factors do you think influence this issue the most?",
                     "What are the key considerations in your decision-making about this topic?",
-                    "Could you explain what aspects of this situation are most important to you?"
+                    "Could you explain what aspects of this situation are most important to you?",
+                    "What core beliefs or values shape your perspective on this issue?",
+                    "When you think about this topic, what main points come to mind?"
                 ]
                 
                 for q in generic_questions:
@@ -184,8 +189,8 @@ class QuestionService:
                             if len(questions) >= 2:
                                 break
                                 
-        elif phase_num == 2:  # Edge construction
-            # Generate questions about relationships between nodes
+        elif phase_num == 2:  # Relationship construction
+            # Generate questions about relationships between nodes with strength and direction
             node_list = list(cbn.nodes.items())
             
             if len(node_list) >= 2:
@@ -198,18 +203,61 @@ class QuestionService:
                         node2_label = node2.get('label', '')
                         
                         if len(node1_label) > 2 and len(node2_label) > 2:
-                            q = f"How do you think {node1_label} and {node2_label} relate to each other?"
-                            if q not in current_question_texts:
-                                questions.append({
-                                    "question": q,
-                                    "shortText": f"About {node1_label} & {node2_label}",
-                                    "node_id": node1_id,
-                                    "node_label": node1_label
-                                })
-                                if len(questions) >= 2:
+                            # Improved questions that ask about relationship existence, direction AND strength
+                            relationship_questions = [
+                                f"How do {node1_label} and {node2_label} relate to each other? Is one affecting the other, and if so, how strongly?",
+                                f"Do you see a causal relationship between {node1_label} and {node2_label}? Which influences which, and how significant is this effect?",
+                                f"To what extent does {node1_label} impact {node2_label}, or is it the other way around? How would you rate the strength of this connection?",
+                                f"Can you explain whether {node1_label} influences {node2_label} or vice versa, and how substantial this influence is?"
+                            ]
+                            
+                            for q in relationship_questions:
+                                if q not in current_question_texts:
+                                    questions.append({
+                                        "question": q,
+                                        "shortText": f"{node1_label} ↔ {node2_label}",
+                                        "node_id": node1_id,
+                                        "related_node_id": node2_id,
+                                        "relationship_focus": True
+                                    })
                                     break
+                            
+                            if len(questions) >= 2:
+                                break
                     if len(questions) >= 2:
                         break
+                        
+                # If we don't have enough questions yet, add questions for existing edges
+                if len(questions) < 2 and len(cbn.edges) > 0:
+                    for edge_id, edge in list(cbn.edges.items())[:3]:
+                        from_node_id = edge.get('from')
+                        to_node_id = edge.get('to')
+                        
+                        if from_node_id in cbn.nodes and to_node_id in cbn.nodes:
+                            from_label = cbn.nodes[from_node_id].get('label', '')
+                            to_label = cbn.nodes[to_node_id].get('label', '')
+                            
+                            # Questions that specifically address strength and characteristics
+                            refinement_questions = [
+                                f"You mentioned that {from_label} affects {to_label}. How strong would you say this influence is and why?",
+                                f"On a scale from 1 to 5, how much does {from_label} impact {to_label}, and is the effect immediate or gradual?",
+                                f"Would you describe the influence of {from_label} on {to_label} as weak, moderate, or strong? Does this impact happen at a specific threshold?"
+                            ]
+                            
+                            for q in refinement_questions:
+                                if q not in current_question_texts:
+                                    questions.append({
+                                        "question": q,
+                                        "shortText": f"{from_label} → {to_label} strength",
+                                        "edge_id": edge_id,
+                                        "from_node_id": from_node_id,
+                                        "to_node_id": to_node_id,
+                                        "strength_focus": True
+                                    })
+                                    break
+                            
+                            if len(questions) >= 2:
+                                break
         
         # Ensure we have at least one question
         if not questions:
