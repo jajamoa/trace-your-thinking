@@ -692,3 +692,165 @@ RESPONSE (JSON ONLY):
         except Exception as e:
             logger.error(f"Error finding similar nodes in graph: {e}")
             return [] 
+
+class LLMExtractor:
+    """
+    Simple LLM-based extractor for comparing and filtering questions.
+    This is a minimal implementation for selecting optimal follow-up questions
+    that don't duplicate existing questions.
+    """
+
+    def __init__(self, api_key=None, model="qwen-plus", temperature=0.1):
+        """
+        Initialize with similar parameters as QwenLLMExtractor.
+        For simplicity, this implementation reuses the _call_llm_for_structured_output
+        method from QwenLLMExtractor.
+        """
+        # Try to get existing extractor instance or create one if needed
+        try:
+            from llm_extractor import QwenLLMExtractor
+            self.extractor = QwenLLMExtractor(api_key, model, temperature)
+        except Exception as e:
+            logger.error(f"Error initializing QwenLLMExtractor: {e}")
+            self.extractor = None
+
+    def extract(self, context, schema, prompt_template):
+        """
+        Extract structured information using LLM to compare questions.
+        
+        Args:
+            context (dict): Context data including existing_questions and candidate_questions
+            schema (dict): Schema describing the expected output format
+            prompt_template (str): Template for the prompt
+            
+        Returns:
+            dict: Structured result with selected question indices
+        """
+        # Format the prompt with context data
+        existing_questions = context.get('existing_questions', [])
+        candidate_questions = context.get('candidate_questions', [])
+        
+        # Format the questions for the prompt using ID and shortText pairs
+        existing_questions_str = "\n".join([f"{i+1}. ID: {q.get('id', f'existing_{i}')} | Purpose: {q.get('shortText', 'Unknown')}" 
+                                         for i, q in enumerate(existing_questions)])
+        
+        candidate_questions_str = "\n".join([f"{i+1}. ID: {q.get('id', f'candidate_{i}')} | Purpose: {q.get('shortText', 'Unknown')}" 
+                                          for i, q in enumerate(candidate_questions)])
+        
+        # Prepare the prompt
+        prompt = f"""
+I need to select follow-up questions that serve different purposes from questions already asked.
+
+EXISTING QUESTIONS (ID | Purpose pairs):
+{existing_questions_str}
+
+CANDIDATE FOLLOW-UP QUESTIONS (sorted by priority, higher priority first):
+{candidate_questions_str}
+
+Please analyze these questions and select up to 2 questions from the candidates that:
+1. Have a different PURPOSE than any of the existing questions
+2. Have the highest priority possible (earlier in the list)
+
+Pay special attention to relationship questions. For example:
+- "Relationship: Money → Happiness" and "Relationship: Money → Joy" are similar (same concepts/relationship)
+- "Relationship: Money → Happiness" and "Relationship: Time → Happiness" are different (different source node)
+- "Relationship: Money → Happiness" and "Relationship: Happiness → Money" are different (reverse direction)
+
+Return your selection as a JSON object with an array of indices (0-based) for the selected questions.
+For example: {{"selected_indices": [0, 3]}} would select the 1st and 4th candidate questions.
+
+RESPONSE (JSON ONLY):
+"""
+        
+        try:
+            # Call LLM to get selection
+            if self.extractor:
+                result = self.extractor._call_llm_for_structured_output(prompt, "QUESTION_SELECTION")
+                
+                # Parse result and return selected indices
+                if isinstance(result, dict) and 'selected_indices' in result:
+                    return result
+                    
+                # Try to extract indices if result is not in expected format
+                if isinstance(result, list) and all(isinstance(x, int) for x in result):
+                    return {"selected_indices": result}
+                
+                # Last resort - try to interpret as a string
+                if isinstance(result, str):
+                    # Try to find numbers in the text
+                    indices = [int(n) for n in re.findall(r'\d+', result)]
+                    if indices:
+                        return {"selected_indices": indices}
+            
+            # Fallback for when LLM call fails or returns unusable data
+            return self._fallback_selection(existing_questions, candidate_questions)
+            
+        except Exception as e:
+            logger.error(f"Error in LLM extraction: {e}")
+            return self._fallback_selection(existing_questions, candidate_questions)
+            
+    def _fallback_selection(self, existing_questions, candidate_questions):
+        """
+        Fallback method for selecting questions when LLM call fails.
+        Uses simple shortText comparison for similarity.
+        
+        Args:
+            existing_questions (list): List of existing question info objects
+            candidate_questions (list): List of candidate question info objects
+            
+        Returns:
+            dict: Result with selected indices
+        """
+        selected_indices = []
+        
+        # Check each candidate against existing questions
+        for i, candidate in enumerate(candidate_questions):
+            if len(selected_indices) >= 2:
+                break
+                
+            candidate_short = candidate.get('shortText', '').lower()
+            if not candidate_short:
+                continue
+                
+            # Convert to sets of words for comparison
+            candidate_words = set(candidate_short.split())
+            
+            is_similar = False
+            for existing in existing_questions:
+                existing_short = existing.get('shortText', '').lower()
+                if not existing_short:
+                    continue
+                    
+                existing_words = set(existing_short.split())
+                
+                # Calculate word overlap
+                if not candidate_words or not existing_words:
+                    continue
+                    
+                intersection = candidate_words.intersection(existing_words)
+                overlap = len(intersection) / min(len(candidate_words), len(existing_words))
+                
+                # If overlap is too high, consider similar
+                if overlap > 0.6:
+                    is_similar = True
+                    break
+                
+                # Special check for relationship questions
+                if "relationship:" in candidate_short and "relationship:" in existing_short:
+                    # Extract relationship info
+                    try:
+                        candidate_rel = candidate_short.split("relationship:", 1)[1].strip()
+                        existing_rel = existing_short.split("relationship:", 1)[1].strip()
+                        
+                        # If same relationship, consider similar
+                        if candidate_rel == existing_rel:
+                            is_similar = True
+                            break
+                    except:
+                        pass
+            
+            # If not similar to any existing question, select it
+            if not is_similar:
+                selected_indices.append(i)
+        
+        return {"selected_indices": selected_indices} 

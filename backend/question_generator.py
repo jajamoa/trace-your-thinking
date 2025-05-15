@@ -70,7 +70,7 @@ class QuestionGenerator:
             "common_cause": "Both {node1} and {node2} seem important in your thinking. Do you think they might have a common cause?"
         }
     
-    def generate_follow_up_questions(self, agent_scm, current_step, anchor_queue, existing_question_texts=None):
+    def generate_follow_up_questions(self, agent_scm, current_step, anchor_queue, existing_question_texts=None, current_qa_count=0, max_qa_count=None):
         """
         Generate follow-up questions based on the current SCM state and step.
         
@@ -79,6 +79,8 @@ class QuestionGenerator:
             current_step (int): The current interview step (1 or 2)
             anchor_queue (list): List of anchor node IDs
             existing_question_texts (list, optional): List of existing question texts to avoid duplicates
+            current_qa_count (int, optional): Current number of QA pairs
+            max_qa_count (int, optional): Maximum number of QA pairs allowed
             
         Returns:
             list: List of follow-up question objects
@@ -88,31 +90,76 @@ class QuestionGenerator:
         
         llm_logger.log_separator("QUESTION GENERATION START")
         logger.info(f"Generating follow-up questions for step {current_step}")
+        
+        # Check if we've reached the maximum QA count
+        if max_qa_count and current_qa_count >= max_qa_count:
+            logger.info(f"Maximum QA count reached ({current_qa_count}/{max_qa_count}). No follow-up questions will be generated.")
+            llm_logger.log_separator("QUESTION GENERATION CANCELLED - MAX QA COUNT REACHED")
+            return []
+        
+        # Generate prioritized candidate questions
+        candidate_questions = self.generate_prioritized_candidates(agent_scm, current_step, anchor_queue)
+        
+        # Log the candidate questions
+        self._log_candidate_questions(candidate_questions)
+        
+        # Prepare candidate info - ensure each candidate has required fields
+        candidate_info = []
+        for i, q in enumerate(candidate_questions):
+            # Ensure each question has shortText field
+            if "shortText" not in q:
+                if "type" in q and "node_id" in q and q["type"] == "node_discovery" and q["node_id"] in agent_scm.get("nodes", {}):
+                    # For node discovery questions
+                    node_label = agent_scm["nodes"][q["node_id"]].get("label", "factor")
+                    q["shortText"] = f"About {node_label}"
+                elif "type" in q and "edge_id" in q and q["type"] == "relationship_qualification":
+                    # For relationship questions
+                    q["shortText"] = "Relationship qualification"
+                elif "type" in q:
+                    # For other typed questions
+                    q["shortText"] = f"{q['type']} question"
+                else:
+                    # Default shortText is first 50 chars of question
+                    q["shortText"] = q["question"][:50] + "..." if len(q["question"]) > 50 else q["question"]
+            
+            # Generate temporary ID if needed
+            q_id = q.get("id", f"temp_{i}_{int(time.time())}")
+            
+            candidate_info.append({
+                "id": q_id,
+                "shortText": q["shortText"],
+                "index": i  # Keep track of original index
+            })
+        
+        # Extract existing question metadata from existing_question_texts
+        # Assume existing_question_texts is a list of objects with id and shortText
+        existing_info = []
+        for i, q in enumerate(existing_question_texts):
+            if isinstance(q, dict) and "id" in q and "shortText" in q:
+                existing_info.append({
+                    "id": q["id"],
+                    "shortText": q["shortText"]
+                })
+            elif isinstance(q, str):
+                # If it's just a string, create a simple entry
+                existing_info.append({
+                    "id": f"existing_{i}",
+                    "shortText": q[:50] + "..." if len(q) > 50 else q
+                })
+        
+        # Use logic to filter and select the best questions
+        selected_indices = self.filter_questions_with_llm(candidate_info, existing_info)
+        
+        # Get the full question objects for the selected indices
         follow_up_questions = []
-        
-        # Generate questions based on the current step
-        if current_step == 1:
-            # Step 1: Node Discovery
-            llm_logger.log_separator("STEP 1: NODE DISCOVERY QUESTIONS")
-            questions = self._generate_step1_questions(agent_scm, existing_question_texts)
-            follow_up_questions.extend(questions)
-        
-        elif current_step == 2:
-            # Step 2: Combined Anchor Expansion & Relationship Qualification
-            llm_logger.log_separator("STEP 2: RELATIONSHIP QUESTIONS")
-            questions = self._generate_step2_combined_questions(agent_scm, anchor_queue, existing_question_texts)
-            follow_up_questions.extend(questions)
-        
-        # Always check for potential motifs to complete
-        llm_logger.log_separator("MOTIF PATTERN QUESTIONS")
-        motif_questions = self._generate_motif_questions(agent_scm, existing_question_texts)
-        follow_up_questions.extend(motif_questions)
+        for idx in selected_indices:
+            if 0 <= idx < len(candidate_questions):
+                follow_up_questions.append(candidate_questions[idx])
         
         # Limit number of questions based on step
-        # For Step 1 (node discovery), limit to 1 question
-        # For Step 2 (relationship building), limit to 2 questions
         max_questions = 1 if current_step == 1 else 2
         if len(follow_up_questions) > max_questions:
+            logger.info(f"Limiting questions from {len(follow_up_questions)} to {max_questions} for step {current_step}")
             follow_up_questions = follow_up_questions[:max_questions]
         
         # Ensure each question has required fields
@@ -124,6 +171,291 @@ class QuestionGenerator:
         logger.info(f"Generated {len(follow_up_questions)} follow-up questions")
         llm_logger.log_separator("QUESTION GENERATION COMPLETE")
         return follow_up_questions
+    
+    def generate_prioritized_candidates(self, agent_scm, current_step, anchor_queue):
+        """
+        Generate a prioritized list of candidate questions based on the current SCM state.
+        
+        Args:
+            agent_scm (dict): The current SCM
+            current_step (int): The current interview step (1 or 2)
+            anchor_queue (list): List of anchor node IDs
+            
+        Returns:
+            list: List of candidate question objects sorted by priority
+        """
+        llm_logger.log_separator("GENERATING PRIORITIZED CANDIDATES")
+        logger.info(f"Generating prioritized candidates for step {current_step}")
+        
+        candidates = []
+        
+        # Add questions based on the current step
+        if current_step == 1:
+            # Step 1: Node Discovery (pass empty list to get all possible questions)
+            node_discovery_questions = self._generate_step1_questions(agent_scm, [])
+            
+            # Enhance shortText for node discovery questions
+            for q in node_discovery_questions:
+                if "node_id" in q and q["node_id"] in agent_scm.get("nodes", {}):
+                    node_label = agent_scm["nodes"][q["node_id"]].get("label", "factor")
+                    q["shortText"] = f"About {node_label}"
+                else:
+                    q["shortText"] = "Node discovery"
+                q["priority"] = 2
+                
+            candidates.extend(node_discovery_questions)
+        
+        elif current_step == 2:
+            # Step 2: Relationships
+            
+            # Get stance relationship questions (highest priority)
+            stance_questions = []
+            stance_node_id = agent_scm.get("stance_node_id")
+            if stance_node_id and stance_node_id in agent_scm.get("nodes", {}):
+                # Find anchor nodes with out-degree 0 that need connection to stance node
+                for node_id in anchor_queue:
+                    if node_id != stance_node_id and node_id in agent_scm.get("nodes", {}):
+                        node = agent_scm["nodes"][node_id]
+                        if len(node.get("outgoing_edges", [])) == 0:
+                            # Check if no edge to stance node
+                            connected_to_stance = False
+                            for edge in agent_scm.get("edges", {}).values():
+                                if edge.get("source") == node_id and edge.get("target") == stance_node_id:
+                                    connected_to_stance = True
+                                    break
+                            
+                            if not connected_to_stance:
+                                # Create question
+                                node_label = node.get("label", "factor")
+                                stance_label = agent_scm["nodes"][stance_node_id].get("label", "stance")
+                                
+                                template = random.choice(self.step2_combined_templates["relationship"])
+                                question_text = template.format(
+                                    from_node=node_label,
+                                    to_node=stance_label
+                                )
+                                
+                                # Add guidance
+                                modifier_guidance = " Does it have a positive effect (increasing it) or a negative effect (decreasing it)? How strong is this effect?"
+                                if not question_text.endswith("?"):
+                                    modifier_guidance = "?" + modifier_guidance
+                                
+                                stance_questions.append({
+                                    "question": question_text + modifier_guidance,
+                                    "shortText": f"Relationship: {node_label} → {stance_label}",
+                                    "type": "stance_relationship",
+                                    "node_id": node_id,
+                                    "stance_node_id": stance_node_id,
+                                    "priority": 1  # Highest priority
+                                })
+            
+            candidates.extend(stance_questions)
+            
+            # Add other relationship questions
+            relationship_questions = self._generate_step2_combined_questions(agent_scm, anchor_queue, [])
+            
+            # Enhance shortText for relationship questions
+            for q in relationship_questions:
+                q_type = q.get("type", "")
+                
+                # Set priority based on question type
+                if q_type == "stance_relationship":
+                    q["priority"] = 1  # Highest priority
+                    
+                    # Ensure shortText is set correctly
+                    if "node_id" in q and "stance_node_id" in q:
+                        from_node = agent_scm["nodes"].get(q["node_id"], {}).get("label", "factor")
+                        to_node = agent_scm["nodes"].get(q["stance_node_id"], {}).get("label", "stance")
+                        q["shortText"] = f"Relationship: {from_node} → {to_node}"
+                        
+                elif q_type == "anchor_upstream_with_strength":
+                    q["priority"] = 2  # Medium priority
+                    
+                    # Set shortText for upstream questions
+                    if "node_id" in q and q["node_id"] in agent_scm.get("nodes", {}):
+                        node_label = agent_scm["nodes"][q["node_id"]].get("label", "factor")
+                        q["shortText"] = f"Factors affecting {node_label}"
+                        
+                elif q_type == "relationship_qualification":
+                    q["priority"] = 3  # Lower priority
+                    
+                    # Set shortText for relationship qualification
+                    if "edge_id" in q and q["edge_id"] in agent_scm.get("edges", {}):
+                        edge = agent_scm["edges"][q["edge_id"]]
+                        from_id = edge.get("source")
+                        to_id = edge.get("target")
+                        
+                        if from_id in agent_scm.get("nodes", {}) and to_id in agent_scm.get("nodes", {}):
+                            from_label = agent_scm["nodes"][from_id].get("label", "source")
+                            to_label = agent_scm["nodes"][to_id].get("label", "target")
+                            q["shortText"] = f"Relationship: {from_label} → {to_label}"
+                        else:
+                            q["shortText"] = "Relationship qualification"
+                else:
+                    q["priority"] = 3  # Default lower priority
+                    q["shortText"] = q.get("shortText", q_type + " question")
+            
+            candidates.extend(relationship_questions)
+        
+        # Add motif questions (medium priority)
+        motif_questions = self._generate_motif_questions(agent_scm, [])
+        
+        # Enhance shortText for motif questions
+        for q in motif_questions:
+            q["priority"] = 3
+            q_type = q.get("type", "")
+            
+            # Set detailed shortText for motif questions
+            if q_type == "motif_triad" and "nodes" in q and len(q["nodes"]) >= 3:
+                node1_id, node2_id, node3_id = q["nodes"][:3]
+                if all(node_id in agent_scm.get("nodes", {}) for node_id in [node1_id, node2_id, node3_id]):
+                    node1 = agent_scm["nodes"][node1_id].get("label", "node1")
+                    node2 = agent_scm["nodes"][node2_id].get("label", "node2")
+                    node3 = agent_scm["nodes"][node3_id].get("label", "node3")
+                    q["shortText"] = f"Complete triad: {node1} → {node2} → {node3}"
+                else:
+                    q["shortText"] = "Complete relationship pattern"
+            elif q_type == "motif_mediator" and "nodes" in q and len(q["nodes"]) >= 2:
+                node1_id, node3_id = q["nodes"][:2]
+                if node1_id in agent_scm.get("nodes", {}) and node3_id in agent_scm.get("nodes", {}):
+                    node1 = agent_scm["nodes"][node1_id].get("label", "node1")
+                    node3 = agent_scm["nodes"][node3_id].get("label", "node3")
+                    q["shortText"] = f"Mediator between: {node1} and {node3}"
+                else:
+                    q["shortText"] = "Intermediate factors"
+            else:
+                q["shortText"] = q.get("shortText", "Graph pattern question")
+                
+        candidates.extend(motif_questions)
+        
+        # Add general questions as fallback (lowest priority)
+        general_questions = self._generate_general_questions([])
+        for q in general_questions[:3]:  # Limit to 3 general questions
+            if isinstance(q, str):
+                candidates.append({
+                    "question": q,
+                    "shortText": f"General: {q[:30]}..." if len(q) > 30 else f"General: {q}",
+                    "type": "general",
+                    "priority": 4  # Lowest priority
+                })
+            else:
+                q["priority"] = 4
+                if "shortText" not in q:
+                    q["shortText"] = f"General: {q.get('question', '')[:30]}..." if len(q.get('question', '')) > 30 else f"General: {q.get('question', '')}"
+                candidates.append(q)
+        
+        # Sort candidates by priority (lower number = higher priority)
+        candidates.sort(key=lambda x: x.get("priority", 10))
+        
+        logger.info(f"Generated {len(candidates)} candidates with priorities:")
+        for priority in range(1, 5):
+            count = sum(1 for q in candidates if q.get("priority") == priority)
+            logger.info(f"  Priority {priority}: {count} questions")
+        
+        llm_logger.log_separator("PRIORITIZED CANDIDATES GENERATION COMPLETE")
+        return candidates
+    
+    def filter_questions_with_llm(self, candidate_info, existing_info):
+        """
+        Select the best questions from candidates that don't duplicate existing questions.
+        Uses pure logic instead of LLM to compare questions based on their shortText.
+        
+        Args:
+            candidate_info (list): List of candidate question info (id, shortText, index)
+            existing_info (list): List of existing question info (id, shortText)
+            
+        Returns:
+            list: Indices of selected questions
+        """
+        llm_logger.log_separator("FILTERING QUESTIONS WITH PURE LOGIC")
+        logger.info(f"Filtering {len(candidate_info)} candidates against {len(existing_info)} existing questions")
+        
+        # Log the shortText values being compared
+        logger.info("Existing question purposes:")
+        for i, existing in enumerate(existing_info):
+            logger.info(f"  {i+1}. {existing.get('shortText', 'Unknown')}")
+            
+        logger.info("Candidate question purposes:")
+        for i, candidate in enumerate(candidate_info):
+            logger.info(f"  {i+1}. {candidate.get('shortText', 'Unknown')} (original index: {candidate.get('index', i)})")
+        
+        # If no candidates, return empty list
+        if not candidate_info:
+            return []
+            
+        # If no existing questions, just return top candidates (up to 2)
+        if not existing_info:
+            # Return indices of top 2 candidates (or fewer if less than 2)
+            selected = [info.get("index", i) for i, info in enumerate(candidate_info[:2])]
+            logger.info(f"No existing questions, selected top candidates: {selected}")
+            return selected
+        
+        # Create a list of existing shortTexts (lowercase for case-insensitive comparison)
+        existing_shorttexts = [
+            existing.get("shortText", "").lower() 
+            for existing in existing_info 
+            if existing.get("shortText")
+        ]
+        
+        # Initialize list of selected indices and their shortTexts
+        selected_indices = []
+        selected_shorttexts = []
+        
+        # Process candidates in order (already sorted by priority)
+        for i, candidate in enumerate(candidate_info):
+            # Stop once we have 2 questions
+            if len(selected_indices) >= 2:
+                break
+                
+            original_idx = candidate.get("index", i)
+            candidate_shorttext = candidate.get("shortText", "").lower()
+            
+            # Skip candidates without shortText
+            if not candidate_shorttext:
+                logger.info(f"Skipping candidate {i} (index {original_idx}): No shortText")
+                continue
+            
+            # Check if this candidate is a duplicate of an existing question
+            is_duplicate = False
+            
+            # First check against existing questions
+            for existing_shorttext in existing_shorttexts:
+                if self._is_similar_shorttext(candidate_shorttext, existing_shorttext):
+                    is_duplicate = True
+                    logger.info(f"Candidate {i} (index {original_idx}) '{candidate_shorttext}' is similar to existing '{existing_shorttext}'")
+                    break
+            
+            # Then check against already selected candidates
+            if not is_duplicate:
+                for selected_shorttext in selected_shorttexts:
+                    if self._is_similar_shorttext(candidate_shorttext, selected_shorttext):
+                        is_duplicate = True
+                        logger.info(f"Candidate {i} (index {original_idx}) '{candidate_shorttext}' is similar to already selected '{selected_shorttext}'")
+                        break
+            
+            # If not a duplicate, select this candidate
+            if not is_duplicate:
+                selected_indices.append(original_idx)
+                selected_shorttexts.append(candidate_shorttext)
+                logger.info(f"Selected candidate {i} (index {original_idx}) '{candidate_shorttext}'")
+        
+        logger.info(f"Logic-based selection complete. Selected {len(selected_indices)} questions: {selected_indices}")
+        return selected_indices
+    
+    def _is_similar_shorttext(self, shorttext1, shorttext2):
+        """
+        Compare two shortText strings to determine if they are similar.
+        Only exact matches are considered similar.
+        
+        Args:
+            shorttext1 (str): First shortText string
+            shorttext2 (str): Second shortText string
+            
+        Returns:
+            bool: True if the shortTexts are identical, False otherwise
+        """
+        # Only exact match is considered similar
+        return shorttext1.lower() == shorttext2.lower()
     
     def _generate_step1_questions(self, agent_scm, existing_question_texts):
         """
@@ -487,7 +819,7 @@ class QuestionGenerator:
         
         return overlap >= threshold
     
-    def generate_additional_questions(self, scm, current_step, current_questions, force_generate=False, focus_on_nodes=False):
+    def generate_additional_questions(self, scm, current_step, current_questions, force_generate=False, focus_on_nodes=False, current_qa_count=0, max_qa_count=None):
         """
         Generate additional questions when more are needed to reach minimum requirements.
         
@@ -497,12 +829,21 @@ class QuestionGenerator:
             current_questions (list): List of questions already asked
             force_generate (bool): Whether to force generation of questions
             focus_on_nodes (bool): Whether to focus specifically on discovering more nodes
+            current_qa_count (int, optional): Current number of QA pairs
+            max_qa_count (int, optional): Maximum number of QA pairs allowed
             
         Returns:
             list: List of additional questions
         """
         llm_logger.log_separator("ADDITIONAL QUESTION GENERATION")
         logger.info(f"Generating additional questions (force={force_generate}, focus_on_nodes={focus_on_nodes})")
+        
+        # Check if we've reached the maximum QA count
+        if max_qa_count and current_qa_count >= max_qa_count:
+            logger.info(f"Maximum QA count reached ({current_qa_count}/{max_qa_count}). No additional questions will be generated.")
+            llm_logger.log_separator("ADDITIONAL QUESTION GENERATION CANCELLED - MAX QA COUNT REACHED")
+            return []
+            
         additional_questions = []
         
         # If we're focusing on node discovery or forced to generate questions
@@ -570,6 +911,11 @@ class QuestionGenerator:
             llm_logger.log_separator("ADDITIONAL QUESTION GENERATION COMPLETE")
             return formatted_questions
         
+        # If max QA count is reached, don't return any fallback questions
+        if max_qa_count and current_qa_count >= max_qa_count:
+            logger.info("Maximum QA count reached, not adding fallback question")
+            return []
+            
         # Fallback to a single general question if nothing else worked
         fallback_question = {
             "id": f"followup_{uuid.uuid4().hex[:8]}_{int(time.time())}",
@@ -713,4 +1059,41 @@ class QuestionGenerator:
             if overlap / smaller_set > 0.6:
                 return True
                 
-        return False 
+        return False
+    
+    def _log_candidate_questions(self, candidate_questions):
+        """
+        Log the candidate questions with their priority information.
+        
+        Args:
+            candidate_questions (list): List of candidate question objects
+        """
+        llm_logger.log_separator("CANDIDATE QUESTION QUEUE")
+        logger.info(f"Candidate question queue contains {len(candidate_questions)} questions:")
+        
+        # Group questions by priority
+        priority_groups = {}
+        for i, q in enumerate(candidate_questions):
+            priority = q.get("priority", 10)
+            if priority not in priority_groups:
+                priority_groups[priority] = []
+            priority_groups[priority].append((i, q))
+        
+        # Log questions by priority group
+        for priority in sorted(priority_groups.keys()):
+            questions = priority_groups[priority]
+            logger.info(f"Priority {priority} ({len(questions)} questions):")
+            
+            for i, (idx, q) in enumerate(questions):
+                # Get question type and shortened text
+                q_type = q.get("type", "unknown")
+                question_text = q.get("question", "")
+                short_text = question_text[:80] + "..." if len(question_text) > 80 else question_text
+                
+                # Get the shortText field if available
+                purpose_text = q.get("shortText", "")
+                
+                # Log the question with its index in the queue and shortText
+                logger.info(f"  [{idx}] Type: {q_type}, ShortText: '{purpose_text}', Question: {short_text}")
+        
+        llm_logger.log_separator("END OF CANDIDATE QUESTION QUEUE") 

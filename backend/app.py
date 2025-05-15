@@ -26,6 +26,10 @@ elif parent_env_path.exists():
     load_dotenv(dotenv_path=parent_env_path)
     logger.info(f"Loaded environment variables from {parent_env_path}")
 
+# Get configuration values from environment variables with defaults
+MAX_QA_COUNT = int(os.getenv('MAX_QA_COUNT', 50))  # Default to 15 if not specified
+logger.info(f"Maximum QA count set to: {MAX_QA_COUNT}")
+
 # Import the necessary modules
 from llm_extractor import QwenLLMExtractor
 from cbn_manager import CBNManager
@@ -343,12 +347,104 @@ def process_answer():
         logger.info(f"Current CBN step: {current_step}")
         llm_logger.log_separator(f"FOLLOW-UP QUESTION GENERATION - Step {current_step}")
         
-        # Generate follow-up questions based on CBN state
+        # Instead of collecting just question texts, collect structured question info with shortText
+        existing_question_info = []
+        
+        # Add the current question with shortText if available
+        if qa_pair.get('question'):
+            question_info = {
+                'id': qa_pair.get('id', f"current_{int(time.time())}"),
+                'question': qa_pair.get('question', ''),
+                'shortText': qa_pair.get('shortText', '')
+            }
+            
+            # If shortText isn't available, create one based on the question type or content
+            if not question_info['shortText']:
+                # Try to extract from question context
+                if 'relationship' in question_info['question'].lower() or 'affect' in question_info['question'].lower():
+                    # Try to find node references in the question
+                    for node_id, node in updated_cbn.get('nodes', {}).items():
+                        node_label = node.get('label', '')
+                        if node_label and node_label.lower() in question_info['question'].lower():
+                            if 'stance' in node_label.lower() or node.get('is_stance', False):
+                                question_info['shortText'] = f"Relationship: Factor → {node_label}"
+                                break
+                            else:
+                                question_info['shortText'] = f"About {node_label}"
+                                break
+                
+                # Default if no better shortText could be created
+                if not question_info['shortText']:
+                    question_info['shortText'] = question_info['question'][:50] + "..." if len(question_info['question']) > 50 else question_info['question']
+            
+            existing_question_info.append(question_info)
+        
+        # Add all questions from the session's qaPairs with their shortText
+        for pair in qa_pairs:
+            if pair.get('question'):
+                # Skip if this is the current question (already added)
+                if pair.get('id') == qa_pair.get('id'):
+                    continue
+                    
+                question_info = {
+                    'id': pair.get('id', f"qa_{len(existing_question_info)}_{int(time.time())}"),
+                    'question': pair.get('question', ''),
+                    'shortText': pair.get('shortText', '')
+                }
+                
+                # If shortText isn't available, create one based on the question
+                if not question_info['shortText']:
+                    # For simplicity, use the first part of the question
+                    question_info['shortText'] = question_info['question'][:50] + "..." if len(question_info['question']) > 50 else question_info['question']
+                
+                existing_question_info.append(question_info)
+        
+        # Get previous questions from qa_history with shortText
+        for qa_id, qa_entry in agent_cbn.get('qa_history', {}).items():
+            if 'question' in qa_entry:
+                # Check if this question is already included (by ID)
+                if any(q.get('id') == qa_id for q in existing_question_info):
+                    continue
+                    
+                question_info = {
+                    'id': qa_id,
+                    'question': qa_entry.get('question', ''),
+                    'shortText': qa_entry.get('shortText', '')
+                }
+                
+                # If shortText isn't available, create one
+                if not question_info['shortText']:
+                    # Try to get node info from the graph to create a better shortText
+                    if qa_id in agent_cbn.get('qa_history', {}):
+                        related_nodes = agent_cbn['qa_history'][qa_id].get('related_nodes', [])
+                        if related_nodes and len(related_nodes) > 0:
+                            node_id = related_nodes[0]  # Use the first related node
+                            if node_id in agent_cbn.get('nodes', {}):
+                                node_label = agent_cbn['nodes'][node_id].get('label', '')
+                                if node_label:
+                                    question_info['shortText'] = f"About {node_label}"
+                
+                # Default shortText if none could be created
+                if not question_info['shortText']:
+                    question_info['shortText'] = question_info['question'][:50] + "..." if len(question_info['question']) > 50 else question_info['question']
+                
+                existing_question_info.append(question_info)
+        
+        # Log the structured question info we've collected
+        logger.info(f"Collected {len(existing_question_info)} existing questions with shortText for comparison")
+        for i, info in enumerate(existing_question_info[:5]):  # Log first 5 for brevity
+            logger.info(f"  {i+1}. ID: {info.get('id')}, ShortText: '{info.get('shortText')}'")
+        if len(existing_question_info) > 5:
+            logger.info(f"  ... and {len(existing_question_info) - 5} more")
+        
+        # Generate follow-up questions based on CBN state using structured question info
         follow_up_questions = question_generator.generate_follow_up_questions(
             updated_cbn, 
             current_step, 
             cbn_manager.anchor_queue, 
-            current_question_texts
+            existing_question_info,  # Pass structured objects instead of just text strings
+            current_qa_count=len(qa_pairs),
+            max_qa_count=MAX_QA_COUNT  # Use the configured value instead of hardcoded 30
         )
         
         # Log the raw follow_up_questions for debugging
@@ -376,17 +472,19 @@ def process_answer():
         llm_logger.log_separator("QUESTION VALIDATION AND FILTERING")
         
         # Modified logic to ensure minimum QA pairs and anchor nodes
-        if total_qa_count < 30:
-            # If we haven't reached 30 QAs yet, ensure we have follow-ups
+        if total_qa_count < MAX_QA_COUNT:
+            # If we haven't reached MAX_QA_COUNT QAs yet, ensure we have follow-ups
             if not follow_up_questions:
                 # If no follow-ups were generated but we need more QAs, force create some
-                logger.info("Forcing follow-up question generation to reach minimum QA count")
+                logger.info(f"Forcing follow-up question generation to reach minimum QA count ({MAX_QA_COUNT})")
                 try:
                     follow_up_questions = question_generator.generate_additional_questions(
                         updated_cbn, 
                         current_step, 
                         current_question_texts,
-                        force_generate=True  # Force generation flag
+                        force_generate=True,  # Force generation flag
+                        current_qa_count=len(qa_pairs),
+                        max_qa_count=MAX_QA_COUNT
                     )
                     
                     # Verify the response is a valid list
@@ -399,7 +497,7 @@ def process_answer():
                     logger.error(f"Error generating additional questions: {str(e)}")
                     follow_up_questions = []  # Default to empty list on error
                 
-            logger.info(f"Generated {len(follow_up_questions)} follow-up questions (QA count: {total_qa_count}/30)")
+            logger.info(f"Generated {len(follow_up_questions)} follow-up questions (QA count: {total_qa_count}/{MAX_QA_COUNT})")
         elif anchor_count < 3:
             # If we have enough QAs but not enough anchor nodes, focus on node discovery
             logger.info(f"Not enough anchor nodes ({anchor_count}/3). Continuing with node discovery.")
@@ -428,9 +526,9 @@ def process_answer():
             # We have enough QAs and anchor nodes, proceed normally
             # Limit follow-ups only if near the end AND we have enough anchors and QAs
             remaining_questions = len(qa_pairs) - current_index - 1
-            if remaining_questions <= 3 and total_qa_count >= 30 and anchor_count >= 3:
+            if remaining_questions <= 3 and total_qa_count >= MAX_QA_COUNT and anchor_count >= 3:
                 follow_up_questions = []  # No more follow-ups near the end when requirements are met
-                logger.info("Near end of interview with sufficient QAs and anchors, no follow-up questions generated")
+                logger.info(f"Near end of interview with sufficient QAs ({total_qa_count}/{MAX_QA_COUNT}) and anchors ({anchor_count}/3), no follow-up questions generated")
             elif remaining_questions <= 5:
                 follow_up_questions = follow_up_questions[:1]  # Just one follow-up for near-end questions
                 logger.info(f"Near end of interview, limited to 1 follow-up question")
