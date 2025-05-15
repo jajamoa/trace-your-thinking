@@ -211,6 +211,9 @@ class QuestionGenerator:
         if stance_node:
             zero_outdegree_anchors = []
             for node_id in anchor_queue:
+                if node_id == stance_node_id:
+                    continue
+                    
                 if node_id in agent_scm.get('nodes', {}):
                     node = agent_scm['nodes'][node_id]
                     outgoing_edges = node.get('outgoing_edges', [])
