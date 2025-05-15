@@ -167,7 +167,7 @@ class CBNManager:
                 qa_id = "unknown_qa_id"
                 if 'source_qa' in node_data and node_data['source_qa']:
                     qa_id = node_data['source_qa'][0]
-                    
+                
                 # Create default evidence entry
                 evidence = [{
                     "qa_id": qa_id,
@@ -177,15 +177,15 @@ class CBNManager:
                 
                 # Create and add the new node with evidence structure
             cbn['nodes'][temp_node_id] = {
-                    "label": node_data.get('label', ''),
+                "label": node_data.get('label', ''),
                 "aggregate_confidence": node_data.get('aggregate_confidence', 0.5),
                 "evidence": evidence,
-                    "incoming_edges": [],
-                    "outgoing_edges": [],
+                "incoming_edges": [],
+                "outgoing_edges": [],
                 "importance": node_data.get('importance', 0.5),
-                    "status": "candidate",  # Default to candidate status
+                "status": "candidate",  # Default to candidate status
                 "frequency": node_data.get('frequency', 1)  # Use provided frequency or default to 1
-                }
+            }
         
         return cbn
     
@@ -267,7 +267,7 @@ class CBNManager:
         self.logger.info(f"Created edge {edge_id}: {edge_data.get('from_label', '')} → {edge_data.get('to_label', '')} ({direction}, strength: {strength:.2f}, aggregate_confidence: {confidence:.2f})")
         if edge_data.get('explanation'):
             self.logger.info(f"  Explanation: {edge_data.get('explanation')}")
-        
+            
         # Update node references
         cbn['nodes'][from_node_id]['outgoing_edges'].append(edge_id)
         cbn['nodes'][to_node_id]['incoming_edges'].append(edge_id)
@@ -315,40 +315,13 @@ class CBNManager:
                 # Perform the merge
                 cbn = self._merge_nodes(cbn, source_id, target_id)
                 merge_count += 1
+                
+                # After each node merge, check for and merge any duplicate edges that might have been created
+                cbn = self._merge_duplicate_edges_after_node_merge(cbn, target_id)
             
             self.logger.info(f"Successfully merged {merge_count} nodes")
         else:
             self.logger.info("No nodes to merge")
-        
-        # 2. Find and merge duplicate edges
-        llm_logger.log_separator("EDGE MERGING - IDENTIFICATION PHASE")
-        edge_merge_candidates = self._find_duplicate_edges(cbn)
-        self.logger.info(f"Found {len(edge_merge_candidates)} edge merge candidates")
-        
-        # Apply edge merges
-        if edge_merge_candidates:
-            llm_logger.log_separator("EDGE MERGING - EXECUTION PHASE")
-            merge_count = 0
-            for source_id, target_id in edge_merge_candidates:
-                # Skip if either edge no longer exists
-                if source_id not in cbn['edges'] or target_id not in cbn['edges']:
-                    self.logger.info(f"Skipping merge: edge {source_id} or {target_id} no longer exists")
-                    continue
-                
-                source_edge = cbn['edges'][source_id]
-                target_edge = cbn['edges'][target_id]
-                source_node = cbn['nodes'].get(source_edge.get('source', ''), {}).get('label', 'unknown')
-                target_node = cbn['nodes'].get(source_edge.get('target', ''), {}).get('label', 'unknown')
-                
-                self.logger.info(f"Merging edge {source_id} into {target_id} ({source_node} → {target_node})")
-                
-                # Perform the merge
-                cbn = self._merge_edges(cbn, source_id, target_id)
-                merge_count += 1
-            
-            self.logger.info(f"Successfully merged {merge_count} edges")
-        else:
-            self.logger.info("No edges to merge")
         
         # 3. Check for node promotion after merging
         llm_logger.log_separator("POST-MERGE NODE PROMOTION CHECK")
@@ -686,22 +659,34 @@ class CBNManager:
                         new_node['outgoing_edges'] = []
                     new_node['outgoing_edges'].append(edge_id)
     
-    def _find_duplicate_edges(self, cbn):
+    def _merge_duplicate_edges_after_node_merge(self, cbn, target_id):
         """
-        Find edges that connect the same nodes and should be merged.
+        Merge any duplicate edges that might have been created after a node merge.
         
         Args:
             cbn (dict): The current CBN
+            target_id (str): ID of the merged node
             
         Returns:
-            list: List of tuples (source_edge_id, target_edge_id) for edges to merge
+            dict: Updated CBN
         """
-        merge_candidates = []
+        # Get the node object
+        if target_id not in cbn['nodes']:
+            return cbn
+            
+        target_node = cbn['nodes'][target_id]
+        self.logger.info(f"Checking for duplicate edges after merging node {target_id}")
         
         # Create a mapping of (source, target) node pairs to edge IDs
         node_pair_to_edges = {}
+        merge_candidates = []
         
-        for edge_id, edge in cbn['edges'].items():
+        # Check the node's incoming and outgoing edges for duplicates
+        for edge_id in target_node.get('incoming_edges', []) + target_node.get('outgoing_edges', []):
+            if edge_id not in cbn['edges']:
+                continue
+                
+            edge = cbn['edges'][edge_id]
             source = edge.get('source')
             target = edge.get('target')
             
@@ -731,7 +716,32 @@ class CBNManager:
                     # First time seeing this node pair
                     node_pair_to_edges[node_pair] = edge_id
         
-        return merge_candidates
+        # Apply edge merges
+        if merge_candidates:
+            llm_logger.log_separator("EDGE MERGING - EXECUTION PHASE")
+            merge_count = 0
+            for source_id, target_id in merge_candidates:
+                # Skip if either edge no longer exists
+                if source_id not in cbn['edges'] or target_id not in cbn['edges']:
+                    self.logger.info(f"Skipping merge: edge {source_id} or {target_id} no longer exists")
+                    continue
+                
+                source_edge = cbn['edges'][source_id]
+                target_edge = cbn['edges'][target_id]
+                source_node = cbn['nodes'].get(source_edge.get('source', ''), {}).get('label', 'unknown')
+                target_node = cbn['nodes'].get(source_edge.get('target', ''), {}).get('label', 'unknown')
+                
+                self.logger.info(f"Merging edge {source_id} into {target_id} ({source_node} → {target_node})")
+                
+                # Perform the merge
+                cbn = self._merge_edges(cbn, source_id, target_id)
+                merge_count += 1
+            
+            self.logger.info(f"Successfully merged {merge_count} edges")
+        else:
+            self.logger.info("No duplicate edges found after node merge")
+        
+        return cbn
     
     def _merge_edges(self, cbn, source_id, target_id):
         """

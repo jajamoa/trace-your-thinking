@@ -212,10 +212,31 @@ class QwenLLMExtractor:
         
         try:
             # Call the LLM to extract edges with modifiers
-            extracted_edge_json = self._call_llm_for_structured_output(prompt, LLM_CALL_TYPES["EDGE_EXTRACTION"])
+            extracted_json = self._call_llm_for_structured_output(prompt, LLM_CALL_TYPES["EDGE_EXTRACTION"])
             
-            if extracted_edge_json and 'edges' in extracted_edge_json and extracted_edge_json['edges']:
-                edge_data = extracted_edge_json['edges'][0]  # Take the first edge
+            # Handle different possible response formats
+            edge_data = None
+            
+            # Debug log to show what format we received
+            logger.info(f"Edge extraction response type: {type(extracted_json)}")
+            if isinstance(extracted_json, dict):
+                logger.info(f"Edge extraction response keys: {list(extracted_json.keys())}")
+            elif isinstance(extracted_json, list):
+                logger.info(f"Edge extraction response is a list with {len(extracted_json)} items")
+            
+            # Case 1: Standard format with 'edges' key containing array
+            if isinstance(extracted_json, dict) and 'edges' in extracted_json and extracted_json['edges']:
+                edge_data = extracted_json['edges'][0]  # Take the first edge
+                logger.info("Extracted edge from standard format {'edges': [...]}")
+            
+            # Case 2: Direct array of edges (as seen in the logs)
+            elif isinstance(extracted_json, list) and len(extracted_json) > 0:
+                edge_data = extracted_json[0]  # Take the first edge
+                logger.info("Extracted edge from direct array format")
+            
+            # If we found edge data in any format, process it
+            if edge_data and isinstance(edge_data, dict):
+                logger.info(f"Edge data keys: {list(edge_data.keys())}")
                 
                 # Create edge with comprehensive metadata
                 edge = {
