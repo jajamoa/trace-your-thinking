@@ -16,7 +16,8 @@ export class PythonAPIService {
     qaPair: QAPair,
     qaPairs: QAPair[] = [],
     currentQuestionIndex: number = 0,
-    existingCausalGraph: any = null
+    existingCausalGraph: any = null,
+    topic: string = "climate change"
   ): Promise<{
     success: boolean;
     followUpQuestions?: QAPair[];
@@ -31,7 +32,8 @@ export class PythonAPIService {
         questionId: qaPair.id,
         totalQaPairs: qaPairs.length,
         currentQuestionIndex,
-        graphTimestamp: existingCausalGraph?.timestamp
+        graphTimestamp: existingCausalGraph?.timestamp,
+        topic
       });
 
       // Ensure the qaPair is well-formed
@@ -71,7 +73,8 @@ export class PythonAPIService {
           qaPair: validQAPair,
           qaPairs: validQAPairs,
           currentQuestionIndex,
-          existingCausalGraph
+          existingCausalGraph,
+          topic
         }),
       });
 

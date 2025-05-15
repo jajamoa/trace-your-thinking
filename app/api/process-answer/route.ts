@@ -87,6 +87,7 @@ export async function POST(request: Request) {
         qaPairs: allQaPairs,
         currentQuestionIndex: questionIndex,
         existingCausalGraph,  // Include the latest causal graph if available
+        topic: body.topic || session.topic, // Include topic from request or session
       }),
     });
 

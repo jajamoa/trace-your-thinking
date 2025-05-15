@@ -55,34 +55,24 @@ llm_logger.log_settings()
 DEBUG_LLM_IO = os.getenv('DEBUG_LLM_IO', 'false').lower() == 'true'
 
 # Add a function to get the default topic from the server or configuration
-def get_default_topic():
+def get_default_topic(request_topic=None):
     """
-    Get the default topic from server settings or fallback to default.
+    Get the default topic from request or fallback to default.
     
+    Args:
+        request_topic (str, optional): Topic provided in the request
+        
     Returns:
         str: The default topic for stance nodes
     """
     default_topic = "climate change"  # Default fallback topic
     
     try:
-        # Try to fetch from an API endpoint or configuration
-        api_url = os.getenv('API_BASE_URL', 'http://localhost:3000')
-        settings_url = f"{api_url}/api/admin/settings"
-        
-        try:
-            response = requests.get(settings_url, timeout=5)
-            
-            if response.status_code == 200:
-                data = response.json()
-                if data.get("success") and data.get("settings") and data["settings"].get("defaultTopic"):
-                    topic = data["settings"]["defaultTopic"]
-                    # Sanitize topic
-                    if topic and isinstance(topic, str) and topic.lower() != "none" and topic.strip() != "":
-                        default_topic = topic
-                        logger.info(f"Using topic from server settings: {default_topic}")
-                        return default_topic
-        except Exception as e:
-            logger.warning(f"Could not fetch topic from server: {str(e)}")
+        # First try to use the topic provided in the request
+        if request_topic and isinstance(request_topic, str) and request_topic.lower() != "none" and request_topic.strip() != "":
+            default_topic = request_topic
+            logger.info(f"Using topic from request: {default_topic}")
+            return default_topic
         
         # Try to get from environment variable
         env_topic = os.getenv('DEFAULT_TOPIC')
@@ -203,6 +193,8 @@ def process_answer():
         qa_pairs = data.get('qaPairs', [])  # All QA pairs in the session
         current_index = data.get('currentQuestionIndex', 0)  # Current question index
         existing_causal_graph = data.get('existingCausalGraph')
+        # Extract topic from request data
+        request_topic = data.get('topic')
         
         if not all([session_id, prolific_id, qa_pair]):
             logger.warning("Missing required parameters")
@@ -279,8 +271,8 @@ def process_answer():
             cbn_source = "new"
             logger.info(f"No existing causal graph found, creating new CBN")
             
-            # Get the default topic for stance node
-            default_topic = get_default_topic()
+            # Get the default topic for stance node from request
+            default_topic = get_default_topic(request_topic)
             
             # Create a stance node with simple ID
             stance_node_id = "n1"  # First node is always n1 (stance node)

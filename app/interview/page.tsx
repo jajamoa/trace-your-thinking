@@ -13,6 +13,7 @@ import Footer from "@/components/Footer"
 import { logStoreState, setupStoreLogger } from "@/lib/debug-store"
 import { SyncService } from "@/lib/sync-service"
 import { PythonAPIService } from "@/lib/python-api-service"
+import { InterviewSettingsService } from "@/lib/interview-settings-service"
 import { v4 as uuidv4 } from "uuid"
 import LoadingTransition from "@/components/LoadingTransition"
 import React from "react"
@@ -79,6 +80,19 @@ export default function InterviewPage() {
     // Sync processing queue with QA pairs
     console.log("Syncing processing queue with QA pairs")
     useStore.getState().syncProcessingQueue()
+    
+    // Fetch interview settings (topic) from server
+    const fetchInterviewSettings = async () => {
+      try {
+        const defaultTopic = await InterviewSettingsService.getDefaultTopic()
+        console.log("Loaded default topic from server:", defaultTopic)
+        useStore.getState().setTopic(defaultTopic)
+      } catch (error) {
+        console.error("Error loading default topic:", error)
+      }
+    }
+    
+    fetchInterviewSettings()
   }, [recalculateProgress])
 
   // Reference to track the last saved state

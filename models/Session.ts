@@ -40,6 +40,7 @@ export interface ISession extends Document {
   updatedAt: Date;
   completedAt?: Date;
   order?: number; // For drag-and-drop ordering
+  topic?: string; // Research topic for the interview session
 }
 
 // Schema for Message objects
@@ -85,7 +86,8 @@ const SessionSchema = new Schema({
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now },
   completedAt: { type: Date },
-  order: { type: Number } // For drag-and-drop ordering
+  order: { type: Number }, // For drag-and-drop ordering
+  topic: { type: String, default: 'climate change' } // Default research topic
 });
 
 // Check if model already exists (for hot reloading in development)

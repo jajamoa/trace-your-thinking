@@ -53,9 +53,12 @@ interface StoreState {
   pendingRequests: PendingRequest[] // Queue of pending requests
   processingLock: boolean // Lock to prevent concurrent processing
   optimisticUpdates: Map<string, QAPair> // Store for tracking optimistic updates
+  topic: string // Current research topic
 
   setProlificId: (id: string) => void
   setSessionId: (id: string) => void
+  setTopic: (topic: string) => void
+  getTopic: () => string
   addMessage: (message: Message) => void
   updateMessage: (id: string, updater: (message: Message) => Message) => void
   setIsRecording: (isRecording: boolean) => void
@@ -107,6 +110,11 @@ export const useStore = create<StoreState>()(
       pendingRequests: [], // Initialize empty request queue
       processingLock: false, // Initialize processing lock
       optimisticUpdates: new Map(), // Initialize optimistic updates
+      topic: "climate change", // Default topic
+
+      // Topic management methods
+      setTopic: (topic) => set({ topic }),
+      getTopic: () => get().topic,
 
       // Add async request to queue
       addPendingRequest: (qaPairId) => {
@@ -248,7 +256,8 @@ export const useStore = create<StoreState>()(
             qaPair,
             validQAPairs, // Use the validated QA pairs
             index,
-            null
+            null, // No existing causal graph, will be fetched from database if needed
+            state.topic // Include topic
           );
           
           if (response.success) {
@@ -828,7 +837,8 @@ export const useStore = create<StoreState>()(
           // Clear all data including sessionId and prolificId
           sessionId: null,
           prolificId: null,
-          currentQuestionIndex: 0
+          currentQuestionIndex: 0,
+          topic: "climate change" // Reset to default topic
         }),
 
       saveSession: async () => {
@@ -1125,7 +1135,8 @@ export const useStore = create<StoreState>()(
         sessionId: state.sessionId,
         prolificId: state.prolificId,
         status: state.status,
-        currentQuestionIndex: state.currentQuestionIndex
+        currentQuestionIndex: state.currentQuestionIndex,
+        topic: state.topic // Persist topic in local storage
       }),
     },
   ),

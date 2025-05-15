@@ -32,41 +32,44 @@ class CBNService:
             return "policy"  # Default fallback
         return topic
     
-    def _get_default_topic(self) -> str:
+    def _get_default_topic(self, request_topic=None) -> str:
         """
-        Get the default topic from the interview settings with caching.
+        Get the default topic with priority: request topic > cached topic > environment variable > default.
         
+        Args:
+            request_topic (str, optional): Topic provided in the request
+            
         Returns:
             str: The default topic, or "policy" if not found
         """
+        # First try to use topic from request
+        if request_topic:
+            sanitized_topic = self._sanitize_topic(request_topic)
+            self._cached_default_topic = sanitized_topic  # Cache it
+            return sanitized_topic
+            
         # Use cached value if available
         if self._cached_default_topic:
             return self._cached_default_topic
             
         try:
-            # Try to fetch from MongoDB via API (to avoid direct DB dependency)
-            # This uses the internal API route that doesn't require authentication
-            api_url = f"{config.API_BASE_URL}/api/admin/settings"
-            response = requests.get(api_url, timeout=5)
-            
-            if response.status_code == 200:
-                data = response.json()
-                if data.get("success") and data.get("settings") and data["settings"].get("defaultTopic"):
-                    topic = data["settings"]["defaultTopic"]
-                    sanitized_topic = self._sanitize_topic(topic)
-                    # Cache the result
-                    self._cached_default_topic = sanitized_topic
-                    return sanitized_topic
+            # Try to get from environment variable
+            env_topic = config.RESEARCH_TOPIC
+            if env_topic and env_topic.strip() and env_topic.lower() != "none":
+                sanitized_topic = self._sanitize_topic(env_topic)
+                self._cached_default_topic = sanitized_topic  # Cache it
+                return sanitized_topic
             
             # If we can't get the topic, use default
-            logger.warning("Could not fetch default topic from settings, using 'policy'")
+            logger.warning("No topic specified, using 'policy'")
             return "policy"
         except Exception as e:
-            logger.error(f"Error fetching default topic: {str(e)}")
+            logger.error(f"Error getting default topic: {str(e)}")
             return "policy"  # Default fallback
     
     def get_cbn(self, session_id: str, agent_id: str,
-               existing_causal_graph: Optional[Dict[str, Any]] = None) -> CausalBayesianNetwork:
+               existing_causal_graph: Optional[Dict[str, Any]] = None,
+               request_topic: str = None) -> CausalBayesianNetwork:
         """
         Get or create a CBN for a session.
         
@@ -74,14 +77,15 @@ class CBNService:
             session_id: ID of the session
             agent_id: ID of the agent/user
             existing_causal_graph: Optional existing causal graph
+            request_topic: Optional topic provided in the request
             
         Returns:
             CausalBayesianNetwork: CBN instance
         """
         cbn_key = f"{session_id}_{agent_id}"
         
-        # Get topic from database settings
-        sanitized_topic = self._get_default_topic()
+        # Get topic from request, cache or default
+        sanitized_topic = self._get_default_topic(request_topic)
         
         if cbn_key in self.cbn_store:
             # Use existing CBN from store
@@ -98,7 +102,7 @@ class CBNService:
             # Create new CBN (will automatically include a stance node)
             cbn = CausalBayesianNetwork(agent_id)
             
-            # Update stance node label with topic from database
+            # Update stance node label with topic from request
             stance_node_id = cbn.get_stance_node_id()
             if stance_node_id:
                 stance_label = f"Support for {sanitized_topic}"

@@ -61,7 +61,8 @@ export class SyncService {
               messages: state.messages,
               status: state.status,
               progress: state.progress,
-              currentQuestionIndex: state.currentQuestionIndex
+              currentQuestionIndex: state.currentQuestionIndex,
+              topic: state.topic
             }),
           })
           
@@ -113,7 +114,8 @@ export class SyncService {
           messages: state.messages,
           status: state.status,
           progress: state.progress,
-          currentQuestionIndex: state.currentQuestionIndex
+          currentQuestionIndex: state.currentQuestionIndex,
+          topic: state.topic
         }),
       })
       
