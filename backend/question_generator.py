@@ -109,7 +109,9 @@ class QuestionGenerator:
         follow_up_questions.extend(motif_questions)
         
         # Limit number of questions based on step
-        max_questions = 3 if current_step == 1 else 2
+        # For Step 1 (node discovery), limit to 1 question
+        # For Step 2 (relationship building), limit to 2 questions
+        max_questions = 1 if current_step == 1 else 2
         if len(follow_up_questions) > max_questions:
             follow_up_questions = follow_up_questions[:max_questions]
         
@@ -253,7 +255,42 @@ class QuestionGenerator:
                         "stance_node_id": stance_node_id
                     })
         
-        # PRIORITY 2: Find edges that need qualification (strength/modifier info)
+        # PRIORITY 2: For existing anchor nodes, prioritize finding upstream relationships (what affects them)
+        if len(questions) < 2:
+            # Select an anchor to focus on (prioritize those with fewer incoming connections)
+            anchor_incoming_connections = {}
+            for anchor_id in anchor_queue:
+                if anchor_id in agent_scm.get('nodes', {}) and agent_scm['nodes'][anchor_id].get('status') == 'anchor':
+                    node = agent_scm['nodes'][anchor_id]
+                    # Focus specifically on incoming edges (upstream)
+                    incoming_connections = len(node.get('incoming_edges', []))
+                    anchor_incoming_connections[anchor_id] = incoming_connections
+            
+            # Sort by incoming connections (fewer first)
+            sorted_anchors = sorted(anchor_incoming_connections.items(), key=lambda x: x[1])
+            
+            # Get the anchor with fewest incoming connections
+            if sorted_anchors:
+                anchor_id, _ = sorted_anchors[0]
+                anchor_node = agent_scm['nodes'][anchor_id]
+                
+                # Generate upstream question (what affects this anchor)
+                template = random.choice(self.step2_combined_templates['upstream'])
+                question_text = template.format(node=anchor_node.get('label', 'this factor'))
+                
+                # Add modifier guidance if needed
+                if "strong" not in question_text.lower() or "weak" not in question_text.lower():
+                    question_text += " Please also indicate if these influences are positive (increasing) or negative (decreasing)."
+                
+                if not any(self._similar_questions(question_text, existing) for existing in existing_question_texts):
+                    questions.append({
+                        "question": question_text,
+                        "shortText": f"Factors affecting {anchor_node.get('label', 'factor')}",
+                        "type": "anchor_upstream_with_strength",
+                        "node_id": anchor_id
+                    })
+        
+        # PRIORITY 3: Find edges that need qualification (strength/modifier info)
         if len(questions) < 2:
             edge_candidates = []
             for edge_id, edge in agent_scm.get('edges', {}).items():
@@ -293,54 +330,6 @@ class QuestionGenerator:
                         "shortText": f"Relationship: {from_node.get('label', 'factor')} → {to_node.get('label', 'factor')}",
                         "type": "relationship_qualification",
                         "edge_id": edge_id
-                    })
-        
-        # PRIORITY 3: Focus on expanding anchor nodes (finding new relationships)
-        if len(questions) < 2:
-            # Select an anchor to focus on (prioritize those with fewer connections)
-            anchor_connections = {}
-            for anchor_id in anchor_queue:
-                if anchor_id in agent_scm.get('nodes', {}) and agent_scm['nodes'][anchor_id].get('status') == 'anchor':
-                    node = agent_scm['nodes'][anchor_id]
-                    connections = len(node.get('incoming_edges', [])) + len(node.get('outgoing_edges', []))
-                    anchor_connections[anchor_id] = connections
-            
-            # Sort by connections (fewer first)
-            sorted_anchors = sorted(anchor_connections.items(), key=lambda x: x[1])
-            
-            # Get the anchor with fewest connections
-            if sorted_anchors:
-                anchor_id, _ = sorted_anchors[0]
-                anchor_node = agent_scm['nodes'][anchor_id]
-                
-                # Randomly choose upstream or downstream question
-                if random.choice([True, False]):
-                    # Generate upstream question (what affects this anchor)
-                    template = random.choice(self.step2_combined_templates['upstream'])
-                    question_text = template.format(node=anchor_node.get('label', 'this factor'))
-                    
-                    # Add modifier guidance if needed
-                    if "strong" not in question_text.lower() or "weak" not in question_text.lower():
-                        question_text += " Please also indicate if these influences are positive (increasing) or negative (decreasing)."
-                    
-                    question_type = "anchor_upstream_with_strength"
-                else:
-                    # Generate downstream question (what does this anchor affect)
-                    template = random.choice(self.step2_combined_templates['downstream'])
-                    question_text = template.format(node=anchor_node.get('label', 'this factor'))
-                    
-                    # Add modifier guidance if needed
-                    if "strong" not in question_text.lower() or "weak" not in question_text.lower():
-                        question_text += " Please also indicate if these effects are positive (increasing) or negative (decreasing)."
-                    
-                    question_type = "anchor_downstream_with_strength"
-                
-                if not any(self._similar_questions(question_text, existing) for existing in existing_question_texts):
-                    questions.append({
-                        "question": question_text,
-                        "shortText": f"About {anchor_node.get('label', 'factor')} relationships",
-                        "type": question_type,
-                        "node_id": anchor_id
                     })
         
         return questions

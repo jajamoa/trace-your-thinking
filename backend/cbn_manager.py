@@ -1071,7 +1071,7 @@ class CBNManager:
             self.anchor_queue = cbn['anchor_queue']
         
         # If we're in Step 1 and have enough anchor nodes, move to Step 2
-        if self.current_step == 1 and len(self.anchor_queue) >= 5:  # Changed from 3 to 5
+        if self.current_step == 1 and len(self.anchor_queue) >= 3:  # Changed from 5 to 3
             self.current_step = 2
             self.logger.info(f"Transitioning from Step 1 to Step 2 (anchor count: {len(self.anchor_queue)})")
         
