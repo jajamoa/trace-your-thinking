@@ -42,6 +42,7 @@ extractor = QwenLLMExtractor(
     temperature=0.01  # Set temperature to lowest possible value for maximum consistency
 )
 cbn_manager = CBNManager()
+cbn_manager.set_llm_extractor(extractor)  # Set LLM extractor for similarity checks
 question_generator = QuestionGenerator()
 
 # Dictionary to store CBNs for each session/user
@@ -292,14 +293,13 @@ def process_answer():
                 "nodes": {
                     stance_node_id: {
                         "label": stance_label,
-                        "confidence": 1.0,
-                        "evidence": [{"qa_id": "system", "confidence": 1.0, "importance": 1.0}],
                         "aggregate_confidence": 1.0,
+                        "evidence": [{"qa_id": "system", "confidence": 1.0, "importance": 1.0}],
                         "importance": 1.0,
-                        "source_qa": [],
                         "incoming_edges": [],
                         "outgoing_edges": [],
                         "status": "anchor",  # Mark as anchor node
+                        "frequency": 1,      # Initialize frequency counter
                         "is_stance": True    # Mark as stance node
                     }
                 },
@@ -614,16 +614,27 @@ def update_cbn_with_qa(agent_cbn, qa_pair):
                 existing_node = agent_cbn['nodes'][existing_node_id]
                 existing_node['frequency'] = existing_node.get('frequency', 1) + 1
                 
-                # Update importance and confidence if new values are higher
-                if node.get('importance', 0) > existing_node.get('importance', 0):
-                    existing_node['importance'] = node.get('importance')
-                if node.get('confidence', 0) > existing_node.get('confidence', 0):
-                    existing_node['confidence'] = node.get('confidence')
-                    existing_node['aggregate_confidence'] = node.get('confidence')  # 同时更新aggregate_confidence
+                # Update evidence with information from this QA
+                if 'evidence' not in existing_node:
+                    existing_node['evidence'] = []
                 
-                # Add QA to sources if not already present
-                if qa_id not in existing_node.get('source_qa', []):
-                    existing_node['source_qa'].append(qa_id)
+                # Create evidence entry for this QA
+                new_evidence = {
+                    "qa_id": qa_id,
+                    "confidence": node.get('aggregate_confidence', 0.5),
+                    "importance": node.get('importance', 0.5)
+                }
+                
+                # Check if this QA is already in evidence
+                qa_exists = any(e.get('qa_id') == qa_id for e in existing_node['evidence'])
+                if not qa_exists:
+                    existing_node['evidence'].append(new_evidence)
+                    
+                    # Recalculate aggregate values
+                    existing_node['aggregate_confidence'] = cbn_manager._calculate_node_aggregate_confidence(existing_node['evidence'])
+                    existing_node['importance'] = cbn_manager._calculate_node_importance(existing_node['evidence'])
+                    
+                    logger.info(f"Added evidence for QA {qa_id} to existing node {existing_node_id}")
             else:
                 # Create new node in CBN with candidate status and sequential ID
                 if 'node_counter' not in agent_cbn:
@@ -632,12 +643,18 @@ def update_cbn_with_qa(agent_cbn, qa_pair):
                 agent_cbn['node_counter'] += 1
                 new_node_id = f"n{agent_cbn['node_counter']}"
                 
+                # Create evidence entry for this QA
+                evidence = [{
+                    "qa_id": qa_id,
+                    "confidence": node.get('aggregate_confidence', 0.5),
+                    "importance": node.get('importance', 0.5)
+                }]
+                
                 agent_cbn['nodes'][new_node_id] = {
                     "label": node_label,
-                    "confidence": node.get('confidence', 0.5),
-                    "aggregate_confidence": node.get('confidence', 0.5),
+                    "aggregate_confidence": node.get('aggregate_confidence', 0.5),
                     "importance": node.get('importance', 0.5),
-                    "source_qa": [qa_id],
+                    "evidence": evidence,
                     "incoming_edges": [],
                     "outgoing_edges": [],
                     "status": "candidate",  # All new nodes (except initial stance node) start as candidates
@@ -654,7 +671,11 @@ def update_cbn_with_qa(agent_cbn, qa_pair):
     # Note: Nodes are handled the same way in both steps 1 and 2 - all start as candidates
     # and are only promoted to anchors based on specific criteria
     llm_logger.log_separator("STEP 2: EDGE & MODIFIER EXTRACTION")
-    edge = extractor.extract_edge(qa_pair)
+    if len(new_nodes) >= 2:
+        edge = extractor.extract_edge(qa_pair, new_nodes)
+    else:
+        logger.info("Less than 2 nodes extracted, skipping edge extraction")
+        edge = None
 
     # 3. Add or update edge if found
     if edge:
@@ -665,15 +686,15 @@ def update_cbn_with_qa(agent_cbn, qa_pair):
         if edge.get('strength'):
             # Create function params from edge strength
             function_params = {
-                "confidence": edge.get('confidence', 0.7),
+                "aggregate_confidence": edge.get('aggregate_confidence', 0.7),
                 "strength": edge.get('strength', 0.7)
             }
             logger.info(f"Using combined edge and modifier parameters: {function_params}")
         else:
             function_params = None
         
-        # Add or update the edge with the combined information
-        agent_cbn, edge_id = cbn_manager.add_or_update_edge(agent_cbn, edge)
+        # Add the edge (merging will be handled separately)
+        agent_cbn, edge_id = cbn_manager.add_edge(agent_cbn, edge)
         
         # No need for separate function parameter extraction
         # Update function parameters if edge found and parameters extracted
@@ -683,50 +704,67 @@ def update_cbn_with_qa(agent_cbn, qa_pair):
 
         llm_logger.log_separator("EDGE PROCESSING COMPLETE")
     
-    # 4. Create parsed belief for QA using LLM
-    # Find edge ID (if it exists) for creating parsed belief
-    edge_id = None
-    for eid, e in agent_cbn.get('edges', {}).items():
-        from_node_id = e.get('source')
-        to_node_id = e.get('target')
-        
-        if from_node_id and to_node_id:
-            from_node = agent_cbn['nodes'].get(from_node_id, {})
-            to_node = agent_cbn['nodes'].get(to_node_id, {})
-            
-            if (from_node.get('label', '').lower() == edge['from_label'].lower() and 
-                to_node.get('label', '').lower() == edge['to_label'].lower()):
-                edge_id = eid
-                break
+    # Apply unified node and edge merging
+    llm_logger.log_separator("UNIFIED GRAPH MERGING")
+    logger.info(f"Starting graph component merging process with {len(agent_cbn['nodes'])} nodes and {len(agent_cbn['edges'])} edges")
     
-    # 5. Extract beliefs and add QA to graph
-    llm_logger.log_separator("BELIEF EXTRACTION & QA RECORDING")
+    # Log which nodes are candidates for merging
+    candidate_nodes = []
+    for node_id, node in agent_cbn['nodes'].items():
+        if node.get('status') == 'candidate' and node.get('frequency', 1) > 1:
+            candidate_nodes.append(f"{node.get('label', 'unknown')} (id: {node_id}, freq: {node.get('frequency', 1)})")
     
-    if edge_id:
-        from_node_id = agent_cbn['edges'][edge_id]['source']
-        to_node_id = agent_cbn['edges'][edge_id]['target']
-        
-        parsed_belief = extractor.extract_parsed_belief(qa_pair, from_node_id, to_node_id)
-        
-        # Add QA with parsed belief to the graph
-        if parsed_belief:
-            logger.info(f"Adding QA with parsed belief to graph")
-            qa_pair['id'] = qa_id  # Assign the generated qa_id to the qa_pair
-            agent_cbn = cbn_manager.add_qa_to_graph(agent_cbn, qa_pair, parsed_belief, new_nodes)
-        else:
-            # Add QA with empty parsed belief
-            logger.info(f"Adding QA with empty parsed belief to graph")
-            qa_pair['id'] = qa_id  # Assign the generated qa_id to the qa_pair
-            agent_cbn = cbn_manager.add_qa_to_graph(agent_cbn, qa_pair, None, new_nodes)
-    else:
-        # Add QA with empty parsed belief
-        logger.info(f"Adding QA with empty parsed belief (no valid edge ID)")
-        qa_pair['id'] = qa_id  # Assign the generated qa_id to the qa_pair
-        agent_cbn = cbn_manager.add_qa_to_graph(agent_cbn, qa_pair, None, new_nodes)
+    if candidate_nodes:
+        logger.info(f"Potential merge candidates based on frequency: {len(candidate_nodes)} nodes")
+        for node in candidate_nodes[:5]:  # Log only first 5 to avoid excessive output
+            logger.info(f"  - {node}")
+        if len(candidate_nodes) > 5:
+            logger.info(f"  - ... and {len(candidate_nodes) - 5} more")
+    
+    # Perform the actual merging
+    agent_cbn = cbn_manager.merge_graph_components(agent_cbn)
+    
+    # Log the results after merging
+    logger.info(f"Completed graph merging, now has {len(agent_cbn['nodes'])} nodes and {len(agent_cbn['edges'])} edges")
+    
+    # Log node statistics after merging
+    anchor_count = len(agent_cbn.get('anchor_queue', []))
+    candidate_count = sum(1 for node in agent_cbn['nodes'].values() if node.get('status') == 'candidate')
+    
+    logger.info(f"Post-merge node status: {anchor_count} anchors, {candidate_count} candidates")
+    
+    # Log edge statistics after merging
+    total_edges = len(agent_cbn['edges'])
+    positive_edges = sum(1 for edge in agent_cbn['edges'].values() if edge.get('modifier', 0) >= 0)
+    negative_edges = total_edges - positive_edges
+    
+    logger.info(f"Post-merge edge stats: {positive_edges} positive edges, {negative_edges} negative edges")
+    
+    # Also log the status of graph completeness based on node and edge counts
+    completeness_ratio = 0.0
+    if len(agent_cbn['nodes']) > 1:
+        # Calculate a simple completeness ratio as actual edges / possible edges between nodes
+        possible_edges = len(agent_cbn['nodes']) * (len(agent_cbn['nodes']) - 1)
+        if possible_edges > 0:
+            completeness_ratio = len(agent_cbn['edges']) / possible_edges
+    
+    logger.info(f"Graph completeness: {completeness_ratio:.2%} ({len(agent_cbn['edges'])} edges among {len(agent_cbn['nodes'])} nodes)")
+    llm_logger.log_separator("GRAPH MERGING COMPLETE")
+    
+    # Add QA to graph without the separate belief extraction
+    llm_logger.log_separator("QA RECORDING")
+    
+    # Assign the generated qa_id to the qa_pair
+    qa_pair['id'] = qa_id
+    
+    # Add QA directly to the graph without separate belief extraction
+    # The edge extraction already has all necessary information
+    agent_cbn = cbn_manager.add_qa_to_graph(agent_cbn, qa_pair, None, new_nodes, edge_id if edge else None)
+    
+    logger.info(f"Added QA with ID {qa_id} to graph")
     
     # 6. Check for nodes that should be promoted based on frequency
     cbn_manager._check_node_promotion(agent_cbn)
-    logger.info(f"Checked node promotion using CBNManager, current anchor queue: {agent_cbn.get('anchor_queue', [])}")
     
     # Output detailed information about nodes by status
     logger.info("Candidate nodes:")
@@ -738,7 +776,7 @@ def update_cbn_with_qa(agent_cbn, qa_pair):
     for node_id in agent_cbn['anchor_queue']:
         if node_id in agent_cbn['nodes']:
             node = agent_cbn['nodes'][node_id]
-            logger.info(f"  - {node.get('label', 'unknown')}: confidence={node.get('confidence', 0)}, connections={len(node.get('incoming_edges', [])) + len(node.get('outgoing_edges', []))}")
+            logger.info(f"  - {node.get('label', 'unknown')}: aggregate_confidence={node.get('aggregate_confidence', 0)}, connections={len(node.get('incoming_edges', [])) + len(node.get('outgoing_edges', []))}")
     
     if current_step == "edge_construction":
         # For edge construction step, check for structure convergence

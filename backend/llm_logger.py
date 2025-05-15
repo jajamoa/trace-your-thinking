@@ -11,7 +11,8 @@ LLM_CALL_TYPES = {
     "EDGE_EXTRACTION": "edge_extraction",
     "FUNCTION_PARAMS": "function_params",
     "BELIEF_EXTRACTION": "belief_extraction",
-    "TOPIC_EXTRACTION": "topic_extraction"
+    "TOPIC_EXTRACTION": "topic_extraction",
+    "NODE_SIMILARITY": "node_similarity"
 }
 
 class LLMLogger:

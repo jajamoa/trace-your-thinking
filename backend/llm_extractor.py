@@ -144,7 +144,7 @@ class QwenLLMExtractor:
                     continue
                     
                 # Normalize confidence to 0.0-1.0 range
-                confidence = float(node_data.get('confidence', 0.5))
+                confidence = float(node_data.get('aggregate_confidence', node_data.get('confidence', 0.5)))
                 confidence = max(0.0, min(1.0, confidence))
                 
                 # Normalize importance to 0.0-1.0 range
@@ -157,18 +157,26 @@ class QwenLLMExtractor:
                 # Track node frequency
                 self.node_candidates[node_label.lower()] += 1
                 
+                # Create evidence entry for this QA
+                evidence = [{
+                    "qa_id": qa_id,
+                    "confidence": confidence,
+                    "importance": importance
+                }]
+                
                 # Create node with metadata but without permanent ID
                 nodes[temp_key] = {
                     'label': node_label,
-                    'confidence': confidence,
+                    'aggregate_confidence': confidence,
                     'importance': importance,
-                    'source_qa': [qa_id]
+                    'evidence': evidence,
+                    'frequency': 1
                 }
             
             if nodes:
                 logger.info(f"Extracted {len(nodes)} nodes from QA pair")
                 for key, node in nodes.items():
-                    logger.info(f"- {node['label']} (confidence: {node['confidence']:.2f}, importance: {node['importance']:.2f})")
+                    logger.info(f"- {node['label']} (aggregate_confidence: {node['aggregate_confidence']:.2f}, importance: {node['importance']:.2f})")
             
             return nodes
                 
@@ -177,13 +185,15 @@ class QwenLLMExtractor:
             logger.error(f"Raw output: {extracted_output}")
             return {}
     
-    def extract_edge(self, qa_pair):
+    def extract_edge(self, qa_pair, extracted_nodes=None):
         """
         Extract potential causal relationships (edges) from a QA pair using LLM.
-        Also extracts modifier/strength information in the same call.
+        This is a comprehensive extraction that collects all necessary information in one call,
+        including direction, strength, aggregate_confidence, and explanation.
         
         Args:
             qa_pair (dict): A question-answer pair
+            extracted_nodes (dict, optional): Previously extracted nodes to restrict edge creation
             
         Returns:
             dict or None: Extracted edge information or None if no edge found
@@ -192,13 +202,13 @@ class QwenLLMExtractor:
         answer = qa_pair.get('answer', '')
         qa_id = qa_pair.get('id')
         
-        logger.info(f"Extracting edge and modifier from QA pair {qa_id}")
+        logger.info(f"Extracting comprehensive edge information from QA pair {qa_id}")
         
         # Add separators before LLM calls in the important extraction methods
         llm_logger.log_separator("Edge Extraction Request")
         
         # Prepare a prompt for combined edge and modifier extraction
-        prompt = self._create_combined_edge_extraction_prompt(question, answer)
+        prompt = self._create_combined_edge_extraction_prompt(question, answer, extracted_nodes)
         
         try:
             # Call the LLM to extract edges with modifiers
@@ -207,20 +217,23 @@ class QwenLLMExtractor:
             if extracted_edge_json and 'edges' in extracted_edge_json and extracted_edge_json['edges']:
                 edge_data = extracted_edge_json['edges'][0]  # Take the first edge
                 
-                # Create edge with metadata including modifier information
+                # Create edge with comprehensive metadata
                 edge = {
                     "from_label": edge_data.get('from_node', ''),
                     "to_label": edge_data.get('to_node', ''),
                     "direction": edge_data.get('direction', 'positive'),
-                    "confidence": edge_data.get('confidence', 0.7),
+                    "aggregate_confidence": edge_data.get('aggregate_confidence', edge_data.get('confidence', 0.7)),
                     "support_qas": [qa_id],
                     "function_type": edge_data.get('function_type', 'sigmoid'),
-                    "strength": edge_data.get('strength', 0.7)  # Added strength parameter
+                    "strength": edge_data.get('strength', 0.7),
+                    "explanation": edge_data.get('explanation', '')
                 }
                 
                 # Only return if both from and to nodes are present
                 if edge["from_label"] and edge["to_label"]:
                     logger.info(f"Found edge: {edge['from_label']} → {edge['to_label']} (direction: {edge['direction']}, strength: {edge['strength']})")
+                    if edge['explanation']:
+                        logger.info(f"Explanation: {edge['explanation']}")
                     return edge
             
             logger.info("No edge found in QA pair")
@@ -244,84 +257,7 @@ class QwenLLMExtractor:
             dict or None: Function parameters or None if not extractable
         """
         logger.info("Function parameters already extracted in edge extraction step")
-        return {"confidence": 0.7}  # Return default values
-    
-    def extract_parsed_belief(self, qa_pair, from_node_id, to_node_id):
-        """
-        Extract a structured parsed belief from a QA pair using LLM.
-        
-        Args:
-            qa_pair (dict): A question-answer pair
-            from_node_id (str): Source node ID
-            to_node_id (str): Target node ID
-            
-        Returns:
-            dict: Structured parsed belief, empty dict if extraction fails
-        """
-        question = qa_pair.get('question', '')
-        answer = qa_pair.get('answer', '')
-        
-        logger.info("Extracting parsed belief")
-        
-        # Add separators before LLM calls in the important extraction methods
-        llm_logger.log_separator("Belief Extraction Request")
-        
-        # Prepare a prompt for belief extraction
-        prompt = self._create_belief_extraction_prompt(question, answer, from_node_id, to_node_id)
-        
-        try:
-            # Call the LLM to extract beliefs
-            belief_json = self._call_llm_for_structured_output(prompt, LLM_CALL_TYPES["BELIEF_EXTRACTION"])
-            
-            if belief_json and 'parsed_belief' in belief_json:
-                belief_data = belief_json['parsed_belief']
-                
-                parsed_belief = {
-                    "belief_structure": {
-                        "from": from_node_id,
-                        "to": to_node_id,
-                        "direction": belief_data.get('direction', 'positive')
-                    },
-                    "belief_strength": {
-                        "estimated_probability": belief_data.get('strength', 0.7),
-                        "confidence_rating": belief_data.get('confidence', 0.6)
-                    },
-                    "counterfactual": belief_data.get('counterfactual', f"If [from_node] were different, [to_node] would change.")
-                }
-                
-                logger.info(f"Extracted belief: direction={parsed_belief['belief_structure']['direction']}, strength={parsed_belief['belief_strength']['estimated_probability']}")
-                return parsed_belief
-            
-            logger.info("No parsed belief found, returning minimal valid structure")
-            # Return minimal valid structure to comply with schema
-            return {
-                "belief_structure": {
-                    "from": from_node_id,
-                    "to": to_node_id,
-                    "direction": "positive"
-                },
-                "belief_strength": {
-                    "estimated_probability": 0.5,
-                    "confidence_rating": 0.5
-                },
-                "counterfactual": ""
-            }
-        
-        except Exception as e:
-            logger.error(f"Error extracting beliefs with LLM: {e}")
-            # Return minimal valid structure to comply with schema
-            return {
-                "belief_structure": {
-                    "from": from_node_id,
-                    "to": to_node_id,
-                    "direction": "positive"
-                },
-                "belief_strength": {
-                    "estimated_probability": 0.5,
-                    "confidence_rating": 0.5
-                },
-                "counterfactual": ""
-            }
+        return {"aggregate_confidence": 0.7}  # Return default values
     
     def get_node_extraction_prompt(self, question, answer):
         """
@@ -344,18 +280,18 @@ Identify key concepts or beliefs from the user's answer. These could be:
 3. Entities or ideas that influence the user's thinking
 
 For each concept, rate:
-- Confidence (0.0-1.0): How confident the user seems about this concept
+- Aggregate Confidence (0.0-1.0): How confident the user seems about this concept
 - Importance (0.0-1.0): How important this concept appears to be in their belief system
 
 FORMAT:
-Return ONLY a raw JSON array of objects with 'label', 'confidence', and 'importance' fields.
+Return ONLY a raw JSON array of objects with 'label', 'aggregate_confidence', and 'importance' fields.
 Do NOT use markdown formatting or code blocks - return ONLY the JSON array directly.
 
 Example of correct response format:
 [
   {{
     "label": "Concept name",
-    "confidence": 0.8,
+    "aggregate_confidence": 0.8,
     "importance": 0.9
   }}
 ]
@@ -369,22 +305,45 @@ ANSWER:
 EXTRACTED CONCEPTS (JSON ONLY):
 """
     
-    def _create_combined_edge_extraction_prompt(self, question, answer):
+    def _create_combined_edge_extraction_prompt(self, question, answer, extracted_nodes=None):
         """
         Create a prompt for extracting both edges and their modifiers from a QA pair.
+        This is a comprehensive extraction that collects all necessary information about
+        causal relationships, including direction, strength, aggregate_confidence, and explanation.
+        
+        Args:
+            question (str): The question text
+            answer (str): The answer text
+            extracted_nodes (dict, optional): Previously extracted nodes to restrict edge creation
         """
+        # Add node list to prompt if available
+        node_list_section = ""
+        if extracted_nodes and len(extracted_nodes) > 0:
+            nodes_list = [node.get('label', '') for key, node in extracted_nodes.items()]
+            nodes_text = ", ".join([f'"{node}"' for node in nodes_list if node])
+            node_list_section = f"""
+IMPORTANT: You MUST ONLY create edges between the following concepts that were identified in this answer:
+[{nodes_text}]
+
+DO NOT introduce new concepts that are not in this list. If you cannot find a valid causal relationship between these concepts, return an empty edges array.
+"""
+        
         return f"""
-Extract causal relationships between concepts from the following question-answer pair:
+Extract comprehensive causal relationship information from the following question-answer pair:
 
 Question: {question}
 
 Answer: {answer}
-
+{node_list_section}
 Identify potential causal relationships with the following criteria:
 1. Identify cause-effect relationships between concepts
-2. Determine the direction (positive/negative) of the relationship
-3. Assess the strength of the relationship (0.0-1.0)
-4. Assign a confidence score (0.0-1.0) to how certain you are about this relationship
+2. Determine if the relationship is positive (cause increases effect) or negative (cause decreases effect)
+3. Assess the strength of the relationship on a scale from 0.0 to 1.0
+   - 0.0 = no effect
+   - 0.5 = moderate effect
+   - 1.0 = very strong effect
+4. Assign an aggregate_confidence score (0.0-1.0) to how certain you are about this relationship
+5. Provide a brief explanation of why this causal relationship exists
 
 Format your response as a JSON object with the following structure.
 Return ONLY raw JSON - do NOT use markdown formatting or code blocks:
@@ -396,7 +355,8 @@ Return ONLY raw JSON - do NOT use markdown formatting or code blocks:
       "to_node": "effect_concept",
       "direction": "positive|negative",
       "strength": 0.8,
-      "confidence": 0.7
+      "aggregate_confidence": 0.7,
+      "explanation": "Brief explanation of why this causal relationship exists"
     }}
   ]
 }}
@@ -404,39 +364,8 @@ Return ONLY raw JSON - do NOT use markdown formatting or code blocks:
 A positive direction means the cause increases the effect.
 A negative direction means the cause decreases the effect.
 Strength indicates how powerful the influence is (0.0=weak, 1.0=strong).
-Confidence indicates how certain you are about the existence of this relationship.
-
-RESPONSE (JSON ONLY):
-"""
-    
-    def _create_belief_extraction_prompt(self, question, answer, from_node_id, to_node_id):
-        """
-        Create a prompt for extracting beliefs from a QA pair.
-        """
-        return f"""
-Extract the belief about a causal relationship from the following question-answer pair:
-
-Question: {question}
-
-Answer: {answer}
-
-For a relationship between two nodes, extract:
-1. The direction of the relationship (positive/negative)
-2. The strength of the belief (0.0-1.0)
-3. The confidence in this belief (0.0-1.0)
-4. A counterfactual statement about this relationship
-
-Format your response as a JSON object with the following structure.
-Return ONLY raw JSON - do NOT use markdown formatting or code blocks:
-
-{{
-  "parsed_belief": {{
-    "direction": "positive|negative",
-    "strength": 0.7,
-    "confidence": 0.6,
-    "counterfactual": "If [cause] were different, [effect] would change."
-  }}
-}}
+Aggregate_confidence indicates how certain you are about the existence of this relationship.
+Explanation should briefly explain the reasoning behind this causal relationship.
 
 RESPONSE (JSON ONLY):
 """
@@ -480,7 +409,7 @@ RESPONSE (JSON ONLY):
                         "from_label": from_node,
                         "to_label": to_node,
                         "direction": direction,
-                        "confidence": 0.7,
+                        "aggregate_confidence": 0.7,
                         "support_qas": [qa_id]
                     }
                     
@@ -634,4 +563,111 @@ RESPONSE (JSON ONLY):
                 return json_str[obj_start:obj_end]
         
         # If we couldn't extract a clean JSON structure, return the original
-        return json_str.strip() 
+        return json_str.strip()
+    
+    def find_similar_nodes_in_graph(self, nodes):
+        """
+        Find semantically similar nodes in the entire graph at once using LLM.
+        
+        Args:
+            nodes (dict): Dictionary of node_id -> node mapping from the graph
+            
+        Returns:
+            list: List of tuples (node_id1, node_id2, confidence) for similar nodes
+        """
+        if not nodes or len(nodes) < 2:
+            return []
+        
+        logger.info(f"Finding similar nodes in graph with {len(nodes)} nodes")
+        
+        # Extract relevant node information for the LLM
+        node_data = []
+        for node_id, node in nodes.items():
+            node_data.append({
+                "id": node_id,
+                "label": node.get("label", ""),
+                "frequency": node.get("frequency", 1),
+                "importance": node.get("importance", 0.5),
+                "confidence": node.get("aggregate_confidence", 0.5),
+                "status": node.get("status", "candidate"),  # Include node status
+                "is_stance": node.get("is_stance", False)   # Include stance flag
+            })
+        
+        # Create a prompt to find similar nodes in the graph
+        prompt = f"""
+You are analyzing a graph of concepts extracted from a user's beliefs.
+Find pairs of nodes that are semantically similar.
+
+INSTRUCTIONS:
+Analyze the following list of concept nodes and identify pairs that represent the same or very similar ideas.
+These could be:
+1. Synonyms or alternative phrasings
+2. Specific vs. general versions of the same concept
+3. Different aspects of the same underlying idea
+
+NODE LIST:
+{json.dumps(node_data, indent=2)}
+
+When determining similarity, consider:
+- Exact matching words indicate strong similarity
+- Synonyms or related terms indicate potential similarity
+- Semantic meaning is more important than exact wording
+
+IMPORTANT: Your task is ONLY to identify similar nodes, NOT to decide which node should be kept or merged.
+The merging direction will be determined by the system based on node properties.
+
+RESPONSE FORMAT:
+Return ONLY a JSON array of objects, where each object has:
+- "node_id1": ID of first similar node
+- "node_id2": ID of second similar node
+- "explanation": Brief explanation of why these nodes are similar
+- "confidence": How confident you are about the similarity (0.0-1.0)
+
+Example response:
+[
+  {{
+    "node_id1": "n3",
+    "node_id2": "n7",
+    "explanation": "Both refer to climate policy with slightly different wording",
+    "confidence": 0.85
+  }}
+]
+
+IMPORTANT: Only include pairs with high confidence (>= 0.7).
+Do NOT include pairs where the similarity is questionable.
+The response should be raw JSON without code block formatting.
+
+RESPONSE (JSON ONLY):
+"""
+        
+        try:
+            # Call the LLM to find similar nodes
+            llm_logger.log_separator("GRAPH-WIDE NODE SIMILARITY CHECK")
+            llm_logger.log_prompt("NODE_SIMILARITY", prompt)
+            
+            response = self._call_llm_for_structured_output(prompt, "NODE_SIMILARITY")
+            
+            similar_pairs = []
+            if isinstance(response, list):
+                for pair in response:
+                    if (isinstance(pair, dict) and 
+                        "node_id1" in pair and 
+                        "node_id2" in pair and 
+                        "confidence" in pair):
+                        
+                        node_id1 = pair["node_id1"]
+                        node_id2 = pair["node_id2"]
+                        confidence = pair.get("confidence", 0)
+                        explanation = pair.get("explanation", "")
+                        
+                        # Only include high-confidence matches
+                        if confidence >= 0.7:
+                            logger.info(f"Similar nodes found: {node_id1} <-> {node_id2} ({explanation}, confidence: {confidence})")
+                            similar_pairs.append((node_id1, node_id2, confidence))
+            
+            logger.info(f"Found {len(similar_pairs)} pairs of similar nodes")
+            return similar_pairs
+            
+        except Exception as e:
+            logger.error(f"Error finding similar nodes in graph: {e}")
+            return [] 

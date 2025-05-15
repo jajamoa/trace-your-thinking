@@ -31,16 +31,18 @@ interface INode {
   id: string;
   label: string;
   is_stance: boolean;
-  confidence: number;
-  source_qa: string[];
+  aggregate_confidence: number;
+  evidence: IEvidence[];
   incoming_edges: string[];
   outgoing_edges: string[];
   status?: 'candidate' | 'anchor';
+  importance?: number;
 }
 
 interface IEvidence {
   qa_id: string;
   confidence: number;
+  importance?: number;
 }
 
 interface IEdge {
@@ -52,15 +54,29 @@ interface IEdge {
 }
 
 interface IExtractedPair {
+  edge_id: string;
   source: string;
   target: string;
+  source_label: string;
+  target_label: string;
   confidence: number;
+  modifier: number;
+  direction: string;
+}
+
+interface IExtractedNode {
+  node_id: string;
+  label: string;
+  confidence: number;
+  importance: number;
+  status?: string;
 }
 
 interface IQA {
   question: string;
   answer: string;
   extracted_pairs: IExtractedPair[];
+  extracted_nodes: IExtractedNode[];
 }
 
 interface ICausalGraph {
@@ -244,6 +260,10 @@ export default function CausalGraphViewer({ sessionId, qaPairId, className }: Ca
         const node = graphData.nodes[nodeId];
         if (!node) return; // Skip if node doesn't exist
         
+        // Handle compatibility with older data format
+        // If node has confidence but not aggregate_confidence, use confidence
+        const confidence = node.aggregate_confidence;
+                          
         // Determine node type based on status and is_stance flag
         let nodeType = 'beliefNode';
         if (node.is_stance) {
@@ -288,7 +308,7 @@ export default function CausalGraphViewer({ sessionId, qaPairId, className }: Ca
           type: nodeType,
           data: {
             label: node.label,
-            confidence: node.confidence,
+            aggregate_confidence: node.aggregate_confidence,
             is_stance: node.is_stance,
             status: node.status || 'anchor'  // Default to anchor if not specified
           },

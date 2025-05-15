@@ -1,21 +1,22 @@
 import mongoose, { Schema, Document } from 'mongoose';
 
+// Interface for evidence on an edge or node
+interface IEvidence {
+  qa_id: string;
+  confidence: number;
+  importance?: number;  // Only for node evidence
+}
+
 // Interface for a node in the causal graph
 interface INode {
   id: string;
   label: string;
   is_stance: boolean;         // True if this is a stance node, false otherwise
-  confidence: number;         // Confidence score (0.0-1.0)
-  source_qa: string[];        // QA IDs that support this node
+  aggregate_confidence: number;  // Aggregate confidence score (0.0-1.0)
+  evidence: IEvidence[];      // Evidence that supports this node
   incoming_edges: string[];
   outgoing_edges: string[];
   status?: 'candidate' | 'anchor';  // Node status - candidate or anchor
-}
-
-// Interface for evidence on an edge
-interface IEvidence {
-  qa_id: string;
-  confidence: number;
 }
 
 // Interface for an edge in the causal graph
@@ -69,32 +70,12 @@ export interface ICausalGraph extends Document {
 
 // Schema definitions for MongoDB
 
-// Node schema
-const NodeSchema = new Schema({
-  id: { type: String, required: true },
-  label: { type: String, required: true },
-  is_stance: { type: Boolean, default: false },
-  confidence: { type: Number, default: 0.9 },
-  source_qa: [{ type: String }],
-  incoming_edges: [{ type: String }],
-  outgoing_edges: [{ type: String }],
-  status: { type: String, enum: ['candidate', 'anchor'], default: 'anchor' }
-});
-
-// Evidence schema
+// Evidence schema - define this first as it's used by other schemas
 const EvidenceSchema = new Schema({
   qa_id: { type: String, required: true },
-  confidence: { type: Number, required: true }
+  confidence: { type: Number, required: true },
+  importance: { type: Number }
 }, { _id: false });
-
-// Edge schema
-const EdgeSchema = new Schema({
-  source: { type: String, required: true },
-  target: { type: String, required: true },
-  aggregate_confidence: { type: Number, required: true },
-  evidence: [{ type: EvidenceSchema, required: true }],
-  modifier: { type: Number, required: true }
-});
 
 // Extracted pair schema
 const ExtractedPairSchema = new Schema({
@@ -108,6 +89,27 @@ const QASchema = new Schema({
   question: { type: String, required: true },
   answer: { type: String, required: true },
   extracted_pairs: [{ type: ExtractedPairSchema }]
+});
+
+// Node schema
+const NodeSchema = new Schema({
+  id: { type: String, required: true },
+  label: { type: String, required: true },
+  is_stance: { type: Boolean, default: false },
+  aggregate_confidence: { type: Number, default: 0.9 },
+  evidence: [EvidenceSchema],
+  incoming_edges: [{ type: String }],
+  outgoing_edges: [{ type: String }],
+  status: { type: String, enum: ['candidate', 'anchor'], default: 'anchor' }
+});
+
+// Edge schema
+const EdgeSchema = new Schema({
+  source: { type: String, required: true },
+  target: { type: String, required: true },
+  aggregate_confidence: { type: Number, required: true },
+  evidence: [EvidenceSchema],
+  modifier: { type: Number, required: true }
 });
 
 // Schema for the complete causal graph data

@@ -7,99 +7,7 @@ import time
 import json
 from collections import defaultdict
 import logging
-import re
 from llm_logger import llm_logger  # Import here to avoid circular import
-
-
-class SemanticSimilarityEngine:
-    """
-    Engine for computing semantic similarity between node labels
-    """
-    
-    def __init__(self, similarity_threshold=0.7):
-        """Initialize the semantic similarity engine with threshold"""
-        self.similarity_threshold = similarity_threshold
-        self.logger = logging.getLogger(__name__)
-    
-    def preprocess_label(self, label):
-        """Preprocess node label for semantic comparison"""
-        # Convert to lowercase and remove punctuation/special chars
-        label = re.sub(r'[^a-zA-Z0-9\s]', ' ', label.lower())
-        # Split into words
-        return label.split()
-    
-    def node_similarity(self, label1, label2):
-        """
-        Calculate semantic similarity between two node labels
-        
-        Returns:
-            float: Similarity score between 0 and 1
-        """
-        # Preprocess labels
-        words1 = self.preprocess_label(label1)
-        words2 = self.preprocess_label(label2)
-        
-        # Simple token overlap as a baseline
-        common_words = set(words1).intersection(set(words2))
-        total_words = set(words1).union(set(words2))
-        
-        if not total_words:
-            return 0.0
-        
-        # Jaccard similarity coefficient
-        return len(common_words) / len(total_words)
-    
-    def find_similar_nodes(self, nodes):
-        """
-        Find all pairs of nodes with similarity exceeding the threshold
-        
-        Args:
-            nodes (dict): Dictionary of node_id -> node mapping from the graph
-            
-        Returns:
-            list: List of tuples (node_id1, node_id2, similarity) for similar nodes
-        """
-        if not nodes or len(nodes) < 2:
-            return []
-        
-        self.logger.info(f"Finding similar nodes with semantic similarity method (threshold: {self.similarity_threshold})")
-        
-        similar_pairs = []
-        processed_pairs = set()  # Track which pairs we've already compared
-        
-        # Compare each pair of nodes
-        node_ids = list(nodes.keys())
-        for i, node_id1 in enumerate(node_ids):
-            for j, node_id2 in enumerate(node_ids[i+1:], i+1):  # Start from i+1 to avoid comparing twice
-                # Skip if either node doesn't exist
-                if node_id1 not in nodes or node_id2 not in nodes:
-                    continue
-                
-                # Skip if already processed this pair
-                pair_key = tuple(sorted([node_id1, node_id2]))
-                if pair_key in processed_pairs:
-                    continue
-                
-                processed_pairs.add(pair_key)
-                
-                # Get node labels
-                label1 = nodes[node_id1].get('label', '')
-                label2 = nodes[node_id2].get('label', '')
-                
-                # Skip if either label is empty
-                if not label1 or not label2:
-                    continue
-                
-                # Calculate similarity
-                similarity = self.node_similarity(label1, label2)
-                
-                # If similarity exceeds threshold, add to results
-                if similarity >= self.similarity_threshold:
-                    self.logger.info(f"Similar nodes found: '{label1}' <-> '{label2}' (similarity: {similarity:.2f})")
-                    similar_pairs.append((node_id1, node_id2, similarity))
-        
-        self.logger.info(f"Found {len(similar_pairs)} pairs of similar nodes")
-        return similar_pairs
 
 
 class CBNManager:
@@ -125,8 +33,6 @@ class CBNManager:
         self.logger = logging.getLogger(__name__)
         # LLM for similarity check (will be set by caller if needed)
         self.llm_extractor = None
-        # Semantic similarity engine
-        self.similarity_engine = SemanticSimilarityEngine(similarity_threshold=0.7)
     
     def set_llm_extractor(self, extractor):
         """
@@ -155,37 +61,29 @@ class CBNManager:
         
         # Simply add new nodes to the CBN
         for node_id, node_data in new_nodes.items():
-            # Create a temporary node ID
+            # Get QA ID from source
+            qa_id = node_data.get('source_qa', ['unknown_qa_id'])[0]
+            
+            # Create evidence entry
+            evidence_entry = {
+                "qa_id": qa_id,
+                "confidence": node_data.get('confidence', 0.5),
+                "importance": node_data.get('importance', 0.5)
+            }
+            
+            # Create and add the new node with evidence structure
             temp_node_id = f"temp_{uuid.uuid4().hex[:8]}"
-            
-            # Get the evidence from the node data
-            evidence = node_data.get('evidence', [])
-            
-            # If no evidence provided, create a default evidence entry
-            if not evidence:
-                # Get QA ID - try to extract it or use a default
-                qa_id = "unknown_qa_id"
-                if 'source_qa' in node_data and node_data['source_qa']:
-                    qa_id = node_data['source_qa'][0]
-                    
-                # Create default evidence entry
-                evidence = [{
-                    "qa_id": qa_id,
-                    "confidence": node_data.get('aggregate_confidence', 0.5),
-                    "importance": node_data.get('importance', 0.5)
-                }]
-                
-                # Create and add the new node with evidence structure
             cbn['nodes'][temp_node_id] = {
-                    "label": node_data.get('label', ''),
-                "aggregate_confidence": node_data.get('aggregate_confidence', 0.5),
-                "evidence": evidence,
-                    "incoming_edges": [],
-                    "outgoing_edges": [],
+                "label": node_data.get('label', ''),
+                "aggregate_confidence": node_data.get('confidence', 0.5),
+                "evidence": [evidence_entry],
+                "incoming_edges": [],
+                "outgoing_edges": [],
                 "importance": node_data.get('importance', 0.5),
-                    "status": "candidate",  # Default to candidate status
-                "frequency": node_data.get('frequency', 1)  # Use provided frequency or default to 1
-                }
+                "status": "candidate",  # Default to candidate status
+                "frequency": 1,  # Initialize frequency counter
+                "source_qa": [qa_id]
+            }
         
         return cbn
     
@@ -225,7 +123,7 @@ class CBNManager:
             return cbn, None
         
         # Get confidence from edge data (default 0.7)
-        confidence = edge_data.get('aggregate_confidence', 0.7)
+        confidence = edge_data.get('confidence', 0.7)
         
         # Calculate modifier based on direction (-1.0 to 1.0) and strength
         strength = edge_data.get('strength', 0.7)
@@ -235,10 +133,11 @@ class CBNManager:
         # Scale by confidence to get [-confidence, +confidence]
         adjusted_modifier = modifier * confidence
         
-        # Create evidence entry with required fields according to schema
+        # Create evidence entry
         evidence_entry = {
             "qa_id": edge_data.get('support_qas', ['unknown_qa_id'])[0],
             "confidence": confidence,
+            "strength": strength,
             "original_modifier": modifier
         }
         
@@ -253,7 +152,7 @@ class CBNManager:
         cbn['edges'][edge_id] = {
             "source": from_node_id,
             "target": to_node_id,
-            "aggregate_confidence": confidence,  # Initially equal to the single evidence confidence
+            "aggregate_confidence": confidence,
             "evidence": [evidence_entry],
             "modifier": adjusted_modifier,
             "source_label": edge_data.get('from_label', ''),
@@ -264,7 +163,7 @@ class CBNManager:
         }
             
         # Log the created edge with additional information
-        self.logger.info(f"Created edge {edge_id}: {edge_data.get('from_label', '')} → {edge_data.get('to_label', '')} ({direction}, strength: {strength:.2f}, aggregate_confidence: {confidence:.2f})")
+        self.logger.info(f"Created edge {edge_id}: {edge_data.get('from_label', '')} → {edge_data.get('to_label', '')} ({direction}, strength: {strength:.2f}, confidence: {confidence:.2f})")
         if edge_data.get('explanation'):
             self.logger.info(f"  Explanation: {edge_data.get('explanation')}")
         
@@ -367,7 +266,7 @@ class CBNManager:
     
     def _find_mergeable_nodes(self, cbn):
         """
-        Find nodes that should be merged using semantic similarity analysis.
+        Find nodes that should be merged using LLM for semantic similarity analysis.
         Then determine merge direction based on priority rules.
         
         Args:
@@ -382,12 +281,17 @@ class CBNManager:
         if 'nodes' not in cbn or len(cbn['nodes']) < 2:
             return merge_candidates
         
-        # Use semantic similarity to find similar nodes
-        self.logger.info("Using semantic similarity to find similar nodes in graph")
-        similar_node_pairs = self.similarity_engine.find_similar_nodes(cbn['nodes'])
+        # Check if LLM extractor is available
+        if not self.llm_extractor or not hasattr(self.llm_extractor, 'find_similar_nodes_in_graph'):
+            self.logger.warning("LLM extractor not available for node similarity check")
+            return merge_candidates
+        
+        # Use LLM to find similar nodes in one batch (returns tuples of (node_id1, node_id2, confidence))
+        self.logger.info("Using LLM to find similar nodes in graph")
+        similar_node_pairs = self.llm_extractor.find_similar_nodes_in_graph(cbn['nodes'])
         
         # Determine merge direction for each similar pair based on priority rules
-        for node_id1, node_id2, similarity in similar_node_pairs:
+        for node_id1, node_id2, confidence in similar_node_pairs:
             # Skip if either node doesn't exist in the graph
             if node_id1 not in cbn['nodes'] or node_id2 not in cbn['nodes']:
                 self.logger.info(f"Skipping node pair: {node_id1} or {node_id2} not found in graph")
@@ -568,7 +472,7 @@ class CBNManager:
         elif target_node.get('importance', 0.5) > source_node.get('importance', 0.5):
             self.logger.info(f"  - Merge priority: Target has higher importance ({target_node.get('importance', 0.5):.2f} > {source_node.get('importance', 0.5):.2f})")
         elif target_node.get('aggregate_confidence', 0.5) > source_node.get('aggregate_confidence', 0.5):
-            self.logger.info(f"  - Merge priority: Target has higher aggregate_confidence ({target_node.get('aggregate_confidence', 0.5):.2f} > {source_node.get('aggregate_confidence', 0.5):.2f})")
+            self.logger.info(f"  - Merge priority: Target has higher confidence ({target_node.get('aggregate_confidence', 0.5):.2f} > {source_node.get('aggregate_confidence', 0.5):.2f})")
         
         # 1. Merge evidence
         if 'evidence' not in target_node:
@@ -581,23 +485,29 @@ class CBNManager:
             exists = any(e.get('qa_id') == qa_id for e in target_node['evidence'])
             
             if not exists:
-                # Ensure evidence has both confidence and importance values
-                if 'confidence' not in evidence:
-                    evidence['confidence'] = 0.5
-                if 'importance' not in evidence:
-                    evidence['importance'] = 0.5
-                
                 target_node['evidence'].append(evidence)
                 evidence_count += 1
         
         self.logger.info(f"  - Merged {evidence_count} evidence items")
         
-        # 2. Update frequency
+        # 2. Merge source_qa references
+        if 'source_qa' not in target_node:
+            target_node['source_qa'] = []
+        
+        qa_count = 0
+        for qa_id in source_node.get('source_qa', []):
+            if qa_id not in target_node['source_qa']:
+                target_node['source_qa'].append(qa_id)
+                qa_count += 1
+        
+        self.logger.info(f"  - Merged {qa_count} QA references")
+        
+        # 3. Update frequency
         old_frequency = target_node.get('frequency', 1)
         target_node['frequency'] = old_frequency + source_node.get('frequency', 1)
         self.logger.info(f"  - Updated frequency: {old_frequency} → {target_node['frequency']}")
         
-        # 3. Update importance and confidence using the new evidence list
+        # 4. Update importance and confidence using the new evidence list
         old_importance = target_node.get('importance', 0.5)
         new_importance = self._calculate_node_importance(target_node.get('evidence', []))
         target_node['importance'] = new_importance
@@ -606,37 +516,13 @@ class CBNManager:
         old_confidence = target_node.get('aggregate_confidence', 0.5)
         new_confidence = self._calculate_node_aggregate_confidence(target_node.get('evidence', []))
         target_node['aggregate_confidence'] = new_confidence
-        self.logger.info(f"  - Updated aggregate_confidence (maximum from evidence): {old_confidence:.2f} → {new_confidence:.2f}")
+        self.logger.info(f"  - Updated confidence (maximum from evidence): {old_confidence:.2f} → {new_confidence:.2f}")
         
-        # 4. Redirect all edges connected to the source node
+        # 5. Redirect all edges connected to the source node
         incoming_count = len(source_node.get('incoming_edges', []))
         outgoing_count = len(source_node.get('outgoing_edges', []))
         self.logger.info(f"  - Redirecting {incoming_count} incoming and {outgoing_count} outgoing edges")
         self._redirect_node_edges(cbn, source_id, target_id)
-        
-        # 5. Update references in qa_history
-        if 'qa_history' in cbn:
-            updated_qa_count = 0
-            for qa_id, qa_entry in cbn['qa_history'].items():
-                # Update node_id in extracted_nodes
-                if 'extracted_nodes' in qa_entry:
-                    for node_entry in qa_entry['extracted_nodes']:
-                        if node_entry.get('node_id') == source_id:
-                            node_entry['node_id'] = target_id
-                            updated_qa_count += 1
-                
-                # Update source/target in extracted_pairs
-                if 'extracted_pairs' in qa_entry:
-                    for pair in qa_entry['extracted_pairs']:
-                        if pair.get('source') == source_id:
-                            pair['source'] = target_id
-                            updated_qa_count += 1
-                        if pair.get('target') == source_id:
-                            pair['target'] = target_id
-                            updated_qa_count += 1
-            
-            if updated_qa_count > 0:
-                self.logger.info(f"  - Updated {updated_qa_count} references in qa_history")
         
         # 6. Remove the source node
         del cbn['nodes'][source_id]
@@ -760,8 +646,8 @@ class CBNManager:
         
         self.logger.info(f"Merging edge details:")
         self.logger.info(f"  - Connection: {source_node_label} → {target_node_label}")
-        self.logger.info(f"  - Source edge: {source_id} (aggregate_conf: {source_edge.get('aggregate_confidence', 0.5):.2f}, mod: {source_edge.get('modifier', 0):.2f})")
-        self.logger.info(f"  - Target edge: {target_id} (aggregate_conf: {target_edge.get('aggregate_confidence', 0.5):.2f}, mod: {target_edge.get('modifier', 0):.2f})")
+        self.logger.info(f"  - Source edge: {source_id} (conf: {source_edge.get('aggregate_confidence', 0.5):.2f}, mod: {source_edge.get('modifier', 0):.2f})")
+        self.logger.info(f"  - Target edge: {target_id} (conf: {target_edge.get('aggregate_confidence', 0.5):.2f}, mod: {target_edge.get('modifier', 0):.2f})")
         
         # 1. Merge evidence
         if 'evidence' not in target_edge:
@@ -774,12 +660,6 @@ class CBNManager:
             exists = any(e.get('qa_id') == qa_id for e in target_edge['evidence'])
             
             if not exists:
-                # Ensure evidence has confidence and original_modifier fields
-                if 'confidence' not in evidence:
-                    evidence['confidence'] = 0.5
-                if 'original_modifier' not in evidence:
-                    evidence['original_modifier'] = 1.0
-                
                 target_edge['evidence'].append(evidence)
                 evidence_count += 1
         
@@ -798,7 +678,7 @@ class CBNManager:
         target_edge['direction'] = 'positive' if new_modifier >= 0 else 'negative'
         target_edge['strength'] = abs(new_modifier)
         
-        self.logger.info(f"  - Updated aggregate_confidence: {old_confidence:.2f} → {new_confidence:.2f}")
+        self.logger.info(f"  - Updated confidence: {old_confidence:.2f} → {new_confidence:.2f}")
         self.logger.info(f"  - Updated modifier: {old_modifier:.2f} → {new_modifier:.2f}")
         self.logger.info(f"  - Updated direction: {target_edge['direction']}, strength: {target_edge['strength']:.2f}")
         
@@ -851,9 +731,9 @@ class CBNManager:
         edge = cbn['edges'][edge_id]
         
         # Update confidence if provided
-        if 'aggregate_confidence' in function_params:
+        if 'confidence' in function_params:
             # Update evidence for this edge with the new confidence
-            new_confidence = function_params.get('aggregate_confidence', 0.7)
+            new_confidence = function_params.get('confidence', 0.7)
             
             # If we have evidence, update the most recent one
             if edge['evidence']:
@@ -876,7 +756,7 @@ class CBNManager:
             cbn (dict): The existing CBN
             qa_pair (dict): QA pair to add
             parsed_belief (dict, optional): Deprecated, kept for parameter compatibility only
-            extracted_nodes (dict, optional): Dictionary of extracted nodes with aggregate_confidence
+            extracted_nodes (dict, optional): Dictionary of extracted nodes with confidence
             edge_id (str, optional): Edge ID if an edge was created/updated directly
             
         Returns:
@@ -932,71 +812,20 @@ class CBNManager:
                     "direction": direction
                 })
                 
-                # Update the edge's evidence with this QA
-                if 'evidence' not in edge:
-                    edge['evidence'] = []
-                    
-                # Check if this QA is already in evidence
-                qa_exists = any(e.get('qa_id') == qa_id for e in edge['evidence'])
-                if not qa_exists:
-                    # Add new evidence entry for this QA
-                    edge['evidence'].append({
-                        "qa_id": qa_id,
-                        "confidence": confidence,
-                        "original_modifier": modifier / max(confidence, 0.01)  # Recover original modifier
-                    })
-                    
-                    # Recalculate aggregate values
-                    edge['aggregate_confidence'] = self._calculate_aggregate_confidence(edge['evidence'])
-                    edge['modifier'] = self._calculate_aggregate_modifier(edge['evidence'])
-                    
-                    self.logger.info(f"Added evidence for QA {qa_id} to edge {edge_id}")
-                
-                self.logger.info(f"Recorded edge in QA history: {source_label} → {target_label} ({direction}, aggregate_conf: {confidence:.2f})")
+                self.logger.info(f"Recorded edge in QA history: {source_label} → {target_label} ({direction}, conf: {confidence:.2f})")
         
-        # Prepare extracted_nodes list for QA history and update node evidence
+        # Prepare extracted_nodes list for QA history
         node_entries = []
         if extracted_nodes:
-            for node_id, node_data in extracted_nodes.items():
-                # First update node entry for QA history
+            for node_id, node in extracted_nodes.items():
                 node_entry = {
                     "node_id": node_id,
-                    "label": node_data.get('label', ''),
-                    "confidence": node_data.get('aggregate_confidence', 0.5),
-                    "importance": node_data.get('importance', 0.5),
+                    "label": node.get('label', ''),
+                    "confidence": node.get('confidence', 0.5),
+                    "importance": node.get('importance', 0.5),
                     "status": cbn['nodes'].get(node_id, {}).get('status', 'candidate')
                 }
                 node_entries.append(node_entry)
-                
-                # Then update the node's evidence with this QA
-                if node_id in cbn['nodes']:
-                    node = cbn['nodes'][node_id]
-                    
-                    # Initialize evidence array if not exists
-                    if 'evidence' not in node:
-                        node['evidence'] = []
-                    
-                    # Check if this QA is already in evidence
-                    qa_exists = any(e.get('qa_id') == qa_id for e in node['evidence'])
-                    if not qa_exists:
-                        # Add new evidence entry for this QA
-                        node_confidence = node_data.get('aggregate_confidence', 0.5)
-                        node_importance = node_data.get('importance', 0.5)
-                        
-                        node['evidence'].append({
-                            "qa_id": qa_id,
-                            "confidence": node_confidence,
-                            "importance": node_importance
-                        })
-                        
-                        # Increment frequency counter (replacing source_qa counting)
-                        node['frequency'] = node.get('frequency', 0) + 1
-                        
-                        # Recalculate aggregate values
-                        node['aggregate_confidence'] = self._calculate_node_aggregate_confidence(node['evidence'])
-                        node['importance'] = self._calculate_node_importance(node['evidence'])
-                        
-                        self.logger.info(f"Added evidence for QA {qa_id} to node {node_id}")
         
         # Create QA entry in CBN format
         qa_entry = {
@@ -1067,7 +896,7 @@ class CBNManager:
     def _calculate_aggregate_confidence(self, evidence_list):
         """
         Calculate aggregate confidence from a list of evidence.
-        Takes the average confidence from all evidence.
+        Takes the maximum confidence from all evidence.
         
         Args:
             evidence_list (list): List of evidence entries
@@ -1078,10 +907,9 @@ class CBNManager:
         if not evidence_list:
             return 0.0
         
-        # Calculate average confidence from evidence
-        total_confidence = sum(e['confidence'] for e in evidence_list)
-        return total_confidence / len(evidence_list)
-        
+        # Use the maximum confidence from evidence
+        return max(e['confidence'] for e in evidence_list)
+    
     def _calculate_aggregate_modifier(self, evidence_list):
         """
         Calculate aggregate modifier from evidence list.
@@ -1115,7 +943,7 @@ class CBNManager:
     def _calculate_node_aggregate_confidence(self, evidence_list):
         """
         Calculate aggregate confidence for a node from evidence.
-        Takes the average confidence from all evidence.
+        Takes the maximum confidence from all evidence.
         
         Args:
             evidence_list (list): List of evidence entries
@@ -1124,11 +952,10 @@ class CBNManager:
             float: Aggregate confidence (0.0-1.0)
         """
         if not evidence_list:
-            return 0.5  # Default confidence if no evidence
+            return 0.0
         
-        # Calculate average confidence from evidence
-        total_confidence = sum(e.get('confidence', 0.5) for e in evidence_list)
-        return total_confidence / len(evidence_list)
+        # Get maximum confidence from evidence
+        return max(e.get('confidence', 0) for e in evidence_list)
     
     def _calculate_node_importance(self, evidence_list):
         """
@@ -1143,7 +970,7 @@ class CBNManager:
         """
         if not evidence_list:
             return 0.5  # Default importance
-            
+        
         # Calculate weighted average of importance based on confidence
         total_confidence = 0.0
         weighted_sum = 0.0
