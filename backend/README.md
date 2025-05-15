@@ -76,19 +76,62 @@ response = some_llm_api.call(prompt)
 llm_logger.log_response(LLM_CALL_TYPES["NODE_EXTRACTION"], response)
 ```
 
-## Starting the Application
+## Enhanced Node Similarity Matching
 
-1. Ensure you have a `.env` or `.env.local` file with your DashScope API key:
-   ```
-   DASHSCOPE_API_KEY=your_api_key_here
+The system now uses enhanced semantic similarity matching for node merging, utilizing:
+
+1. **WordNet-based similarity**: Compares nodes using linguistic relationships from WordNet
+2. **Word vector similarity**: (Optional) Computes similarity using pre-trained word embeddings
+3. **Jaccard similarity**: Uses word overlap as a fallback method
+
+### Configuration
+
+The semantic similarity threshold is currently set to `0.9` (in `cbn_manager.py`). This is a strict threshold that 
+requires nodes to be very similar before merging.
+
+To adjust this threshold:
+- Lower values (e.g., 0.7) will result in more aggressive merging
+- Higher values (e.g., 0.95) will result in very conservative merging
+- The recommended range is 0.8-0.9 for a good balance
+
+### Word Vectors (Optional)
+
+To use word vectors for even better similarity matching:
+
+1. Download a pre-trained word embeddings model (e.g., GloVe or Word2Vec)
+2. Modify the `SemanticSimilarityEngine` initialization in `cbn_manager.py`:
+   ```python
+   self.similarity_engine = SemanticSimilarityEngine(
+       similarity_threshold=0.9,
+       use_wordnet=True,
+       use_word_vectors=True,
+       word_vectors_path="/path/to/your/vectors.bin"
+   )
    ```
 
-2. Install dependencies:
+## Dependencies
+
+The enhanced similarity engine requires these additional dependencies (already in requirements.txt):
+- nltk
+- numpy
+- scikit-learn
+- gensim (for word vectors)
+
+## Initial Setup
+
+When first setting up the project:
+
+1. Install dependencies:
    ```
    pip install -r requirements.txt
    ```
 
-3. Run the application:
+2. Download required NLTK data (this will happen automatically on first run, or you can run):
+   ```
+   python download_nltk_data.py
+   ```
+
+3. Start the server:
    ```
    python app.py
    ```
