@@ -70,7 +70,7 @@ class QuestionGenerator:
             "common_cause": "Both {node1} and {node2} seem important in your thinking. Do you think they might have a common cause?"
         }
     
-    def generate_follow_up_questions(self, agent_scm, current_step, anchor_queue, existing_question_texts=None, current_qa_count=0, max_qa_count=None):
+    def generate_follow_up_questions(self, agent_scm, current_step, anchor_queue, existing_question_texts=None, current_qa_count=0, max_qa_count=None, current_index=0, total_qa_count=0):
         """
         Generate follow-up questions based on the current SCM state and step.
         
@@ -81,6 +81,8 @@ class QuestionGenerator:
             existing_question_texts (list, optional): List of existing question texts to avoid duplicates
             current_qa_count (int, optional): Current number of QA pairs
             max_qa_count (int, optional): Maximum number of QA pairs allowed
+            current_index (int, optional): Current question index in the interview
+            total_qa_count (int, optional): Total number of questions in the interview
             
         Returns:
             list: List of follow-up question objects
@@ -98,7 +100,13 @@ class QuestionGenerator:
             return []
         
         # Generate prioritized candidate questions
-        candidate_questions = self.generate_prioritized_candidates(agent_scm, current_step, anchor_queue)
+        candidate_questions = self.generate_prioritized_candidates(
+            agent_scm, 
+            current_step, 
+            anchor_queue,
+            current_index,
+            total_qa_count
+        )
         
         # Log the candidate questions
         self._log_candidate_questions(candidate_questions)
@@ -172,7 +180,7 @@ class QuestionGenerator:
         llm_logger.log_separator("QUESTION GENERATION COMPLETE")
         return follow_up_questions
     
-    def generate_prioritized_candidates(self, agent_scm, current_step, anchor_queue):
+    def generate_prioritized_candidates(self, agent_scm, current_step, anchor_queue, current_index=0, total_qa_count=0):
         """
         Generate a prioritized list of candidate questions based on the current SCM state.
         
@@ -180,12 +188,18 @@ class QuestionGenerator:
             agent_scm (dict): The current SCM
             current_step (int): The current interview step (1 or 2)
             anchor_queue (list): List of anchor node IDs
+            current_index (int, optional): Current question index in the interview
+            total_qa_count (int, optional): Total number of questions in the interview
             
         Returns:
             list: List of candidate question objects sorted by priority
         """
         llm_logger.log_separator("GENERATING PRIORITIZED CANDIDATES")
         logger.info(f"Generating prioritized candidates for step {current_step}")
+        
+        # Calculate remaining questions in the interview
+        remaining_qa = total_qa_count - current_index
+        logger.info(f"Current question index: {current_index}/{total_qa_count}, Remaining QAs: {remaining_qa}")
         
         candidates = []
         
@@ -328,21 +342,39 @@ class QuestionGenerator:
                 
         candidates.extend(motif_questions)
         
-        # Add general questions as fallback (lowest priority)
-        general_questions = self._generate_general_questions([])
-        for q in general_questions[:3]:  # Limit to 3 general questions
-            if isinstance(q, str):
-                candidates.append({
-                    "question": q,
-                    "shortText": f"General: {q[:30]}..." if len(q) > 30 else f"General: {q}",
-                    "type": "general",
-                    "priority": 4  # Lowest priority
-                })
+        # Only add general questions if there are 3 or fewer remaining QAs
+        # and we still don't have enough candidates
+        if remaining_qa <= 3 and len(candidates) < 2:
+            logger.info(f"Only {remaining_qa} QAs remaining, considering adding general questions")
+            
+            # Add at most 1 general question as fallback (lowest priority)
+            general_questions = self._generate_general_questions([])
+            if general_questions:
+                # Select the best general question
+                best_general = general_questions[0] if general_questions else None
+                
+                if best_general:
+                    # Format as dictionary if it's a string
+                    if isinstance(best_general, str):
+                        general_question = {
+                            "question": best_general,
+                            "shortText": f"General: {best_general[:30]}..." if len(best_general) > 30 else f"General: {best_general}",
+                            "type": "general",
+                            "priority": 4  # Lowest priority
+                        }
+                    else:
+                        general_question = best_general
+                        general_question["priority"] = 4
+                        if "shortText" not in general_question:
+                            general_question["shortText"] = f"General: {general_question.get('question', '')[:30]}..." if len(general_question.get('question', '')) > 30 else f"General: {general_question.get('question', '')}"
+                    
+                    logger.info(f"Adding 1 general question as fallback: {general_question.get('shortText')}")
+                    candidates.append(general_question)
+                    
             else:
-                q["priority"] = 4
-                if "shortText" not in q:
-                    q["shortText"] = f"General: {q.get('question', '')[:30]}..." if len(q.get('question', '')) > 30 else f"General: {q.get('question', '')}"
-                candidates.append(q)
+                logger.info("No general questions could be generated")
+        else:
+            logger.info(f"{remaining_qa} QAs remaining, skipping general questions")
         
         # Sort candidates by priority (lower number = higher priority)
         candidates.sort(key=lambda x: x.get("priority", 10))

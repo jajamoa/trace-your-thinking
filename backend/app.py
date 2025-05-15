@@ -444,7 +444,9 @@ def process_answer():
             cbn_manager.anchor_queue, 
             existing_question_info,  # Pass structured objects instead of just text strings
             current_qa_count=len(qa_pairs),
-            max_qa_count=MAX_QA_COUNT  # Use the configured value instead of hardcoded 30
+            max_qa_count=MAX_QA_COUNT,  # Use the configured value instead of hardcoded 30
+            current_index=current_index,  # Pass the current question index
+            total_qa_count=len(qa_pairs)  # Pass the total number of questions
         )
         
         # Log the raw follow_up_questions for debugging
@@ -475,7 +477,14 @@ def process_answer():
         if total_qa_count < MAX_QA_COUNT:
             # If we haven't reached MAX_QA_COUNT QAs yet, ensure we have follow-ups
             if not follow_up_questions:
-                # If no follow-ups were generated but we need more QAs, force create some
+                # If no follow-ups were generated but we need more QAs, we can skip force generation
+                logger.info(f"No follow-up questions generated naturally (QA count: {total_qa_count}/{MAX_QA_COUNT})")
+                
+                # NOTE: Force generation is commented out as requested
+                # The system will no longer force generation of follow-up questions
+                # when none are naturally generated
+                """
+                # If no follow-ups were generated but we need more QAs, force create some 
                 logger.info(f"Forcing follow-up question generation to reach minimum QA count ({MAX_QA_COUNT})")
                 try:
                     follow_up_questions = question_generator.generate_additional_questions(
@@ -496,8 +505,11 @@ def process_answer():
                 except Exception as e:
                     logger.error(f"Error generating additional questions: {str(e)}")
                     follow_up_questions = []  # Default to empty list on error
+                """
+                # Just use empty list instead of forcing generation
+                follow_up_questions = []
                 
-            logger.info(f"Generated {len(follow_up_questions)} follow-up questions (QA count: {total_qa_count}/{MAX_QA_COUNT})")
+            logger.info(f"Final follow-up questions count: {len(follow_up_questions)} (QA count: {total_qa_count}/{MAX_QA_COUNT})")
         elif anchor_count < 3:
             # If we have enough QAs but not enough anchor nodes, focus on node discovery
             logger.info(f"Not enough anchor nodes ({anchor_count}/3). Continuing with node discovery.")
