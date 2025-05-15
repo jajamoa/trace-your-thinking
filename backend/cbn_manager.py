@@ -120,7 +120,9 @@ class CBNManager:
         # Track stable rounds for convergence
         self.stable_rounds = 0
         # Maximum allowed anchors
-        self.max_anchors = 7  # Based on Miller's Law (7±2 chunks)
+        self.max_anchors = 25  # Increased from 7 to 25
+        # Maximum number of QA pairs before termination
+        self.max_qa_count = 50  # Increased from 10 to 50
         # Initialize logger
         self.logger = logging.getLogger(__name__)
         # LLM for similarity check (will be set by caller if needed)
@@ -177,15 +179,15 @@ class CBNManager:
                 
                 # Create and add the new node with evidence structure
             cbn['nodes'][temp_node_id] = {
-                "label": node_data.get('label', ''),
+                    "label": node_data.get('label', ''),
                 "aggregate_confidence": node_data.get('aggregate_confidence', 0.5),
                 "evidence": evidence,
-                "incoming_edges": [],
-                "outgoing_edges": [],
+                    "incoming_edges": [],
+                    "outgoing_edges": [],
                 "importance": node_data.get('importance', 0.5),
-                "status": "candidate",  # Default to candidate status
+                    "status": "candidate",  # Default to candidate status
                 "frequency": node_data.get('frequency', 1)  # Use provided frequency or default to 1
-            }
+                }
         
         return cbn
     
@@ -262,15 +264,15 @@ class CBNManager:
             "direction": direction,
             "strength": strength
         }
-            
+        
         # Log the created edge with additional information
         self.logger.info(f"Created edge {edge_id}: {edge_data.get('from_label', '')} → {edge_data.get('to_label', '')} ({direction}, strength: {strength:.2f}, aggregate_confidence: {confidence:.2f})")
         if edge_data.get('explanation'):
             self.logger.info(f"  Explanation: {edge_data.get('explanation')}")
             
-        # Update node references
-        cbn['nodes'][from_node_id]['outgoing_edges'].append(edge_id)
-        cbn['nodes'][to_node_id]['incoming_edges'].append(edge_id)
+            # Update node references
+            cbn['nodes'][from_node_id]['outgoing_edges'].append(edge_id)
+            cbn['nodes'][to_node_id]['incoming_edges'].append(edge_id)
         
         return cbn, edge_id
     
@@ -1032,6 +1034,13 @@ class CBNManager:
         Returns:
             bool: True if the interview should be terminated, False otherwise
         """
+        # Check the number of QA pairs
+        qa_count = len(cbn.get('qa_history', {}))
+        if qa_count >= self.max_qa_count:
+            self.logger.info(f"QA count threshold reached: {qa_count} >= {self.max_qa_count}")
+            self.terminate_interview = True
+            return self.terminate_interview
+
         # Check for structural convergence
         structure_converged = self._check_structure_convergence(cbn)
         
@@ -1062,15 +1071,11 @@ class CBNManager:
             self.anchor_queue = cbn['anchor_queue']
         
         # If we're in Step 1 and have enough anchor nodes, move to Step 2
-        if self.current_step == 1 and len(self.anchor_queue) >= 3:
+        if self.current_step == 1 and len(self.anchor_queue) >= 5:  # Changed from 3 to 5
             self.current_step = 2
+            self.logger.info(f"Transitioning from Step 1 to Step 2 (anchor count: {len(self.anchor_queue)})")
         
-        # If we're in Step 2 and new nodes have been discovered recently, consider going back to Step 1
-        elif self.current_step == 2:
-            # Count new candidate nodes
-            candidate_count = sum(1 for node in cbn['nodes'].values() if node.get('status') == 'candidate')
-            if candidate_count > 3:
-                self.current_step = 1
+        # Once in Step 2, we stay in Step 2 (remove the condition to go back to Step 1)
         
         return self.current_step
     
