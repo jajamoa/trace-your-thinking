@@ -9,24 +9,53 @@ from collections import defaultdict
 import logging
 import re
 from llm_logger import llm_logger  # Import here to avoid circular import
+import os
+import nltk
+import numpy as np
+from nltk.corpus import wordnet
+from sklearn.metrics.pairwise import cosine_similarity
 
 
 class SemanticSimilarityEngine:
     """
-    Engine for computing semantic similarity between node labels
+    Enhanced engine for computing semantic similarity between node labels
+    using WordNet and optional word embeddings
     """
     
-    def __init__(self, similarity_threshold=0.7):
-        """Initialize the semantic similarity engine with threshold"""
+    def __init__(self, similarity_threshold=0.7, use_wordnet=True, use_word_vectors=False, word_vectors_path=None):
+        """Initialize the semantic similarity engine with threshold and similarity options"""
         self.similarity_threshold = similarity_threshold
+        self.use_wordnet = use_wordnet
+        self.use_word_vectors = use_word_vectors
+        self.word_vectors = None
         self.logger = logging.getLogger(__name__)
+        
+        # Prepare NLTK resources if using WordNet
+        if use_wordnet:
+            try:
+                nltk.data.find('corpora/wordnet')
+            except LookupError:
+                self.logger.info("Downloading WordNet...")
+                nltk.download('wordnet')
+                nltk.download('punkt')
+        
+        # Load word vectors if available and requested
+        if use_word_vectors and word_vectors_path and os.path.exists(word_vectors_path):
+            try:
+                from gensim.models import KeyedVectors
+                self.logger.info(f"Loading word vectors from {word_vectors_path}...")
+                self.word_vectors = KeyedVectors.load_word2vec_format(word_vectors_path, binary=True)
+                self.logger.info("Word vectors loaded successfully.")
+            except Exception as e:
+                self.logger.error(f"Error loading word vectors: {e}")
+                self.use_word_vectors = False
     
     def preprocess_label(self, label):
         """Preprocess node label for semantic comparison"""
         # Convert to lowercase and remove punctuation/special chars
         label = re.sub(r'[^a-zA-Z0-9\s]', ' ', label.lower())
-        # Split into words
-        return label.split()
+        # Split into words and filter out empty strings
+        return [word for word in label.split() if word]
     
     def node_similarity(self, label1, label2):
         """
@@ -39,15 +68,137 @@ class SemanticSimilarityEngine:
         words1 = self.preprocess_label(label1)
         words2 = self.preprocess_label(label2)
         
-        # Simple token overlap as a baseline
+        # Skip empty labels
+        if not words1 or not words2:
+            return 0.0
+        
+        similarity_scores = []
+        
+        # Method 1: Word vector similarity if available
+        if self.use_word_vectors and self.word_vectors is not None:
+            vector_sim = self.word_vector_similarity(words1, words2)
+            if vector_sim > 0:
+                similarity_scores.append(vector_sim * 1.2)  # Give more weight to vector similarity
+        
+        # Method 2: WordNet similarity if available
+        if self.use_wordnet:
+            wordnet_sim = self.wordnet_similarity(words1, words2)
+            if wordnet_sim > 0:
+                similarity_scores.append(wordnet_sim * 1.1)  # Give slightly more weight to WordNet
+        
+        # Method 3: Always calculate Jaccard similarity as fallback
         common_words = set(words1).intersection(set(words2))
         total_words = set(words1).union(set(words2))
         
-        if not total_words:
+        if total_words:
+            jaccard_sim = len(common_words) / len(total_words)
+            similarity_scores.append(jaccard_sim)
+        
+        # Return the maximum similarity from all methods
+        if similarity_scores:
+            return max(similarity_scores)
+        return 0.0
+    
+    def wordnet_similarity(self, words1, words2):
+        """
+        Calculate semantic similarity between two sets of words using WordNet
+        
+        Returns:
+            float: Similarity score between 0 and 1
+        """
+        # Skip if either list is empty
+        if not words1 or not words2:
+            return 0.0
+            
+        # Calculate similarity matrix between all word pairs
+        sim_matrix = np.zeros((len(words1), len(words2)))
+        
+        for i, word1 in enumerate(words1):
+            for j, word2 in enumerate(words2):
+                # Get maximum similarity between any synsets of these words
+                sim_matrix[i, j] = self._max_synset_similarity(word1, word2)
+        
+        # Calculate average of maximum similarities in both directions
+        # For each word in words1, find its most similar match in words2
+        max_sim_1to2 = np.max(sim_matrix, axis=1) if sim_matrix.size > 0 else np.array([])
+        # For each word in words2, find its most similar match in words1
+        max_sim_2to1 = np.max(sim_matrix, axis=0) if sim_matrix.size > 0 else np.array([])
+        
+        # Average the non-zero similarities
+        non_zero_1to2 = max_sim_1to2[max_sim_1to2 > 0] if max_sim_1to2.size > 0 else np.array([])
+        non_zero_2to1 = max_sim_2to1[max_sim_2to1 > 0] if max_sim_2to1.size > 0 else np.array([])
+        
+        all_non_zero = np.concatenate([non_zero_1to2, non_zero_2to1])
+        
+        if all_non_zero.size > 0:
+            return float(np.mean(all_non_zero))
+        return 0.0
+    
+    def _max_synset_similarity(self, word1, word2):
+        """Find maximum similarity between any synsets of two words"""
+        try:
+            # If words are identical, return 1.0
+            if word1 == word2:
+                return 1.0
+                
+            # Get all synsets for both words
+            synsets1 = wordnet.synsets(word1)
+            synsets2 = wordnet.synsets(word2)
+            
+            if not synsets1 or not synsets2:
+                return 0.0
+            
+            # Find the maximum similarity between any pair of synsets
+            max_sim = 0.0
+            for s1 in synsets1:
+                for s2 in synsets2:
+                    try:
+                        # Try path_similarity first (normalized 0-1)
+                        sim = s1.path_similarity(s2)
+                        if sim and sim > max_sim:
+                            max_sim = sim
+                    except:
+                        pass
+                        
+                    try:
+                        # Also try wup_similarity (Wu-Palmer) which can be more precise
+                        sim = s1.wup_similarity(s2)
+                        if sim and sim > max_sim:
+                            max_sim = sim
+                    except:
+                        pass
+            
+            return max_sim
+        except Exception as e:
+            self.logger.warning(f"Error calculating synset similarity: {e}")
+            return 0.0
+    
+    def word_vector_similarity(self, words1, words2):
+        """
+        Calculate semantic similarity using word vectors
+        
+        Returns:
+            float: Similarity score between 0 and 1
+        """
+        if not self.word_vectors:
             return 0.0
         
-        # Jaccard similarity coefficient
-        return len(common_words) / len(total_words)
+        # Get vectors for words that exist in the model
+        vecs1 = [self.word_vectors[w] for w in words1 if w in self.word_vectors]
+        vecs2 = [self.word_vectors[w] for w in words2 if w in self.word_vectors]
+        
+        if not vecs1 or not vecs2:
+            return 0.0
+        
+        # Average word vectors for each set of words
+        vec1 = np.mean(vecs1, axis=0)
+        vec2 = np.mean(vecs2, axis=0)
+        
+        # Calculate cosine similarity
+        cos_sim = cosine_similarity([vec1], [vec2])[0][0]
+        
+        # Ensure result is between 0 and 1
+        return max(0.0, min(cos_sim, 1.0))
     
     def find_similar_nodes(self, nodes):
         """
@@ -62,7 +213,7 @@ class SemanticSimilarityEngine:
         if not nodes or len(nodes) < 2:
             return []
         
-        self.logger.info(f"Finding similar nodes with semantic similarity method (threshold: {self.similarity_threshold})")
+        self.logger.info(f"Finding similar nodes with enhanced semantic similarity (threshold: {self.similarity_threshold})")
         
         similar_pairs = []
         processed_pairs = set()  # Track which pairs we've already compared
@@ -128,7 +279,7 @@ class CBNManager:
         # LLM for similarity check (will be set by caller if needed)
         self.llm_extractor = None
         # Semantic similarity engine
-        self.similarity_engine = SemanticSimilarityEngine(similarity_threshold=0.7)
+        self.similarity_engine = SemanticSimilarityEngine(similarity_threshold=0.9)
     
     def set_llm_extractor(self, extractor):
         """
