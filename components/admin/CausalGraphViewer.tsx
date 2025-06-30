@@ -201,14 +201,62 @@ export default function CausalGraphViewer({ sessionId, qaPairId, className }: Ca
     // Get QA info for the current graph
     let currentQA = null;
     if (graphData.qa_history && Object.keys(graphData.qa_history).length > 0) {
-      // Try to find QA with matching ID to the graph's qaPairId
-      const qaId = `qa_${graph.qaPairId}`;
-      if (graphData.qa_history[qaId]) {
-        currentQA = graphData.qa_history[qaId];
-      } else {
-        // Otherwise take the most recent QA
-        const qaIds = Object.keys(graphData.qa_history);
-        currentQA = graphData.qa_history[qaIds[qaIds.length - 1]];
+      // Try multiple ID formats to find the matching QA
+      const qaIds = Object.keys(graphData.qa_history);
+      const qaPairId = graph.qaPairId;
+      
+      // Try different possible formats:
+      // 1. qa_${qaPairId} (with underscore)
+      // 2. qa${qaPairId} (without underscore) 
+      // 3. exact qaPairId match
+      // 4. find by position in sorted array (fallback)
+      const possibleIds = [
+        `qa_${qaPairId}`,
+        `qa${qaPairId}`,
+        qaPairId.toString()
+      ];
+      
+      // First try exact matches
+      for (const id of possibleIds) {
+        if (graphData.qa_history[id]) {
+          currentQA = graphData.qa_history[id];
+          break;
+        }
+      }
+      
+      // If no exact match found, try to find by position
+      if (!currentQA && qaIds.length > 0) {
+        // Sort QA IDs to ensure consistent ordering
+        const sortedQaIds = qaIds.sort((a, b) => {
+          // Extract numbers from qa IDs for proper sorting
+          const numA = parseInt(a.replace(/^qa_?/, '')) || 0;
+          const numB = parseInt(b.replace(/^qa_?/, '')) || 0;
+          return numA - numB;
+        });
+        
+        // Try to find by extracting number from qaPairId
+        const targetNumber = parseInt(qaPairId.toString().replace(/^qa_?/, '')) || 0;
+        
+        // Find QA with matching number, or use the closest one
+        let bestMatch = null;
+        for (const qaId of sortedQaIds) {
+          const qaNumber = parseInt(qaId.replace(/^qa_?/, '')) || 0;
+          if (qaNumber === targetNumber) {
+            bestMatch = qaId;
+            break;
+          }
+          // Keep the last QA that's not greater than target
+          if (qaNumber <= targetNumber) {
+            bestMatch = qaId;
+          }
+        }
+        
+        if (bestMatch) {
+          currentQA = graphData.qa_history[bestMatch];
+        } else {
+          // Final fallback: use the last QA
+          currentQA = graphData.qa_history[sortedQaIds[sortedQaIds.length - 1]];
+        }
       }
     }
     
