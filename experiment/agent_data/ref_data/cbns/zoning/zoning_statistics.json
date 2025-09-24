@@ -1,0 +1,488 @@
+{
+  "node_count": {
+    "mean": 52.18625464370145,
+    "std": 32.88875141739709,
+    "min": 1.0,
+    "max": 253.0
+  },
+  "edge_count": {
+    "mean": 12.824721377912867,
+    "std": 9.429487876121513,
+    "min": 0.0,
+    "max": 90.0
+  },
+  "confidence": {
+    "mean": 0.7788095902457056,
+    "std": 0.11586425949242377,
+    "min": 0.0,
+    "max": 1.0
+  },
+  "importance": {
+    "mean": 0.7317996784239084,
+    "std": 0.12061290636006514,
+    "min": 0.0,
+    "max": 1.0
+  },
+  "weight": {
+    "mean": 0.5,
+    "std": 0.0,
+    "min": 0.5,
+    "max": 0.5
+  },
+  "correlation": {
+    "mean": 0.5,
+    "std": 0.0,
+    "min": 0.5,
+    "max": 0.5
+  },
+  "evidence_count": {
+    "mean": 1.2973366510595477,
+    "std": 1.5005464061329608,
+    "min": 0.0,
+    "max": 68.0
+  },
+  "anchor_ratio": {
+    "mean": 0.417354854121817,
+    "std": 0.1381376711631766,
+    "min": 0.09881422924901186,
+    "max": 1.0
+  },
+  "stance_node_count": {
+    "mean": 1.0790273556231003,
+    "std": 0.8970113608839888,
+    "min": 1.0,
+    "max": 21.0
+  },
+  "total_graphs_analyzed": 5922,
+  "top_words": [
+    [
+      "housing",
+      41049
+    ],
+    [
+      "upzoning",
+      22608
+    ],
+    [
+      "of",
+      21721
+    ],
+    [
+      "effect",
+      16753
+    ],
+    [
+      "density",
+      16330
+    ],
+    [
+      "for",
+      15113
+    ],
+    [
+      "support",
+      11589
+    ],
+    [
+      "to",
+      11236
+    ],
+    [
+      "increased",
+      10532
+    ],
+    [
+      "traffic",
+      10376
+    ],
+    [
+      "in",
+      10202
+    ],
+    [
+      "zoning",
+      9725
+    ],
+    [
+      "and",
+      9714
+    ],
+    [
+      "residents",
+      9359
+    ],
+    [
+      "positive",
+      8809
+    ],
+    [
+      "affordability",
+      8786
+    ],
+    [
+      "neighborhood",
+      8728
+    ],
+    [
+      "on",
+      7858
+    ],
+    [
+      "negative",
+      7797
+    ],
+    [
+      "urban",
+      7783
+    ],
+    [
+      "local",
+      7004
+    ],
+    [
+      "policies",
+      6496
+    ],
+    [
+      "impact",
+      6373
+    ],
+    [
+      "community",
+      6339
+    ],
+    [
+      "concerns",
+      5938
+    ],
+    [
+      "congestion",
+      5913
+    ],
+    [
+      "development",
+      5704
+    ],
+    [
+      "character",
+      5649
+    ],
+    [
+      "access",
+      5456
+    ],
+    [
+      "quality",
+      5320
+    ],
+    [
+      "transportation",
+      5227
+    ],
+    [
+      "environmental",
+      5201
+    ],
+    [
+      "public",
+      5196
+    ],
+    [
+      "infrastructure",
+      5185
+    ],
+    [
+      "changes",
+      5156
+    ],
+    [
+      "affordable",
+      5008
+    ],
+    [
+      "economic",
+      4866
+    ],
+    [
+      "neighborhoods",
+      4773
+    ],
+    [
+      "higher",
+      4745
+    ],
+    [
+      "social",
+      4598
+    ],
+    [
+      "life",
+      4544
+    ],
+    [
+      "current",
+      4511
+    ],
+    [
+      "government",
+      4400
+    ],
+    [
+      "equity",
+      4154
+    ],
+    [
+      "growth",
+      4083
+    ],
+    [
+      "population",
+      3987
+    ],
+    [
+      "more",
+      3877
+    ],
+    [
+      "opportunity",
+      3863
+    ],
+    [
+      "strong",
+      3801
+    ],
+    [
+      "future",
+      3648
+    ],
+    [
+      "policy",
+      3598
+    ],
+    [
+      "areas",
+      3549
+    ],
+    [
+      "supply",
+      3335
+    ],
+    [
+      "singlefamily",
+      3247
+    ],
+    [
+      "increase",
+      3084
+    ],
+    [
+      "interests",
+      2990
+    ],
+    [
+      "planning",
+      2965
+    ],
+    [
+      "systems",
+      2868
+    ],
+    [
+      "people",
+      2852
+    ],
+    [
+      "time",
+      2831
+    ],
+    [
+      "costs",
+      2594
+    ],
+    [
+      "businesses",
+      2587
+    ],
+    [
+      "regulation",
+      2581
+    ],
+    [
+      "balancing",
+      2523
+    ],
+    [
+      "prices",
+      2501
+    ],
+    [
+      "small",
+      2492
+    ],
+    [
+      "the",
+      2450
+    ],
+    [
+      "change",
+      2398
+    ],
+    [
+      "parking",
+      2359
+    ],
+    [
+      "rent",
+      2340
+    ],
+    [
+      "property",
+      2322
+    ],
+    [
+      "noise",
+      2310
+    ],
+    [
+      "buildings",
+      2305
+    ],
+    [
+      "strength",
+      2267
+    ],
+    [
+      "crime",
+      2192
+    ],
+    [
+      "effects",
+      2178
+    ],
+    [
+      "lower",
+      2170
+    ],
+    [
+      "decisions",
+      2168
+    ],
+    [
+      "new",
+      2075
+    ],
+    [
+      "transit",
+      2069
+    ],
+    [
+      "overcrowding",
+      1998
+    ],
+    [
+      "benefits",
+      1946
+    ],
+    [
+      "connection",
+      1878
+    ],
+    [
+      "multifamily",
+      1877
+    ],
+    [
+      "pollution",
+      1877
+    ],
+    [
+      "needs",
+      1822
+    ],
+    [
+      "business",
+      1819
+    ],
+    [
+      "reduction",
+      1796
+    ],
+    [
+      "demand",
+      1777
+    ],
+    [
+      "living",
+      1760
+    ],
+    [
+      "availability",
+      1716
+    ],
+    [
+      "city",
+      1652
+    ],
+    [
+      "building",
+      1627
+    ],
+    [
+      "influence",
+      1576
+    ],
+    [
+      "schools",
+      1559
+    ],
+    [
+      "space",
+      1488
+    ],
+    [
+      "values",
+      1465
+    ],
+    [
+      "strain",
+      1447
+    ],
+    [
+      "homes",
+      1426
+    ],
+    [
+      "use",
+      1426
+    ]
+  ],
+  "unique_labels": 10096,
+  "topic": "zoning",
+  "source_files": [
+    "all-causal-graphs-2025-09-24T02-35-49-335Z.json",
+    "all-causal-graphs-2025-09-24T08-06-18-976Z.json",
+    "all-causal-graphs-2025-09-24T08-06-39-707Z.json",
+    "all-causal-graphs-2025-09-24T08-06-49-188Z.json",
+    "all-causal-graphs-2025-09-24T08-06-27-212Z.json",
+    "all-causal-graphs-2025-09-24T08-06-55-531Z.json",
+    "all-causal-graphs-2025-09-24T08-06-34-685Z.json",
+    "all-causal-graphs-2025-09-24T02-40-11-828Z.json",
+    "all-causal-graphs-2025-09-24T08-06-44-452Z.json",
+    "all-causal-graphs-2025-09-24T08-07-01-119Z.json",
+    "zoning_edge_patterns.json"
+  ],
+  "file_hashes": {
+    "all-causal-graphs-2025-09-24T02-35-49-335Z.json": "db5ea8e5e212ddb92eb788ac83854e5ac2312653fd109acb518a45347a75877e",
+    "all-causal-graphs-2025-09-24T08-06-18-976Z.json": "ff52bcc15f03902f00a54450e57460304c75c0614659b33011e4639b3b18c02e",
+    "all-causal-graphs-2025-09-24T08-06-39-707Z.json": "2f1e5058428b728395bcdd478d76154c4d3b32ed79b5a1bf346f90e6076b60d8",
+    "all-causal-graphs-2025-09-24T08-06-49-188Z.json": "cabdbc466367a2ff61d355b726fce0c485ec2a6ef310cb5872b57ad1cdcbb649",
+    "all-causal-graphs-2025-09-24T08-06-27-212Z.json": "e8a969ea3230f9fc02b8283713d79e9f1e1425de486827bdabee8f566184d103",
+    "all-causal-graphs-2025-09-24T08-06-55-531Z.json": "56e588cb4e461cb749a1e769755707559a3977a83f7fe66867f8bc4b833b1b1a",
+    "all-causal-graphs-2025-09-24T08-06-34-685Z.json": "458580b2051c1e7715d25fe807da634ceffe94fb9f8377edb7bb4fcf1fca03d2",
+    "all-causal-graphs-2025-09-24T02-40-11-828Z.json": "ec72d308ecc191ff1321cd93cee66fde844805bea33c9d41c2818e5676708268",
+    "all-causal-graphs-2025-09-24T08-06-44-452Z.json": "b0d953b40d02e731ada3c0577ae6559b0b7d1c9945ec6533b3a1e5c2942e7f4d",
+    "all-causal-graphs-2025-09-24T08-07-01-119Z.json": "a09475b441332ad6b64b02056f275986c2d139d236283613943a40703577777e",
+    "zoning_edge_patterns.json": "7dfd862e30473a62f27146aa4a04068f1c51e380b99fe43e1e185f00ca03d685"
+  },
+  "generated_at": "2025-09-24T04:38:26.894336"
+}

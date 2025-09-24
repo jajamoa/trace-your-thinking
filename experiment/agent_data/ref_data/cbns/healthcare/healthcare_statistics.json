@@ -1,0 +1,476 @@
+{
+  "node_count": {
+    "mean": 41.41795462019073,
+    "std": 26.55244777096774,
+    "min": 1.0,
+    "max": 223.0
+  },
+  "edge_count": {
+    "mean": 12.097994080894443,
+    "std": 7.361229562966303,
+    "min": 0.0,
+    "max": 36.0
+  },
+  "confidence": {
+    "mean": 0.7930575606725477,
+    "std": 0.11307709733199693,
+    "min": 0.1,
+    "max": 1.0
+  },
+  "importance": {
+    "mean": 0.7549434279559245,
+    "std": 0.11642081362331212,
+    "min": 0.1,
+    "max": 1.0
+  },
+  "weight": {
+    "mean": 0.5,
+    "std": 0.0,
+    "min": 0.5,
+    "max": 0.5
+  },
+  "correlation": {
+    "mean": 0.5,
+    "std": 0.0,
+    "min": 0.5,
+    "max": 0.5
+  },
+  "evidence_count": {
+    "mean": 1.3420985772357723,
+    "std": 1.13274230229678,
+    "min": 1.0,
+    "max": 35.0
+  },
+  "anchor_ratio": {
+    "mean": 0.49830147514181566,
+    "std": 0.15148079018242264,
+    "min": 0.11210762331838565,
+    "max": 1.0
+  },
+  "stance_node_count": {
+    "mean": 1.0,
+    "std": 0.0,
+    "min": 1.0,
+    "max": 1.0
+  },
+  "total_graphs_analyzed": 3041,
+  "top_words": [
+    [
+      "healthcare",
+      39947
+    ],
+    [
+      "universal",
+      15633
+    ],
+    [
+      "of",
+      10357
+    ],
+    [
+      "for",
+      8801
+    ],
+    [
+      "effect",
+      8222
+    ],
+    [
+      "to",
+      8010
+    ],
+    [
+      "in",
+      7752
+    ],
+    [
+      "access",
+      6949
+    ],
+    [
+      "care",
+      6460
+    ],
+    [
+      "medical",
+      6173
+    ],
+    [
+      "support",
+      5846
+    ],
+    [
+      "system",
+      4964
+    ],
+    [
+      "positive",
+      4933
+    ],
+    [
+      "on",
+      4797
+    ],
+    [
+      "government",
+      4616
+    ],
+    [
+      "economic",
+      4571
+    ],
+    [
+      "and",
+      4288
+    ],
+    [
+      "quality",
+      4210
+    ],
+    [
+      "health",
+      3888
+    ],
+    [
+      "innovation",
+      3505
+    ],
+    [
+      "burden",
+      3455
+    ],
+    [
+      "costs",
+      3047
+    ],
+    [
+      "financial",
+      2946
+    ],
+    [
+      "accessibility",
+      2943
+    ],
+    [
+      "impact",
+      2758
+    ],
+    [
+      "research",
+      2744
+    ],
+    [
+      "negative",
+      2661
+    ],
+    [
+      "cost",
+      2599
+    ],
+    [
+      "equity",
+      2469
+    ],
+    [
+      "public",
+      2379
+    ],
+    [
+      "social",
+      2343
+    ],
+    [
+      "taxes",
+      2287
+    ],
+    [
+      "governmentfunded",
+      2249
+    ],
+    [
+      "increased",
+      2175
+    ],
+    [
+      "provider",
+      2105
+    ],
+    [
+      "strong",
+      2103
+    ],
+    [
+      "changes",
+      2049
+    ],
+    [
+      "concerns",
+      2012
+    ],
+    [
+      "policies",
+      1934
+    ],
+    [
+      "policy",
+      1868
+    ],
+    [
+      "funding",
+      1805
+    ],
+    [
+      "insurance",
+      1763
+    ],
+    [
+      "individuals",
+      1725
+    ],
+    [
+      "people",
+      1715
+    ],
+    [
+      "interests",
+      1675
+    ],
+    [
+      "coverage",
+      1638
+    ],
+    [
+      "private",
+      1591
+    ],
+    [
+      "as",
+      1589
+    ],
+    [
+      "a",
+      1551
+    ],
+    [
+      "affordability",
+      1536
+    ],
+    [
+      "implementation",
+      1532
+    ],
+    [
+      "the",
+      1510
+    ],
+    [
+      "reduction",
+      1397
+    ],
+    [
+      "families",
+      1385
+    ],
+    [
+      "times",
+      1331
+    ],
+    [
+      "tax",
+      1244
+    ],
+    [
+      "role",
+      1235
+    ],
+    [
+      "time",
+      1124
+    ],
+    [
+      "taxpayers",
+      1122
+    ],
+    [
+      "strength",
+      1118
+    ],
+    [
+      "personal",
+      1083
+    ],
+    [
+      "wait",
+      1082
+    ],
+    [
+      "responsibility",
+      1069
+    ],
+    [
+      "reduced",
+      1035
+    ],
+    [
+      "fairness",
+      1004
+    ],
+    [
+      "small",
+      1002
+    ],
+    [
+      "right",
+      980
+    ],
+    [
+      "lower",
+      980
+    ],
+    [
+      "consumers",
+      968
+    ],
+    [
+      "higher",
+      959
+    ],
+    [
+      "taxpayer",
+      913
+    ],
+    [
+      "connection",
+      892
+    ],
+    [
+      "providers",
+      892
+    ],
+    [
+      "immediate",
+      884
+    ],
+    [
+      "effects",
+      868
+    ],
+    [
+      "improved",
+      839
+    ],
+    [
+      "income",
+      815
+    ],
+    [
+      "affordable",
+      801
+    ],
+    [
+      "spending",
+      798
+    ],
+    [
+      "companies",
+      797
+    ],
+    [
+      "benefits",
+      769
+    ],
+    [
+      "stress",
+      768
+    ],
+    [
+      "balancing",
+      765
+    ],
+    [
+      "management",
+      738
+    ],
+    [
+      "consumer",
+      681
+    ],
+    [
+      "doctors",
+      669
+    ],
+    [
+      "treatment",
+      665
+    ],
+    [
+      "better",
+      647
+    ],
+    [
+      "about",
+      641
+    ],
+    [
+      "outcomes",
+      636
+    ],
+    [
+      "longer",
+      624
+    ],
+    [
+      "inequality",
+      621
+    ],
+    [
+      "doctor",
+      618
+    ],
+    [
+      "human",
+      604
+    ],
+    [
+      "choice",
+      593
+    ],
+    [
+      "more",
+      587
+    ],
+    [
+      "debt",
+      585
+    ],
+    [
+      "shifts",
+      573
+    ],
+    [
+      "trust",
+      560
+    ],
+    [
+      "money",
+      560
+    ]
+  ],
+  "unique_labels": 4559,
+  "topic": "healthcare",
+  "source_files": [
+    "all-causal-graphs-2025-09-24T08-09-51-062Z.json",
+    "all-causal-graphs-2025-09-24T08-10-57-302Z.json",
+    "all-causal-graphs-2025-09-24T08-11-07-923Z.json",
+    "all-causal-graphs-2025-09-24T08-11-02-793Z.json",
+    "all-causal-graphs-2025-09-24T08-10-15-567Z.json"
+  ],
+  "file_hashes": {
+    "all-causal-graphs-2025-09-24T08-09-51-062Z.json": "ffe8b1115e09559673a4d6fea520554565b99b497a818c955aea41f5e01ef77a",
+    "all-causal-graphs-2025-09-24T08-10-57-302Z.json": "1d41ce61c1f7667b03c8245944ede1c7adf66e0889c6dee557d2c46496126b23",
+    "all-causal-graphs-2025-09-24T08-11-07-923Z.json": "147c09d278df1e1dc3f652678f133e1a928bce7b186c5d1d52d87fe4ca831e32",
+    "all-causal-graphs-2025-09-24T08-11-02-793Z.json": "b9bd3637461676c705b654e9cb2a573ad9f1e03869877948bb68202898e0e773",
+    "all-causal-graphs-2025-09-24T08-10-15-567Z.json": "a5c748cf92fc7666592e1de7eb0a599b1955010f7f4ba55f6644b014f96108b1"
+  },
+  "generated_at": "2025-09-24T04:23:17.710286"
+}

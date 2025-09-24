@@ -1,0 +1,480 @@
+{
+  "node_count": {
+    "mean": 44.63367252543941,
+    "std": 27.17393412717902,
+    "min": 1.0,
+    "max": 208.0
+  },
+  "edge_count": {
+    "mean": 12.133209990749306,
+    "std": 7.595632524796146,
+    "min": 0.0,
+    "max": 48.0
+  },
+  "confidence": {
+    "mean": 0.7949832194714205,
+    "std": 0.11345046322964027,
+    "min": 0.1,
+    "max": 1.0
+  },
+  "importance": {
+    "mean": 0.7559711346332003,
+    "std": 0.1143887939235594,
+    "min": 0.2,
+    "max": 1.0
+  },
+  "weight": {
+    "mean": 0.5,
+    "std": 0.0,
+    "min": 0.5,
+    "max": 0.5
+  },
+  "correlation": {
+    "mean": 0.5,
+    "std": 0.0,
+    "min": 0.5,
+    "max": 0.5
+  },
+  "evidence_count": {
+    "mean": 1.2902305401839071,
+    "std": 0.9349112144034554,
+    "min": 1.0,
+    "max": 19.0
+  },
+  "anchor_ratio": {
+    "mean": 0.4901225786587208,
+    "std": 0.1478497899738369,
+    "min": 0.1,
+    "max": 1.0
+  },
+  "stance_node_count": {
+    "mean": 1.0,
+    "std": 0.0,
+    "min": 1.0,
+    "max": 1.0
+  },
+  "total_graphs_analyzed": 3243,
+  "top_words": [
+    [
+      "surveillance",
+      30014
+    ],
+    [
+      "of",
+      17286
+    ],
+    [
+      "privacy",
+      10261
+    ],
+    [
+      "crime",
+      10162
+    ],
+    [
+      "effect",
+      9593
+    ],
+    [
+      "public",
+      9388
+    ],
+    [
+      "in",
+      9046
+    ],
+    [
+      "cameras",
+      8759
+    ],
+    [
+      "for",
+      8403
+    ],
+    [
+      "support",
+      7970
+    ],
+    [
+      "safety",
+      7843
+    ],
+    [
+      "camera",
+      6700
+    ],
+    [
+      "trust",
+      4803
+    ],
+    [
+      "positive",
+      4464
+    ],
+    [
+      "systems",
+      4426
+    ],
+    [
+      "community",
+      3916
+    ],
+    [
+      "on",
+      3857
+    ],
+    [
+      "data",
+      3787
+    ],
+    [
+      "government",
+      3743
+    ],
+    [
+      "technologies",
+      3448
+    ],
+    [
+      "increased",
+      3438
+    ],
+    [
+      "negative",
+      3411
+    ],
+    [
+      "personal",
+      3329
+    ],
+    [
+      "rates",
+      3274
+    ],
+    [
+      "bias",
+      3138
+    ],
+    [
+      "concerns",
+      3077
+    ],
+    [
+      "liberties",
+      3069
+    ],
+    [
+      "and",
+      3055
+    ],
+    [
+      "individual",
+      3052
+    ],
+    [
+      "to",
+      2677
+    ],
+    [
+      "law",
+      2538
+    ],
+    [
+      "enforcement",
+      2513
+    ],
+    [
+      "regulation",
+      2460
+    ],
+    [
+      "potential",
+      2433
+    ],
+    [
+      "strong",
+      2375
+    ],
+    [
+      "reliability",
+      2349
+    ],
+    [
+      "policecommunity",
+      2345
+    ],
+    [
+      "accuracy",
+      2321
+    ],
+    [
+      "relations",
+      2320
+    ],
+    [
+      "social",
+      2285
+    ],
+    [
+      "spaces",
+      2216
+    ],
+    [
+      "reduction",
+      2144
+    ],
+    [
+      "deterrence",
+      2097
+    ],
+    [
+      "equity",
+      2047
+    ],
+    [
+      "impact",
+      1977
+    ],
+    [
+      "technology",
+      1941
+    ],
+    [
+      "police",
+      1925
+    ],
+    [
+      "prevention",
+      1828
+    ],
+    [
+      "security",
+      1733
+    ],
+    [
+      "feeling",
+      1731
+    ],
+    [
+      "misuse",
+      1716
+    ],
+    [
+      "changes",
+      1670
+    ],
+    [
+      "collection",
+      1625
+    ],
+    [
+      "economic",
+      1580
+    ],
+    [
+      "strength",
+      1317
+    ],
+    [
+      "people",
+      1189
+    ],
+    [
+      "protection",
+      1145
+    ],
+    [
+      "effectiveness",
+      1124
+    ],
+    [
+      "transparency",
+      1115
+    ],
+    [
+      "policy",
+      1110
+    ],
+    [
+      "time",
+      1087
+    ],
+    [
+      "oversight",
+      1066
+    ],
+    [
+      "connection",
+      1065
+    ],
+    [
+      "effects",
+      1061
+    ],
+    [
+      "small",
+      1018
+    ],
+    [
+      "accountability",
+      1000
+    ],
+    [
+      "monitoring",
+      993
+    ],
+    [
+      "immediate",
+      983
+    ],
+    [
+      "perception",
+      981
+    ],
+    [
+      "technological",
+      980
+    ],
+    [
+      "rights",
+      978
+    ],
+    [
+      "use",
+      971
+    ],
+    [
+      "infrastructure",
+      944
+    ],
+    [
+      "being",
+      933
+    ],
+    [
+      "interests",
+      925
+    ],
+    [
+      "costs",
+      924
+    ],
+    [
+      "freedom",
+      901
+    ],
+    [
+      "advocates",
+      873
+    ],
+    [
+      "criminal",
+      846
+    ],
+    [
+      "evidence",
+      818
+    ],
+    [
+      "areas",
+      815
+    ],
+    [
+      "influence",
+      802
+    ],
+    [
+      "the",
+      798
+    ],
+    [
+      "abuse",
+      783
+    ],
+    [
+      "targeting",
+      776
+    ],
+    [
+      "watched",
+      770
+    ],
+    [
+      "invasion",
+      770
+    ],
+    [
+      "criminals",
+      766
+    ],
+    [
+      "false",
+      741
+    ],
+    [
+      "balancing",
+      710
+    ],
+    [
+      "cost",
+      682
+    ],
+    [
+      "communities",
+      677
+    ],
+    [
+      "footage",
+      671
+    ],
+    [
+      "coverage",
+      656
+    ],
+    [
+      "control",
+      651
+    ],
+    [
+      "as",
+      642
+    ],
+    [
+      "sense",
+      636
+    ],
+    [
+      "high",
+      618
+    ],
+    [
+      "local",
+      613
+    ],
+    [
+      "reduced",
+      606
+    ]
+  ],
+  "unique_labels": 4654,
+  "topic": "camera",
+  "source_files": [
+    "all-causal-graphs-2025-09-24T08-08-24-911Z.json",
+    "all-causal-graphs-2025-09-24T08-08-09-191Z.json",
+    "all-causal-graphs-2025-09-24T08-08-30-350Z.json",
+    "all-causal-graphs-2025-09-24T08-07-59-955Z.json",
+    "all-causal-graphs-2025-09-24T08-08-18-447Z.json",
+    "camera_edge_patterns.json",
+    "all-causal-graphs-2025-09-24T08-08-13-781Z.json"
+  ],
+  "file_hashes": {
+    "all-causal-graphs-2025-09-24T08-08-24-911Z.json": "aae3b74e8bb7aad21285f917fbf4ba59b1e8b30889294f777d8e8df16ca71e3b",
+    "all-causal-graphs-2025-09-24T08-08-09-191Z.json": "b9189e7d2e1aa09b05f1442bbc4d43671f8512f7a10e9e039d75d2e5a775e0c1",
+    "all-causal-graphs-2025-09-24T08-08-30-350Z.json": "1e73f13e18403613d385ee6f1091df72525ab13836851234f22f2858db570d54",
+    "all-causal-graphs-2025-09-24T08-07-59-955Z.json": "1dd6c95211f911f3da61d1c56b6a992cbf72a21ab5e5b0187c3d5f00f43862d0",
+    "all-causal-graphs-2025-09-24T08-08-18-447Z.json": "2a69f365a66bdfb17611ffcdc26c2fb6b7667811f8fc4da0f36f7b08632a7725",
+    "camera_edge_patterns.json": "f74b0bb08e1058c2deeb87cca1b1d586929580bc2f4b6a6ece170b3cc1d7c60f",
+    "all-causal-graphs-2025-09-24T08-08-13-781Z.json": "043eef686843f4b487337743d41189871e1270e729d9d404909275fa032a587a"
+  },
+  "generated_at": "2025-09-24T04:38:29.010562"
+}

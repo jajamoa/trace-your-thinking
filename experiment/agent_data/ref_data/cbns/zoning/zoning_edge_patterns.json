@@ -1,0 +1,685 @@
+{
+  "category_connections": {
+    "economic->general": {
+      "count": 652,
+      "frequency": 0.008277998552619886,
+      "avg_correlation": 0.5,
+      "correlation_std": 0.0
+    },
+    "general->general": {
+      "count": 33015,
+      "frequency": 0.41916889910237043,
+      "avg_correlation": 0.5,
+      "correlation_std": 0.0
+    },
+    "general->stance": {
+      "count": 18318,
+      "frequency": 0.23257113111486358,
+      "avg_correlation": 0.5,
+      "correlation_std": 0.0
+    },
+    "emotion->stance": {
+      "count": 118,
+      "frequency": 0.0014981653822226171,
+      "avg_correlation": 0.5,
+      "correlation_std": 0.0
+    },
+    "government->general": {
+      "count": 2617,
+      "frequency": 0.03322626106166601,
+      "avg_correlation": 0.5,
+      "correlation_std": 0.0
+    },
+    "safety->stance": {
+      "count": 1110,
+      "frequency": 0.0140929116463314,
+      "avg_correlation": 0.5,
+      "correlation_std": 0.0
+    },
+    "government->stance": {
+      "count": 847,
+      "frequency": 0.010753780328326752,
+      "avg_correlation": 0.5,
+      "correlation_std": 0.0
+    },
+    "stance->stance": {
+      "count": 276,
+      "frequency": 0.003504183436385105,
+      "avg_correlation": 0.5,
+      "correlation_std": 0.0
+    },
+    "effect->stance": {
+      "count": 1215,
+      "frequency": 0.015426024910173558,
+      "avg_correlation": 0.5,
+      "correlation_std": 0.0
+    },
+    "general->safety": {
+      "count": 594,
+      "frequency": 0.007541612178307073,
+      "avg_correlation": 0.5,
+      "correlation_std": 0.0
+    },
+    "general->government": {
+      "count": 852,
+      "frequency": 0.010817261912319236,
+      "avg_correlation": 0.5,
+      "correlation_std": 0.0
+    },
+    "community->stance": {
+      "count": 875,
+      "frequency": 0.011109277198684661,
+      "avg_correlation": 0.5,
+      "correlation_std": 0.0
+    },
+    "effect->effect": {
+      "count": 1251,
+      "frequency": 0.015883092314919443,
+      "avg_correlation": 0.5,
+      "correlation_std": 0.0
+    },
+    "community->general": {
+      "count": 610,
+      "frequency": 0.007744753247083022,
+      "avg_correlation": 0.5,
+      "correlation_std": 0.0
+    },
+    "stance->general": {
+      "count": 1720,
+      "frequency": 0.021837664893414422,
+      "avg_correlation": 0.5,
+      "correlation_std": 0.0
+    },
+    "economic->stance": {
+      "count": 860,
+      "frequency": 0.010918832446707211,
+      "avg_correlation": 0.5,
+      "correlation_std": 0.0
+    },
+    "stance->effect": {
+      "count": 359,
+      "frequency": 0.004557977730660336,
+      "avg_correlation": 0.5,
+      "correlation_std": 0.0
+    },
+    "general->effect": {
+      "count": 3758,
+      "frequency": 0.04771275852875081,
+      "avg_correlation": 0.5,
+      "correlation_std": 0.0
+    },
+    "government->economic": {
+      "count": 172,
+      "frequency": 0.002183766489341442,
+      "avg_correlation": 0.5,
+      "correlation_std": 0.0
+    },
+    "general->economic": {
+      "count": 1385,
+      "frequency": 0.017584398765918007,
+      "avg_correlation": 0.5,
+      "correlation_std": 0.0
+    },
+    "accountability->stance": {
+      "count": 50,
+      "frequency": 0.0006348158399248379,
+      "avg_correlation": 0.5,
+      "correlation_std": 0.0
+    },
+    "general->technology": {
+      "count": 362,
+      "frequency": 0.004596066681055826,
+      "avg_correlation": 0.5,
+      "correlation_std": 0.0
+    },
+    "general->community": {
+      "count": 1640,
+      "frequency": 0.02082195954953468,
+      "avg_correlation": 0.5,
+      "correlation_std": 0.0
+    },
+    "government->accountability": {
+      "count": 153,
+      "frequency": 0.0019425364701700038,
+      "avg_correlation": 0.5,
+      "correlation_std": 0.0
+    },
+    "effect->general": {
+      "count": 962,
+      "frequency": 0.01221385676015388,
+      "avg_correlation": 0.5,
+      "correlation_std": 0.0
+    },
+    "technology->general": {
+      "count": 61,
+      "frequency": 0.0007744753247083021,
+      "avg_correlation": 0.5,
+      "correlation_std": 0.0
+    },
+    "privacy->stance": {
+      "count": 142,
+      "frequency": 0.0018028769853865394,
+      "avg_correlation": 0.5,
+      "correlation_std": 0.0
+    },
+    "government->privacy": {
+      "count": 23,
+      "frequency": 0.00029201528636542537,
+      "avg_correlation": 0.5,
+      "correlation_std": 0.0
+    },
+    "effect->economic": {
+      "count": 97,
+      "frequency": 0.0012315427294541854,
+      "avg_correlation": 0.5,
+      "correlation_std": 0.0
+    },
+    "government->effect": {
+      "count": 253,
+      "frequency": 0.0032121681500196795,
+      "avg_correlation": 0.5,
+      "correlation_std": 0.0
+    },
+    "economic->effect": {
+      "count": 130,
+      "frequency": 0.0016505211838045784,
+      "avg_correlation": 0.5,
+      "correlation_std": 0.0
+    },
+    "economic->economic": {
+      "count": 134,
+      "frequency": 0.0017013064509985654,
+      "avg_correlation": 0.5,
+      "correlation_std": 0.0
+    },
+    "modifier->stance": {
+      "count": 112,
+      "frequency": 0.0014219874814316367,
+      "avg_correlation": 0.5,
+      "correlation_std": 0.0
+    },
+    "effect->community": {
+      "count": 77,
+      "frequency": 0.0009776163934842501,
+      "avg_correlation": 0.5,
+      "correlation_std": 0.0
+    },
+    "effect->emotion": {
+      "count": 17,
+      "frequency": 0.00021583738557444485,
+      "avg_correlation": 0.5,
+      "correlation_std": 0.0
+    },
+    "modifier->community": {
+      "count": 16,
+      "frequency": 0.0002031410687759481,
+      "avg_correlation": 0.5,
+      "correlation_std": 0.0
+    },
+    "community->effect": {
+      "count": 238,
+      "frequency": 0.003021723398042228,
+      "avg_correlation": 0.5,
+      "correlation_std": 0.0
+    },
+    "safety->effect": {
+      "count": 27,
+      "frequency": 0.00034280055355941243,
+      "avg_correlation": 0.5,
+      "correlation_std": 0.0
+    },
+    "government->community": {
+      "count": 287,
+      "frequency": 0.003643842921168569,
+      "avg_correlation": 0.5,
+      "correlation_std": 0.0
+    },
+    "technology->stance": {
+      "count": 160,
+      "frequency": 0.002031410687759481,
+      "avg_correlation": 0.5,
+      "correlation_std": 0.0
+    },
+    "emotion->effect": {
+      "count": 43,
+      "frequency": 0.0005459416223353605,
+      "avg_correlation": 0.5,
+      "correlation_std": 0.0
+    },
+    "general->emotion": {
+      "count": 232,
+      "frequency": 0.0029455454972512475,
+      "avg_correlation": 0.5,
+      "correlation_std": 0.0
+    },
+    "community->community": {
+      "count": 120,
+      "frequency": 0.0015235580158196108,
+      "avg_correlation": 0.5,
+      "correlation_std": 0.0
+    },
+    "economic->community": {
+      "count": 43,
+      "frequency": 0.0005459416223353605,
+      "avg_correlation": 0.5,
+      "correlation_std": 0.0
+    },
+    "government->government": {
+      "count": 547,
+      "frequency": 0.006944885288777725,
+      "avg_correlation": 0.5,
+      "correlation_std": 0.0
+    },
+    "general->privacy": {
+      "count": 50,
+      "frequency": 0.0006348158399248379,
+      "avg_correlation": 0.5,
+      "correlation_std": 0.0
+    },
+    "modifier->general": {
+      "count": 45,
+      "frequency": 0.000571334255932354,
+      "avg_correlation": 0.5,
+      "correlation_std": 0.0
+    },
+    "privacy->general": {
+      "count": 64,
+      "frequency": 0.0008125642751037924,
+      "avg_correlation": 0.5,
+      "correlation_std": 0.0
+    },
+    "trust->stance": {
+      "count": 76,
+      "frequency": 0.0009649200766857534,
+      "avg_correlation": 0.5,
+      "correlation_std": 0.0
+    },
+    "government->technology": {
+      "count": 44,
+      "frequency": 0.0005586379391338572,
+      "avg_correlation": 0.5,
+      "correlation_std": 0.0
+    },
+    "general->modifier": {
+      "count": 87,
+      "frequency": 0.0011045795614692178,
+      "avg_correlation": 0.5,
+      "correlation_std": 0.0
+    },
+    "general->rights": {
+      "count": 106,
+      "frequency": 0.0013458095806406561,
+      "avg_correlation": 0.5,
+      "correlation_std": 0.0
+    },
+    "rights->stance": {
+      "count": 12,
+      "frequency": 0.00015235580158196109,
+      "avg_correlation": 0.5,
+      "correlation_std": 0.0
+    },
+    "safety->general": {
+      "count": 156,
+      "frequency": 0.001980625420565494,
+      "avg_correlation": 0.5,
+      "correlation_std": 0.0
+    },
+    "trust->effect": {
+      "count": 65,
+      "frequency": 0.0008252605919022892,
+      "avg_correlation": 0.5,
+      "correlation_std": 0.0
+    },
+    "community->government": {
+      "count": 151,
+      "frequency": 0.0019171438365730101,
+      "avg_correlation": 0.5,
+      "correlation_std": 0.0
+    },
+    "stance->economic": {
+      "count": 20,
+      "frequency": 0.0002539263359699351,
+      "avg_correlation": 0.5,
+      "correlation_std": 0.0
+    },
+    "accountability->general": {
+      "count": 66,
+      "frequency": 0.0008379569087007859,
+      "avg_correlation": 0.5,
+      "correlation_std": 0.0
+    },
+    "community->economic": {
+      "count": 23,
+      "frequency": 0.00029201528636542537,
+      "avg_correlation": 0.5,
+      "correlation_std": 0.0
+    },
+    "rights->emotion": {
+      "count": 15,
+      "frequency": 0.00019044475197745134,
+      "avg_correlation": 0.5,
+      "correlation_std": 0.0
+    },
+    "stance->safety": {
+      "count": 13,
+      "frequency": 0.00016505211838045784,
+      "avg_correlation": 0.5,
+      "correlation_std": 0.0
+    },
+    "safety->safety": {
+      "count": 28,
+      "frequency": 0.0003554968703579092,
+      "avg_correlation": 0.5,
+      "correlation_std": 0.0
+    },
+    "stance->community": {
+      "count": 127,
+      "frequency": 0.001612432233409088,
+      "avg_correlation": 0.5,
+      "correlation_std": 0.0
+    },
+    "community->accountability": {
+      "count": 30,
+      "frequency": 0.0003808895039549027,
+      "avg_correlation": 0.5,
+      "correlation_std": 0.0
+    },
+    "technology->effect": {
+      "count": 48,
+      "frequency": 0.0006094232063278443,
+      "avg_correlation": 0.5,
+      "correlation_std": 0.0
+    },
+    "stance->trust": {
+      "count": 23,
+      "frequency": 0.00029201528636542537,
+      "avg_correlation": 0.5,
+      "correlation_std": 0.0
+    },
+    "effect->trust": {
+      "count": 16,
+      "frequency": 0.0002031410687759481,
+      "avg_correlation": 0.5,
+      "correlation_std": 0.0
+    },
+    "trust->government": {
+      "count": 2,
+      "frequency": 2.5392633596993512e-05,
+      "avg_correlation": 0.5,
+      "correlation_std": 0.0
+    },
+    "privacy->privacy": {
+      "count": 6,
+      "frequency": 7.617790079098054e-05,
+      "avg_correlation": 0.5,
+      "correlation_std": 0.0
+    },
+    "community->modifier": {
+      "count": 27,
+      "frequency": 0.00034280055355941243,
+      "avg_correlation": 0.5,
+      "correlation_std": 0.0
+    },
+    "community->emotion": {
+      "count": 14,
+      "frequency": 0.0001777484351789546,
+      "avg_correlation": 0.5,
+      "correlation_std": 0.0
+    },
+    "rights->general": {
+      "count": 49,
+      "frequency": 0.000622119523126341,
+      "avg_correlation": 0.5,
+      "correlation_std": 0.0
+    },
+    "general->accountability": {
+      "count": 65,
+      "frequency": 0.0008252605919022892,
+      "avg_correlation": 0.5,
+      "correlation_std": 0.0
+    },
+    "accountability->community": {
+      "count": 23,
+      "frequency": 0.00029201528636542537,
+      "avg_correlation": 0.5,
+      "correlation_std": 0.0
+    },
+    "accountability->accountability": {
+      "count": 23,
+      "frequency": 0.00029201528636542537,
+      "avg_correlation": 0.5,
+      "correlation_std": 0.0
+    },
+    "effect->modifier": {
+      "count": 26,
+      "frequency": 0.0003301042367609157,
+      "avg_correlation": 0.5,
+      "correlation_std": 0.0
+    },
+    "general->trust": {
+      "count": 78,
+      "frequency": 0.000990312710282747,
+      "avg_correlation": 0.5,
+      "correlation_std": 0.0
+    },
+    "government->rights": {
+      "count": 21,
+      "frequency": 0.00026662265276843186,
+      "avg_correlation": 0.5,
+      "correlation_std": 0.0
+    },
+    "community->safety": {
+      "count": 26,
+      "frequency": 0.0003301042367609157,
+      "avg_correlation": 0.5,
+      "correlation_std": 0.0
+    },
+    "stance->emotion": {
+      "count": 25,
+      "frequency": 0.0003174079199624189,
+      "avg_correlation": 0.5,
+      "correlation_std": 0.0
+    },
+    "modifier->effect": {
+      "count": 329,
+      "frequency": 0.004177088226705433,
+      "avg_correlation": 0.5,
+      "correlation_std": 0.0
+    },
+    "economic->government": {
+      "count": 22,
+      "frequency": 0.0002793189695669286,
+      "avg_correlation": 0.5,
+      "correlation_std": 0.0
+    },
+    "stance->government": {
+      "count": 21,
+      "frequency": 0.00026662265276843186,
+      "avg_correlation": 0.5,
+      "correlation_std": 0.0
+    },
+    "economic->modifier": {
+      "count": 15,
+      "frequency": 0.00019044475197745134,
+      "avg_correlation": 0.5,
+      "correlation_std": 0.0
+    },
+    "rights->modifier": {
+      "count": 11,
+      "frequency": 0.0001396594847834643,
+      "avg_correlation": 0.5,
+      "correlation_std": 0.0
+    },
+    "accountability->effect": {
+      "count": 5,
+      "frequency": 6.348158399248378e-05,
+      "avg_correlation": 0.5,
+      "correlation_std": 0.0
+    },
+    "modifier->trust": {
+      "count": 3,
+      "frequency": 3.808895039549027e-05,
+      "avg_correlation": 0.5,
+      "correlation_std": 0.0
+    },
+    "modifier->modifier": {
+      "count": 3,
+      "frequency": 3.808895039549027e-05,
+      "avg_correlation": 0.5,
+      "correlation_std": 0.0
+    },
+    "emotion->modifier": {
+      "count": 10,
+      "frequency": 0.00012696316798496755,
+      "avg_correlation": 0.5,
+      "correlation_std": 0.0
+    },
+    "effect->technology": {
+      "count": 47,
+      "frequency": 0.0005967268895293475,
+      "avg_correlation": 0.5,
+      "correlation_std": 0.0
+    },
+    "rights->safety": {
+      "count": 20,
+      "frequency": 0.0002539263359699351,
+      "avg_correlation": 0.5,
+      "correlation_std": 0.0
+    },
+    "government->safety": {
+      "count": 32,
+      "frequency": 0.0004062821375518962,
+      "avg_correlation": 0.5,
+      "correlation_std": 0.0
+    },
+    "safety->community": {
+      "count": 24,
+      "frequency": 0.00030471160316392217,
+      "avg_correlation": 0.5,
+      "correlation_std": 0.0
+    },
+    "trust->general": {
+      "count": 4,
+      "frequency": 5.0785267193987024e-05,
+      "avg_correlation": 0.5,
+      "correlation_std": 0.0
+    },
+    "effect->privacy": {
+      "count": 28,
+      "frequency": 0.0003554968703579092,
+      "avg_correlation": 0.5,
+      "correlation_std": 0.0
+    },
+    "community->privacy": {
+      "count": 1,
+      "frequency": 1.2696316798496756e-05,
+      "avg_correlation": 0.5,
+      "correlation_std": 0.0
+    },
+    "government->trust": {
+      "count": 8,
+      "frequency": 0.00010157053438797405,
+      "avg_correlation": 0.5,
+      "correlation_std": 0.0
+    }
+  },
+  "common_patterns": [
+    {
+      "pattern": "general->general",
+      "frequency": 0.41916889910237043,
+      "typical_correlation": "negative"
+    },
+    {
+      "pattern": "general->stance",
+      "frequency": 0.23257113111486358,
+      "typical_correlation": "negative"
+    }
+  ],
+  "rare_patterns": [
+    "trust->government",
+    "privacy->privacy",
+    "accountability->effect",
+    "modifier->trust",
+    "modifier->modifier",
+    "trust->general",
+    "community->privacy",
+    "government->trust"
+  ],
+  "correlation_tendencies": {},
+  "semantic_rules": [
+    {
+      "type": "positive_association",
+      "categories": [
+        [
+          "safety",
+          "support"
+        ],
+        [
+          "crime",
+          "surveillance"
+        ],
+        [
+          "security",
+          "technology"
+        ],
+        [
+          "protection",
+          "camera"
+        ],
+        [
+          "trust",
+          "government"
+        ]
+      ],
+      "description": "These category pairs tend to have positive correlations"
+    },
+    {
+      "type": "negative_association",
+      "categories": [
+        [
+          "privacy",
+          "surveillance"
+        ],
+        [
+          "rights",
+          "monitoring"
+        ],
+        [
+          "freedom",
+          "camera"
+        ],
+        [
+          "abuse",
+          "trust"
+        ],
+        [
+          "bias",
+          "support"
+        ]
+      ],
+      "description": "These category pairs tend to have negative correlations"
+    },
+    {
+      "type": "conflicting",
+      "categories": [
+        [
+          "privacy",
+          "safety"
+        ],
+        [
+          "freedom",
+          "security"
+        ],
+        [
+          "individual",
+          "community"
+        ],
+        [
+          "cost",
+          "effectiveness"
+        ]
+      ],
+      "description": "These represent fundamental tensions/tradeoffs"
+    }
+  ]
+}
