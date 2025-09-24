@@ -9,9 +9,6 @@ PURPLE='\033[0;35m'
 CYAN='\033[0;36m'
 NC='\033[0m' # No Color
 
-echo -e "${CYAN}Starting Ultra-Parallel Synthetic Agent Experiments${NC}"
-echo -e "${CYAN}=================================================${NC}"
-
 # Setup NLTK data first to avoid repeated downloads
 echo -e "\n${YELLOW}Setting up NLTK data...${NC}"
 if python setup_nltk.py; then
@@ -31,18 +28,28 @@ echo -e "  Agents found: ${GREEN}${AGENT_COUNT}${NC}"
 echo -e "  Topics: ${GREEN}${TOPICS}${NC}"
 echo -e "  Total combinations: ${GREEN}${TOTAL_COMBINATIONS}${NC}"
 echo -e "  Max QA per conversation: ${GREEN}20${NC}"
-echo -e "  Parallel workers: ${GREEN}24${NC} (scaled for large datasets)"
-echo -e "  LLM threads: ${GREEN}48${NC} (maximized for 500+ agents)"
+echo -e "  Parallel workers: ${GREEN}12${NC}"
+echo -e "  LLM threads: ${GREEN}16${NC}"
 
 echo -e "\n${PURPLE}Running ultra-parallel experiments...${NC}"
 echo -e "${PURPLE}====================================${NC}"
 
 # Run experiments with ultra-parallel processing and colored output
-python run_experiments_ultra_parallel.py \
+# Use stdbuf to force line buffering for real-time output
+# Choose the best available method for real-time output
+if command -v stdbuf >/dev/null 2>&1; then
+    CMD_PREFIX="stdbuf -oL -eL"
+elif command -v unbuffer >/dev/null 2>&1; then
+    CMD_PREFIX="unbuffer"
+else
+    CMD_PREFIX=""
+fi
+
+$CMD_PREFIX python run_experiments_ultra_parallel.py \
     --topics zoning healthcare surveillance \
     --max-qa 20 \
-    --workers 24 \
-    --llm-threads 48 \
+    --workers 12 \
+    --llm-threads 16 \
     2>&1 | while IFS= read -r line; do
         case "$line" in
             *"Found"*"synthetic agents"*)

@@ -189,7 +189,13 @@ Respond naturally and conversationally, as if you're talking to a researcher. Ke
             return self._llm_request(messages, max_tokens=200, temperature=0.8)
                 
         except Exception as e:
-            print(f"LLM generation failed: {e}, falling back to template")
+            # Check for account access issues
+            if "Access denied" in str(e) or "account" in str(e).lower():
+                print(f"LLM API access issue: {e}")
+                # Disable LLM for this agent
+                self.use_llm = False
+            else:
+                print(f"LLM generation failed: {e}, falling back to template")
             return self._generate_template_answer(question_text)
     
     def _build_personality_prompt(self):
@@ -413,7 +419,13 @@ Provide a brief, authentic response (under 100 words) based on your beliefs."""
                 return {"response": response_text}
                 
         except Exception as e:
-            print(f"Survey LLM generation failed: {e}, falling back to template")
+            # Check for account access issues
+            if "Access denied" in str(e) or "account" in str(e).lower():
+                print(f"Survey LLM API access issue: {e}")
+                # Disable LLM for this agent
+                self.use_llm = False
+            else:
+                print(f"Survey LLM generation failed: {e}, falling back to template")
             return self._generate_template_survey_response({"text": question_text, "type": question_type, "options": options, "scale": scale})
     
     def _generate_template_survey_response(self, question_data):

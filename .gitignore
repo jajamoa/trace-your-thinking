@@ -111,3 +111,6 @@ pids
 
 # cbns directory
 cbns/
+
+# synthetic agents data
+synthetic_agents*/

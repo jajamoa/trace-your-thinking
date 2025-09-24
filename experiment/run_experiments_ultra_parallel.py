@@ -233,6 +233,36 @@ def _generate_reasons_for_opinions(opinions, survey_questions, reverse_mapping, 
                 # Use the main question ID (remove 'r' suffix) for reasons
                 main_q_id = q_id
                 reasons[main_q_id][reason_code] = reason_score
+        
+        # Process standalone reason_evaluation questions
+        elif q["type"] == "reason_evaluation":
+            reasons[q_id] = {}
+            
+            for reason_code in q.get("reasons", []):
+                # Get actual reason text
+                reason_text = reverse_mapping.get(reason_code, "")
+                
+                # Generate score based on reason content and agent stance
+                if stance_value > 5:  # Supportive agent
+                    if any(word in reason_text.lower() for word in 
+                         ["benefit", "help", "affordable", "equity", "access", "opportunity"]):
+                        reason_score = random.randint(4, 5)
+                    elif any(word in reason_text.lower() for word in 
+                           ["concern", "worry", "traffic", "property value", "crowding"]):
+                        reason_score = random.randint(1, 2)
+                    else:
+                        reason_score = 3
+                else:  # Opposing agent
+                    if any(word in reason_text.lower() for word in 
+                         ["concern", "worry", "traffic", "property value", "crowding", "inefficient"]):
+                        reason_score = random.randint(4, 5)
+                    elif any(word in reason_text.lower() for word in 
+                           ["benefit", "help", "affordable", "equity", "access"]):
+                        reason_score = random.randint(1, 2)
+                    else:
+                        reason_score = 3
+                
+                reasons[q_id][reason_code] = reason_score
 
 
 def process_single_agent_topic_ultra(args):
