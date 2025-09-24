@@ -137,7 +137,10 @@ class ThreadSafeLLMAgent(BaseAgent):
             return self._generate_template_survey_response(question_data)
     
     def _llm_request(self, messages, max_tokens=200, temperature=0.8):
-        """Make thread-safe LLM request"""
+        """Make thread-safe LLM request with simple retry"""
+        import time
+        import random
+        
         session = self._get_session()
         
         data = {
@@ -152,19 +155,41 @@ class ThreadSafeLLMAgent(BaseAgent):
             }
         }
         
-        response = session.post(self.api_url, json=data, timeout=30)
-        response.raise_for_status()
-        
-        result = response.json()
-        if 'output' in result:
-            output = result['output']
-            # Handle both API response formats
-            if 'text' in output:
-                return output['text'].strip()
-            elif 'choices' in output and output['choices']:
-                return output['choices'][0]['message']['content'].strip()
-        
-        raise Exception(f"Unexpected API response format: {result}")
+        # Simple retry logic for 429 errors
+        for attempt in range(3):
+            try:
+                if attempt > 0:
+                    # Wait with jitter before retry
+                    delay = random.uniform(1, 5) * (attempt + 1)
+                    time.sleep(delay)
+                
+                response = session.post(self.api_url, json=data, timeout=30)
+                
+                # Handle 429 specifically
+                if response.status_code == 429:
+                    if attempt < 2:  # Don't wait on last attempt
+                        print(f"Rate limited, retrying in a moment... (attempt {attempt + 1}/3)")
+                        continue
+                    else:
+                        raise Exception("Rate limit exceeded after 3 attempts")
+                
+                response.raise_for_status()
+                
+                result = response.json()
+                if 'output' in result:
+                    output = result['output']
+                    # Handle both API response formats
+                    if 'text' in output:
+                        return output['text'].strip()
+                    elif 'choices' in output and output['choices']:
+                        return output['choices'][0]['message']['content'].strip()
+                
+                raise Exception(f"Unexpected API response format: {result}")
+                
+            except Exception as e:
+                if attempt == 2:  # Last attempt
+                    raise e
+                continue
     
     def _generate_llm_answer(self, question_text):
         """Generate answer using LLM with CBN context"""
