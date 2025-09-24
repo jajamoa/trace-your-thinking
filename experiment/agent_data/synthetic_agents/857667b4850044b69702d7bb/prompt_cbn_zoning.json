@@ -1,0 +1,82 @@
+{
+  "stance_node": "n1",
+  "nodes": {
+    "n16": {
+      "label": "Effect on housing",
+      "is_stance": false
+    },
+    "n33": {
+      "label": "Development and neighborhood",
+      "is_stance": false
+    },
+    "n48": {
+      "label": "Support in density",
+      "is_stance": false
+    },
+    "n11": {
+      "label": "Support in zoning",
+      "is_stance": false
+    },
+    "n21": {
+      "label": "Neighborhood consequence",
+      "is_stance": false
+    },
+    "n28": {
+      "label": "Development consequence",
+      "is_stance": false
+    },
+    "n49": {
+      "label": "Opposition in zoning",
+      "is_stance": false
+    },
+    "n29": {
+      "label": "Result to affordability",
+      "is_stance": false
+    },
+    "n1": {
+      "label": "Housing support",
+      "is_stance": true
+    },
+    "n19": {
+      "label": "Concerns in affordability",
+      "is_stance": false
+    },
+    "n36": {
+      "label": "Result to zoning",
+      "is_stance": false
+    },
+    "n26": {
+      "label": "Influence for housing",
+      "is_stance": false
+    },
+    "n27": {
+      "label": "Effect on zoning",
+      "is_stance": false
+    },
+    "n3": {
+      "label": "Local development",
+      "is_stance": false
+    },
+    "n13": {
+      "label": "Impact to zoning",
+      "is_stance": false
+    }
+  },
+  "edges": [
+    {
+      "source": "n1",
+      "target": "n19",
+      "direction": "positive"
+    },
+    {
+      "source": "n1",
+      "target": "n13",
+      "direction": "positive"
+    },
+    {
+      "source": "n48",
+      "target": "n1",
+      "direction": "positive"
+    }
+  ]
+}

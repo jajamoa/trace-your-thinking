@@ -1,0 +1,44 @@
+{
+  "session_id": "exp_5de7b99a",
+  "topic": "zoning",
+  "timestamp": "20250924_043906",
+  "qa_pairs": [
+    {
+      "id": "qa1",
+      "question": "What's your perspective on zoning?",
+      "answer": "I strongly believe in the development. This is because Property and affordable supports this view and Economic considerations supports this view. ",
+      "shortText": "Initial thoughts on zoning"
+    },
+    {
+      "id": "qa2",
+      "question": "Does Property have a positive or negative effect on Support for zoning, and how significant is this effect? Does it have a positive effect (increasing it) or a negative effect (decreasing it)? How strong is this effect?",
+      "answer": "This relates to Property and affordable and Economic considerations, which are central to my understanding of this issue.",
+      "shortText": "Relationship: Property → Support for zoning"
+    },
+    {
+      "id": "qa3",
+      "question": "Would small changes in Affordable lead to noticeable changes in Support for zoning, or would it take larger shifts? Does it have a positive effect (increasing it) or a negative effect (decreasing it)? How strong is this effect?",
+      "answer": "This relates to Property and affordable and Economic considerations, which are central to my understanding of this issue.",
+      "shortText": "Relationship: Affordable → Support for zoning"
+    },
+    {
+      "id": "qa4",
+      "question": "Would small changes in Economic considerations lead to noticeable changes in Support for zoning, or would it take larger shifts? Does it have a positive effect (increasing it) or a negative effect (decreasing it)? How strong is this effect?",
+      "answer": "This relates to Property and affordable and Economic considerations, which are central to my understanding of this issue.",
+      "shortText": "Relationship: Economic considerations → Support for zoning"
+    },
+    {
+      "id": "qa5",
+      "question": "What might lead to increases or decreases in Development, and how significant are these effects? Please also indicate if these influences are positive (increasing) or negative (decreasing).",
+      "answer": "The key factors I consider are Property and affordable, Economic considerations, Gentrification access. Each of these plays an important role in shaping my perspective.",
+      "shortText": "Factors affecting Development"
+    },
+    {
+      "id": "qa6",
+      "question": "Does Development have a positive or negative effect on Property, and how significant is this effect?",
+      "answer": "This relates to Property and affordable and Economic considerations, which are central to my understanding of this issue.",
+      "shortText": "Relationship: Development → Property"
+    }
+  ],
+  "total_qa_count": 6
+}

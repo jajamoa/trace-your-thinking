@@ -1,0 +1,56 @@
+{
+  "session_id": "exp_3954e2fc",
+  "topic": "zoning",
+  "timestamp": "20250924_052043",
+  "qa_pairs": [
+    {
+      "id": "qa1",
+      "question": "To what extent do you support or oppose upzoning policies that allow for higher density housing in traditionally single-family neighborhoods? Please explain your reasoning.",
+      "answer": "I don't think this is the right solution. We should explore other approaches that don't have these drawbacks.",
+      "shortText": "Stance on upzoning"
+    },
+    {
+      "id": "qa2",
+      "question": "What do you think are the most significant impacts, positive or negative, of increasing housing density in residential neighborhoods?",
+      "answer": "This would fundamentally alter neighborhood character and reduce quality of life for existing residents.",
+      "shortText": "Upzoning impacts"
+    },
+    {
+      "id": "qa3",
+      "question": "How do you think upzoning policies might affect housing affordability in urban areas?",
+      "answer": "The key factors I consider are Effect of upzoning, Support in affordability, Zoning. Each of these plays an important role in shaping my perspective.",
+      "shortText": "Housing affordability"
+    },
+    {
+      "id": "qa4",
+      "question": "What impact do you believe increased housing density might have on neighborhood character and quality of life?",
+      "answer": "This would fundamentally alter neighborhood character and reduce quality of life for existing residents.",
+      "shortText": "Neighborhood character"
+    },
+    {
+      "id": "qa5",
+      "question": "How do you think upzoning might affect transportation systems and traffic congestion in cities?",
+      "answer": "The key factors I consider are Effect of upzoning, Support in affordability, Zoning. Each of these plays an important role in shaping my perspective.",
+      "shortText": "Transportation impacts"
+    },
+    {
+      "id": "qa6",
+      "question": "What role do you believe local government should play in regulating housing development and density?",
+      "answer": "The key factors I consider are Development consequence, Increased development, Density. Each of these plays an important role in shaping my perspective.",
+      "shortText": "Government role"
+    },
+    {
+      "id": "qa7",
+      "question": "How might environmental concerns factor into decisions about urban density and zoning?",
+      "answer": "The key factors I consider are Density, Support in affordability, Zoning. Each of these plays an important role in shaping my perspective.",
+      "shortText": "Environmental factors"
+    },
+    {
+      "id": "qa8",
+      "question": "What economic effects, both positive and negative, might result from changing zoning laws to allow more multi-family housing?",
+      "answer": "The economic disruption to existing businesses and property values would be significant.",
+      "shortText": "Economic effects"
+    }
+  ],
+  "total_qa_count": 8
+}

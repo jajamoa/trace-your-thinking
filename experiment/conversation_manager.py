@@ -7,9 +7,13 @@ import uuid
 import time
 import os
 import sys
+import logging
 from datetime import datetime
 from pathlib import Path
 from dotenv import load_dotenv
+
+# Configure logging to only show errors
+logging.basicConfig(level=logging.ERROR)
 
 # Load environment variables from .env files
 parent_dir = Path(__file__).parent.parent
@@ -29,6 +33,7 @@ sys.path.append(os.path.join(parent_dir_str, 'backend'))
 from llm_extractor import QwenLLMExtractor
 from cbn_manager import CBNManager
 from question_generator import QuestionGenerator
+from guiding_questions import GuidingQuestionsManager
 
 
 class ConversationManager:
@@ -52,12 +57,16 @@ class ConversationManager:
         # Initialize backend components
         self.extractor = QwenLLMExtractor(
             api_key=os.getenv('DASHSCOPE_API_KEY'),
-            model="qwen-turbo",
+            model="qwen-flash",
             temperature=0.01
         )
         self.cbn_manager = CBNManager()
         self.cbn_manager.set_llm_extractor(self.extractor)
         self.question_generator = QuestionGenerator()
+        self.guiding_questions_manager = GuidingQuestionsManager()
+        
+        # Track used guiding questions
+        self.used_guiding_questions = set()
         
         # Initialize CBN with stance node
         self._initialize_cbn()
@@ -94,23 +103,10 @@ class ConversationManager:
         }
         
     def generate_initial_question(self):
-        """Generate the initial question to start the conversation"""
-        initial_questions = [
-            f"What are your thoughts on {self.topic}?",
-            f"How do you view the issue of {self.topic}?",
-            f"What's your perspective on {self.topic}?",
-            f"Can you share your views about {self.topic}?"
-        ]
-        
-        import random
-        question = random.choice(initial_questions)
-        
-        return {
-            "id": f"q_{self.current_index}",
-            "question": question,
-            "shortText": f"Initial thoughts on {self.topic}",
-            "type": "initial"
-        }
+        """Generate the initial question using guiding questions"""
+        # Map camera to surveillance
+        topic_key = "surveillance" if self.topic == "camera" else self.topic
+        return self.guiding_questions_manager.get_initial_question(topic_key)
         
     def process_answer(self, question, answer):
         """
@@ -231,34 +227,51 @@ class ConversationManager:
         return self.cbn
         
     def _generate_follow_up_questions(self):
-        """Generate follow-up questions"""
+        """Generate follow-up questions, prioritizing guiding questions"""
         # Check if we've reached max QA count
         if len(self.qa_pairs) >= self.max_qa_count:
             return []
-            
-        # Get current step
-        current_step = self.cbn_manager.get_next_step(self.cbn)
         
-        # Collect existing questions
-        existing_question_info = []
-        for qa in self.qa_pairs:
-            existing_question_info.append({
-                "id": qa.get("id", ""),
-                "question": qa.get("question", ""),
-                "shortText": qa.get("shortText", "")
-            })
+        follow_up_questions = []
         
-        # Generate follow-up questions
-        follow_up_questions = self.question_generator.generate_follow_up_questions(
-            self.cbn,
-            current_step,
-            self.cbn.get("anchor_queue", []),
-            existing_question_info,
-            current_qa_count=len(self.qa_pairs),
-            max_qa_count=self.max_qa_count,
-            current_index=self.current_index,
-            total_qa_count=self.max_qa_count
+        # First, try to use remaining guiding questions
+        topic_key = "surveillance" if self.topic == "camera" else self.topic
+        guiding_questions = self.guiding_questions_manager.get_follow_up_questions(
+            topic_key, self.used_guiding_questions
         )
+        
+        if guiding_questions and len(self.qa_pairs) < 8:  # Use guiding questions for first 8 QAs
+            # Take the next guiding question
+            next_guiding = guiding_questions[0]
+            self.used_guiding_questions.add(next_guiding["id"])
+            follow_up_questions.append(next_guiding)
+        
+        # If no guiding questions available or we've used enough, generate dynamic questions
+        if not follow_up_questions:
+            # Get current step
+            current_step = self.cbn_manager.get_next_step(self.cbn)
+            
+            # Collect existing questions
+            existing_question_info = []
+            for qa in self.qa_pairs:
+                existing_question_info.append({
+                    "id": qa.get("id", ""),
+                    "question": qa.get("question", ""),
+                    "shortText": qa.get("shortText", "")
+                })
+            
+            # Generate follow-up questions
+            dynamic_questions = self.question_generator.generate_follow_up_questions(
+                self.cbn,
+                current_step,
+                self.cbn.get("anchor_queue", []),
+                existing_question_info,
+                current_qa_count=len(self.qa_pairs),
+                max_qa_count=self.max_qa_count,
+                current_index=self.current_index,
+                total_qa_count=self.max_qa_count
+            )
+            follow_up_questions.extend(dynamic_questions)
         
         return follow_up_questions
         
@@ -268,6 +281,10 @@ class ConversationManager:
             hasattr(self, 'last_response') and 
             not self.last_response.get('followUpQuestions')
         )
+    
+    def get_cbn(self):
+        """Get the current CBN state"""
+        return self.cbn
         
     def export_conversation(self, output_dir="experiment/exports"):
         """Export conversation and causal graph"""

@@ -1,0 +1,77 @@
+{
+  "stance_node": "n1",
+  "nodes": {
+    "n10": {
+      "label": "Public patient",
+      "is_stance": false
+    },
+    "n16": {
+      "label": "Quality of coverage",
+      "is_stance": false
+    },
+    "n31": {
+      "label": "Emergency patient",
+      "is_stance": false
+    },
+    "n42": {
+      "label": "Cost for coverage",
+      "is_stance": false
+    },
+    "n11": {
+      "label": "Doctor and patient",
+      "is_stance": false
+    },
+    "n37": {
+      "label": "Hospital",
+      "is_stance": false
+    },
+    "n5": {
+      "label": "Medicine access",
+      "is_stance": false
+    },
+    "n26": {
+      "label": "Hospital cost",
+      "is_stance": false
+    },
+    "n1": {
+      "label": "Private healthcare",
+      "is_stance": true
+    },
+    "n19": {
+      "label": "Hospital and medicine",
+      "is_stance": false
+    },
+    "n30": {
+      "label": "Hospital and patient",
+      "is_stance": false
+    },
+    "n32": {
+      "label": "Hospital",
+      "is_stance": false
+    },
+    "n39": {
+      "label": "Medicine cost",
+      "is_stance": false
+    },
+    "n41": {
+      "label": "Hospital effectiveness",
+      "is_stance": false
+    },
+    "n23": {
+      "label": "Cost for medical",
+      "is_stance": false
+    }
+  },
+  "edges": [
+    {
+      "source": "n37",
+      "target": "n1",
+      "direction": "positive"
+    },
+    {
+      "source": "n19",
+      "target": "n1",
+      "direction": "positive"
+    }
+  ]
+}

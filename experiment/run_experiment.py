@@ -1,6 +1,6 @@
 """
-Experiment Runner for Chatbot-Agent Conversation
-Orchestrates the conversation between chatbot and agent
+Single Experiment Runner for Testing
+Simplified version for running individual experiments
 """
 import sys
 import os
@@ -24,7 +24,7 @@ elif env_path.exists():
 sys.path.append(str(parent_dir))
 
 from conversation_manager import ConversationManager
-from agent_interface import SimpleAgent, InteractiveAgent
+from synthetic_agent import SyntheticAgent
 
 
 class ExperimentRunner:
@@ -145,11 +145,12 @@ class ExperimentRunner:
 
 
 def main():
-    """Main entry point"""
-    parser = argparse.ArgumentParser(description='Run chatbot-agent conversation experiment')
-    parser.add_argument('--agent', choices=['simple', 'interactive'], default='simple',
-                      help='Agent type to use')
-    parser.add_argument('--topic', default='climate change',
+    """Main entry point for single experiment testing"""
+    parser = argparse.ArgumentParser(description='Run single experiment for testing')
+    parser.add_argument('--agent-id', required=True,
+                      help='Synthetic agent ID to use')
+    parser.add_argument('--topic', required=True,
+                      choices=['zoning', 'healthcare', 'surveillance'],
                       help='Conversation topic')
     parser.add_argument('--max-qa', type=int, default=20,
                       help='Maximum number of QA pairs')
@@ -164,11 +165,14 @@ def main():
         print("Please set it before running the experiment")
         sys.exit(1)
     
-    # Create agent
-    if args.agent == 'simple':
-        agent = SimpleAgent()
-    else:
-        agent = InteractiveAgent()
+    # Create synthetic agent
+    agent_dir = Path(f"agent_data/synthetic_agents/{args.agent_id}")
+    if not agent_dir.exists():
+        print(f"ERROR: Agent directory not found: {agent_dir}")
+        sys.exit(1)
+        
+    agent = SyntheticAgent(args.agent_id, agent_dir)
+    agent.set_topic(args.topic)
     
     # Run experiment
     runner = ExperimentRunner(

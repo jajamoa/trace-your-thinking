@@ -1,0 +1,97 @@
+{
+  "stance_node": "n1",
+  "nodes": {
+    "n10": {
+      "label": "Hospital access",
+      "is_stance": false
+    },
+    "n35": {
+      "label": "Care cost",
+      "is_stance": false
+    },
+    "n44": {
+      "label": "Patient cost",
+      "is_stance": false
+    },
+    "n16": {
+      "label": "Hospital and patient",
+      "is_stance": false
+    },
+    "n20": {
+      "label": "Care and patient",
+      "is_stance": false
+    },
+    "n42": {
+      "label": "Reform with insurance",
+      "is_stance": false
+    },
+    "n7": {
+      "label": "Medical",
+      "is_stance": false
+    },
+    "n33": {
+      "label": "Care quality",
+      "is_stance": false
+    },
+    "n15": {
+      "label": "Medical",
+      "is_stance": false
+    },
+    "n26": {
+      "label": "Treatment",
+      "is_stance": false
+    },
+    "n1": {
+      "label": "Insurance reform",
+      "is_stance": true
+    },
+    "n3": {
+      "label": "Healthcare",
+      "is_stance": false
+    },
+    "n8": {
+      "label": "Medicine",
+      "is_stance": false
+    },
+    "n12": {
+      "label": "Treatment",
+      "is_stance": false
+    },
+    "n34": {
+      "label": "Medicine and doctor",
+      "is_stance": false
+    }
+  },
+  "edges": [
+    {
+      "source": "n1",
+      "target": "n34",
+      "direction": "positive"
+    },
+    {
+      "source": "n7",
+      "target": "n15",
+      "direction": "positive"
+    },
+    {
+      "source": "n42",
+      "target": "n1",
+      "direction": "positive"
+    },
+    {
+      "source": "n12",
+      "target": "n34",
+      "direction": "positive"
+    },
+    {
+      "source": "n7",
+      "target": "n35",
+      "direction": "positive"
+    },
+    {
+      "source": "n35",
+      "target": "n20",
+      "direction": "positive"
+    }
+  ]
+}

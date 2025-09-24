@@ -1,0 +1,1090 @@
+{
+  "agent_id": "857667b4850044b69702d7bb",
+  "timestamp": 1758707142415,
+  "nodes": {
+    "n1": {
+      "label": "Insurance reform",
+      "aggregate_confidence": 0.8648480852582519,
+      "evidence": [
+        {
+          "qa_id": "system",
+          "confidence": 1.0,
+          "importance": 1.0
+        }
+      ],
+      "importance": 1.0,
+      "incoming_edges": [
+        "e2"
+      ],
+      "outgoing_edges": [
+        "e1"
+      ],
+      "status": "anchor",
+      "frequency": 1,
+      "is_stance": true
+    },
+    "n2": {
+      "label": "Public hospital",
+      "aggregate_confidence": 0.8120993917410306,
+      "evidence": [
+        {
+          "qa_id": "qa15",
+          "confidence": 0.8120993917410306,
+          "importance": 0.8182625970253529
+        }
+      ],
+      "importance": 0.8182625970253529,
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "anchor",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n3": {
+      "label": "Healthcare",
+      "aggregate_confidence": 0.8721720420564303,
+      "evidence": [
+        {
+          "qa_id": "qa14",
+          "confidence": 0.8721720420564304,
+          "importance": 0.893193166072398
+        }
+      ],
+      "importance": 0.893193166072398,
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "anchor",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n4": {
+      "label": "Emergency hospital",
+      "aggregate_confidence": 0.7831035036072705,
+      "evidence": [
+        {
+          "qa_id": "qa7",
+          "confidence": 0.7090302894093065,
+          "importance": 0.8554275804639785
+        },
+        {
+          "qa_id": "qa8",
+          "confidence": 0.94494833977253,
+          "importance": 0.7586516502961347
+        },
+        {
+          "qa_id": "qa4",
+          "confidence": 0.6872517196182698,
+          "importance": 0.619911066620793
+        }
+      ],
+      "importance": 0.744663432460302,
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "anchor",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n5": {
+      "label": "Hospital quality",
+      "aggregate_confidence": 0.7993849748279537,
+      "evidence": [
+        {
+          "qa_id": "qa11",
+          "confidence": 0.7993849748279537,
+          "importance": 0.806735441333227
+        }
+      ],
+      "importance": 0.806735441333227,
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "candidate",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n6": {
+      "label": "Care",
+      "aggregate_confidence": 0.7143316370263142,
+      "evidence": [
+        {
+          "qa_id": "qa6",
+          "confidence": 0.7143316370263142,
+          "importance": 0.6687881702406535
+        }
+      ],
+      "importance": 0.6687881702406535,
+      "incoming_edges": [
+        "e4"
+      ],
+      "outgoing_edges": [],
+      "status": "candidate",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n7": {
+      "label": "Medical",
+      "aggregate_confidence": 0.9623543617179934,
+      "evidence": [
+        {
+          "qa_id": "qa10",
+          "confidence": 0.9623543617179934,
+          "importance": 0.7208921954062574
+        }
+      ],
+      "importance": 0.7208921954062574,
+      "incoming_edges": [],
+      "outgoing_edges": [
+        "e8",
+        "e14"
+      ],
+      "status": "candidate",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n8": {
+      "label": "Medicine",
+      "aggregate_confidence": 0.8679468478817172,
+      "evidence": [
+        {
+          "qa_id": "qa3",
+          "confidence": 0.8679468478817172,
+          "importance": 0.9080832489483295
+        }
+      ],
+      "importance": 0.9080832489483295,
+      "incoming_edges": [
+        "e15"
+      ],
+      "outgoing_edges": [
+        "e9"
+      ],
+      "status": "candidate",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n9": {
+      "label": "Coverage",
+      "aggregate_confidence": 0.7041194746727276,
+      "evidence": [
+        {
+          "qa_id": "qa11",
+          "confidence": 0.7306653619864096,
+          "importance": 0.85479619953965
+        },
+        {
+          "qa_id": "qa9",
+          "confidence": 0.6744805696403937,
+          "importance": 0.7655925063489546
+        }
+      ],
+      "importance": 0.8101943529443023,
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "candidate",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n10": {
+      "label": "Hospital access",
+      "aggregate_confidence": 0.8277642312004245,
+      "evidence": [
+        {
+          "qa_id": "qa4",
+          "confidence": 0.8277642312004245,
+          "importance": 1.0
+        }
+      ],
+      "importance": 1.0,
+      "incoming_edges": [
+        "e7"
+      ],
+      "outgoing_edges": [],
+      "status": "anchor",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n11": {
+      "label": "Patient and hospital",
+      "aggregate_confidence": 0.8993306806969464,
+      "evidence": [
+        {
+          "qa_id": "qa2",
+          "confidence": 0.9245446450024666,
+          "importance": 0.7664372561055536
+        },
+        {
+          "qa_id": "qa2",
+          "confidence": 0.8675356660435933,
+          "importance": 0.6077972231985864
+        }
+      ],
+      "importance": 0.6871172396520699,
+      "incoming_edges": [],
+      "outgoing_edges": [
+        "e16"
+      ],
+      "status": "anchor",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n12": {
+      "label": "Treatment",
+      "aggregate_confidence": 0.8489640796756595,
+      "evidence": [
+        {
+          "qa_id": "qa8",
+          "confidence": 0.9881318952168339,
+          "importance": 0.7154256885485719
+        },
+        {
+          "qa_id": "qa1",
+          "confidence": 0.7174418015469263,
+          "importance": 0.7570141855351132
+        }
+      ],
+      "importance": 0.7362199370418425,
+      "incoming_edges": [],
+      "outgoing_edges": [
+        "e17"
+      ],
+      "status": "candidate",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n13": {
+      "label": "Care",
+      "aggregate_confidence": 0.7195438253811103,
+      "evidence": [
+        {
+          "qa_id": "qa10",
+          "confidence": 0.8129967418095634,
+          "importance": 0.490245727388675
+        },
+        {
+          "qa_id": "qa1",
+          "confidence": 0.6570507454210635,
+          "importance": 0.733119459312143
+        }
+      ],
+      "importance": 0.611682593350409,
+      "incoming_edges": [
+        "e12"
+      ],
+      "outgoing_edges": [],
+      "status": "candidate",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n14": {
+      "label": "Hospital",
+      "aggregate_confidence": 0.7048635167247351,
+      "evidence": [
+        {
+          "qa_id": "qa7",
+          "confidence": 0.725504543028112,
+          "importance": 0.6120301300337323
+        },
+        {
+          "qa_id": "qa8",
+          "confidence": 0.6885303976984506,
+          "importance": 0.7734548430189977
+        }
+      ],
+      "importance": 0.6927424865263649,
+      "incoming_edges": [
+        "e11"
+      ],
+      "outgoing_edges": [],
+      "status": "anchor",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n15": {
+      "label": "Medical",
+      "aggregate_confidence": 0.7840299042783296,
+      "evidence": [
+        {
+          "qa_id": "qa10",
+          "confidence": 0.7840299042783296,
+          "importance": 1.0
+        }
+      ],
+      "importance": 1.0,
+      "incoming_edges": [
+        "e8"
+      ],
+      "outgoing_edges": [],
+      "status": "anchor",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n16": {
+      "label": "Hospital and patient",
+      "aggregate_confidence": 0.8325321295323539,
+      "evidence": [
+        {
+          "qa_id": "qa12",
+          "confidence": 0.8325321295323539,
+          "importance": 0.9623800680631587
+        }
+      ],
+      "importance": 0.9623800680631587,
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "anchor",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n17": {
+      "label": "Emergency doctor",
+      "aggregate_confidence": 0.8961589764375538,
+      "evidence": [
+        {
+          "qa_id": "qa5",
+          "confidence": 0.8961589764375539,
+          "importance": 0.6296253586896168
+        }
+      ],
+      "importance": 0.6296253586896168,
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "candidate",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n18": {
+      "label": "Cost of coverage",
+      "aggregate_confidence": 0.8360080748408415,
+      "evidence": [
+        {
+          "qa_id": "qa10",
+          "confidence": 0.7660906535759142,
+          "importance": 0.7195617483488483
+        },
+        {
+          "qa_id": "qa3",
+          "confidence": 0.9100314988467941,
+          "importance": 0.6796484026649237
+        }
+      ],
+      "importance": 0.699605075506886,
+      "incoming_edges": [
+        "e16"
+      ],
+      "outgoing_edges": [],
+      "status": "candidate",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n19": {
+      "label": "Doctor effectiveness",
+      "aggregate_confidence": 0.57210338001629,
+      "evidence": [
+        {
+          "qa_id": "qa15",
+          "confidence": 0.57210338001629,
+          "importance": 0.6861177216441215
+        }
+      ],
+      "importance": 0.6861177216441215,
+      "incoming_edges": [
+        "e10"
+      ],
+      "outgoing_edges": [],
+      "status": "anchor",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n20": {
+      "label": "Care and patient",
+      "aggregate_confidence": 0.988585041493804,
+      "evidence": [
+        {
+          "qa_id": "qa4",
+          "confidence": 0.9885850414938039,
+          "importance": 0.7510144159583928
+        }
+      ],
+      "importance": 0.7510144159583928,
+      "incoming_edges": [
+        "e3"
+      ],
+      "outgoing_edges": [
+        "e12",
+        "e13"
+      ],
+      "status": "candidate",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n21": {
+      "label": "Doctor effectiveness",
+      "aggregate_confidence": 0.830368285626463,
+      "evidence": [
+        {
+          "qa_id": "qa1",
+          "confidence": 0.830368285626463,
+          "importance": 0.7625799992887321
+        }
+      ],
+      "importance": 0.7625799992887321,
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "anchor",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n22": {
+      "label": "Reform for medical",
+      "aggregate_confidence": 0.7469302595951139,
+      "evidence": [
+        {
+          "qa_id": "qa8",
+          "confidence": 0.9057380153183876,
+          "importance": 0.5432732150084894
+        },
+        {
+          "qa_id": "qa11",
+          "confidence": 0.6900657103017068,
+          "importance": 0.7881138526086244
+        },
+        {
+          "qa_id": "qa9",
+          "confidence": 0.6826474665314968,
+          "importance": 0.9191239563061773
+        },
+        {
+          "qa_id": "qa3",
+          "confidence": 0.7702585166973535,
+          "importance": 0.7554612419701874
+        }
+      ],
+      "importance": 0.7514930664733697,
+      "incoming_edges": [],
+      "outgoing_edges": [
+        "e7"
+      ],
+      "status": "anchor",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n23": {
+      "label": "Coverage to insurance",
+      "aggregate_confidence": 0.8371267902438981,
+      "evidence": [
+        {
+          "qa_id": "qa8",
+          "confidence": 0.8585408640580582,
+          "importance": 0.9171124127205019
+        },
+        {
+          "qa_id": "qa3",
+          "confidence": 0.7656692334838592,
+          "importance": 0.6965606230315029
+        },
+        {
+          "qa_id": "qa2",
+          "confidence": 1.0,
+          "importance": 0.7460954516795753
+        },
+        {
+          "qa_id": "qa7",
+          "confidence": 0.6963367162210042,
+          "importance": 0.6490766787253689
+        }
+      ],
+      "importance": 0.7522112915392373,
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "anchor",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n24": {
+      "label": "Doctor",
+      "aggregate_confidence": 0.5952425019653859,
+      "evidence": [
+        {
+          "qa_id": "qa13",
+          "confidence": 0.5952425019653859,
+          "importance": 0.6351050990842347
+        }
+      ],
+      "importance": 0.6351050990842347,
+      "incoming_edges": [],
+      "outgoing_edges": [
+        "e15"
+      ],
+      "status": "anchor",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n25": {
+      "label": "Doctor and hospital",
+      "aggregate_confidence": 0.8288694928642067,
+      "evidence": [
+        {
+          "qa_id": "qa1",
+          "confidence": 0.8288694928642067,
+          "importance": 0.8707626908963452
+        }
+      ],
+      "importance": 0.8707626908963452,
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "candidate",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n26": {
+      "label": "Treatment",
+      "aggregate_confidence": 0.8245055876369818,
+      "evidence": [
+        {
+          "qa_id": "qa10",
+          "confidence": 0.8245055876369818,
+          "importance": 0.9331296230605413
+        }
+      ],
+      "importance": 0.9331296230605413,
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "anchor",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n27": {
+      "label": "Private medicine",
+      "aggregate_confidence": 0.7943557737199125,
+      "evidence": [
+        {
+          "qa_id": "qa13",
+          "confidence": 0.7854303257375272,
+          "importance": 0.6293745863182112
+        },
+        {
+          "qa_id": "qa10",
+          "confidence": 0.9507782237193221,
+          "importance": 0.7219706797557182
+        },
+        {
+          "qa_id": "qa2",
+          "confidence": 0.932129229646125,
+          "importance": 0.6324365182537607
+        },
+        {
+          "qa_id": "qa1",
+          "confidence": 0.8860033560721602,
+          "importance": 0.9784629746545486
+        },
+        {
+          "qa_id": "qa5",
+          "confidence": 0.4773054704911868,
+          "importance": 0.8961407712030476
+        }
+      ],
+      "importance": 0.7716771060370572,
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "candidate",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n28": {
+      "label": "Medicine and patient",
+      "aggregate_confidence": 0.798269392254828,
+      "evidence": [
+        {
+          "qa_id": "qa5",
+          "confidence": 0.4868839459830157,
+          "importance": 0.7089292399657261
+        },
+        {
+          "qa_id": "qa14",
+          "confidence": 0.8673481103092134,
+          "importance": 0.7042562532534169
+        },
+        {
+          "qa_id": "qa11",
+          "confidence": 0.9924835467401425,
+          "importance": 0.8861410182044527
+        }
+      ],
+      "importance": 0.7664421704745319,
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "candidate",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n29": {
+      "label": "Patient cost",
+      "aggregate_confidence": 0.7252089585046199,
+      "evidence": [
+        {
+          "qa_id": "qa4",
+          "confidence": 0.6735282064496111,
+          "importance": 0.7547710624665845
+        },
+        {
+          "qa_id": "qa10",
+          "confidence": 0.7790876294787713,
+          "importance": 0.7239810379945149
+        }
+      ],
+      "importance": 0.7393760502305498,
+      "incoming_edges": [],
+      "outgoing_edges": [
+        "e4"
+      ],
+      "status": "candidate",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n30": {
+      "label": "Patient and care",
+      "aggregate_confidence": 0.8281716632201904,
+      "evidence": [
+        {
+          "qa_id": "qa9",
+          "confidence": 0.8281716632201904,
+          "importance": 0.802259924485691
+        }
+      ],
+      "importance": 0.802259924485691,
+      "incoming_edges": [],
+      "outgoing_edges": [
+        "e5"
+      ],
+      "status": "candidate",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n31": {
+      "label": "Affordable medicine",
+      "aggregate_confidence": 0.8092083794900828,
+      "evidence": [
+        {
+          "qa_id": "qa14",
+          "confidence": 0.8092083794900828,
+          "importance": 0.8097769269830388
+        }
+      ],
+      "importance": 0.8097769269830388,
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "anchor",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n32": {
+      "label": "Patient",
+      "aggregate_confidence": 0.8067248869597622,
+      "evidence": [
+        {
+          "qa_id": "qa14",
+          "confidence": 0.8067248869597622,
+          "importance": 0.88150818414258
+        }
+      ],
+      "importance": 0.88150818414258,
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "anchor",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n33": {
+      "label": "Care quality",
+      "aggregate_confidence": 0.9514605652201374,
+      "evidence": [
+        {
+          "qa_id": "qa13",
+          "confidence": 0.9514605652201374,
+          "importance": 0.8310235423795964
+        }
+      ],
+      "importance": 0.8310235423795964,
+      "incoming_edges": [],
+      "outgoing_edges": [
+        "e11"
+      ],
+      "status": "candidate",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n34": {
+      "label": "Medicine and doctor",
+      "aggregate_confidence": 0.8600669023828721,
+      "evidence": [
+        {
+          "qa_id": "qa4",
+          "confidence": 0.8600669023828721,
+          "importance": 0.9829742686462277
+        }
+      ],
+      "importance": 0.9829742686462277,
+      "incoming_edges": [
+        "e1",
+        "e17"
+      ],
+      "outgoing_edges": [],
+      "status": "candidate",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n35": {
+      "label": "Care cost",
+      "aggregate_confidence": 0.9494669839454833,
+      "evidence": [
+        {
+          "qa_id": "qa8",
+          "confidence": 0.9494669839454833,
+          "importance": 0.8655096090431855
+        }
+      ],
+      "importance": 0.8655096090431855,
+      "incoming_edges": [
+        "e14"
+      ],
+      "outgoing_edges": [
+        "e3"
+      ],
+      "status": "candidate",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n36": {
+      "label": "Implementation in treatment",
+      "aggregate_confidence": 0.8247098171945049,
+      "evidence": [
+        {
+          "qa_id": "qa6",
+          "confidence": 0.8631957472249662,
+          "importance": 0.7711221985630075
+        },
+        {
+          "qa_id": "qa13",
+          "confidence": 0.7744160247332987,
+          "importance": 0.5900798791764013
+        }
+      ],
+      "importance": 0.6806010388697044,
+      "incoming_edges": [
+        "e13"
+      ],
+      "outgoing_edges": [
+        "e6"
+      ],
+      "status": "anchor",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n37": {
+      "label": "Medicine effectiveness",
+      "aggregate_confidence": 0.8173004266106801,
+      "evidence": [
+        {
+          "qa_id": "qa10",
+          "confidence": 0.8970319098406467,
+          "importance": 0.779203196455808
+        },
+        {
+          "qa_id": "qa11",
+          "confidence": 0.7239512396905,
+          "importance": 0.665533666019774
+        }
+      ],
+      "importance": 0.722368431237791,
+      "incoming_edges": [
+        "e5"
+      ],
+      "outgoing_edges": [],
+      "status": "candidate",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n38": {
+      "label": "Doctor availability",
+      "aggregate_confidence": 0.9510766366147949,
+      "evidence": [
+        {
+          "qa_id": "qa12",
+          "confidence": 0.9510766366147949,
+          "importance": 0.5628309115615369
+        }
+      ],
+      "importance": 0.5628309115615369,
+      "incoming_edges": [
+        "e9"
+      ],
+      "outgoing_edges": [],
+      "status": "anchor",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n39": {
+      "label": "Patient",
+      "aggregate_confidence": 0.9052841346839899,
+      "evidence": [
+        {
+          "qa_id": "qa14",
+          "confidence": 0.8951637732938207,
+          "importance": 0.829642130393548
+        },
+        {
+          "qa_id": "qa3",
+          "confidence": 0.9164023987784317,
+          "importance": 0.7551788761961699
+        }
+      ],
+      "importance": 0.792410503294859,
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "candidate",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n40": {
+      "label": "Quality to treatment",
+      "aggregate_confidence": 0.7023456459274608,
+      "evidence": [
+        {
+          "qa_id": "qa4",
+          "confidence": 0.6736525271108067,
+          "importance": 0.7545661979223575
+        },
+        {
+          "qa_id": "qa14",
+          "confidence": 0.5921851078774946,
+          "importance": 0.7482031186353604
+        },
+        {
+          "qa_id": "qa15",
+          "confidence": 0.8303987013984331,
+          "importance": 0.8127359031674404
+        }
+      ],
+      "importance": 0.7718350732417193,
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "candidate",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n41": {
+      "label": "Access with insurance",
+      "aggregate_confidence": 0.7488776290783393,
+      "evidence": [
+        {
+          "qa_id": "qa1",
+          "confidence": 0.7488776290783393,
+          "importance": 0.6713014537396897
+        }
+      ],
+      "importance": 0.6713014537396897,
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "candidate",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n42": {
+      "label": "Reform with insurance",
+      "aggregate_confidence": 0.7227099311814283,
+      "evidence": [
+        {
+          "qa_id": "qa9",
+          "confidence": 0.6518576106578936,
+          "importance": 0.7338786674698197
+        },
+        {
+          "qa_id": "qa4",
+          "confidence": 0.783047717272574,
+          "importance": 0.8617652376971571
+        }
+      ],
+      "importance": 0.7978219525834884,
+      "incoming_edges": [],
+      "outgoing_edges": [
+        "e2"
+      ],
+      "status": "candidate",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n43": {
+      "label": "Effectiveness to insurance",
+      "aggregate_confidence": 0.9659020162507524,
+      "evidence": [
+        {
+          "qa_id": "qa12",
+          "confidence": 0.9659020162507524,
+          "importance": 0.6496378438847228
+        }
+      ],
+      "importance": 0.6496378438847228,
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "candidate",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n44": {
+      "label": "Patient cost",
+      "aggregate_confidence": 0.7815493618042181,
+      "evidence": [
+        {
+          "qa_id": "qa15",
+          "confidence": 0.8062825640693462,
+          "importance": 1.0
+        },
+        {
+          "qa_id": "qa4",
+          "confidence": 0.7508375703747769,
+          "importance": 0.8053324509562193
+        }
+      ],
+      "importance": 0.9026662254781097,
+      "incoming_edges": [
+        "e6"
+      ],
+      "outgoing_edges": [
+        "e10"
+      ],
+      "status": "candidate",
+      "frequency": 1,
+      "is_stance": false
+    }
+  },
+  "edges": {
+    "e1": {
+      "source": "n1",
+      "target": "n34",
+      "weight": 0.5,
+      "correlation": 0.5
+    },
+    "e2": {
+      "source": "n42",
+      "target": "n1",
+      "weight": 0.5,
+      "correlation": 0.5
+    },
+    "e3": {
+      "source": "n35",
+      "target": "n20",
+      "weight": 0.5,
+      "correlation": 0.5
+    },
+    "e4": {
+      "source": "n29",
+      "target": "n6",
+      "weight": 0.5,
+      "correlation": 0.5
+    },
+    "e5": {
+      "source": "n30",
+      "target": "n37",
+      "weight": 0.5,
+      "correlation": 0.5
+    },
+    "e6": {
+      "source": "n36",
+      "target": "n44",
+      "weight": 0.5,
+      "correlation": 0.5
+    },
+    "e7": {
+      "source": "n22",
+      "target": "n10",
+      "weight": 0.5,
+      "correlation": 0.5
+    },
+    "e8": {
+      "source": "n7",
+      "target": "n15",
+      "weight": 0.5,
+      "correlation": 0.5
+    },
+    "e9": {
+      "source": "n8",
+      "target": "n38",
+      "weight": 0.5,
+      "correlation": 0.5
+    },
+    "e10": {
+      "source": "n44",
+      "target": "n19",
+      "weight": 0.5,
+      "correlation": 0.5
+    },
+    "e11": {
+      "source": "n33",
+      "target": "n14",
+      "weight": 0.5,
+      "correlation": 0.5
+    },
+    "e12": {
+      "source": "n20",
+      "target": "n13",
+      "weight": 0.5,
+      "correlation": 0.5
+    },
+    "e13": {
+      "source": "n20",
+      "target": "n36",
+      "weight": 0.5,
+      "correlation": 0.5
+    },
+    "e14": {
+      "source": "n7",
+      "target": "n35",
+      "weight": 0.5,
+      "correlation": 0.5
+    },
+    "e15": {
+      "source": "n24",
+      "target": "n8",
+      "weight": 0.5,
+      "correlation": 0.5
+    },
+    "e16": {
+      "source": "n11",
+      "target": "n18",
+      "weight": 0.5,
+      "correlation": 0.5
+    },
+    "e17": {
+      "source": "n12",
+      "target": "n34",
+      "weight": 0.5,
+      "correlation": 0.5
+    }
+  },
+  "qa_history": {},
+  "stance_node_id": "n1",
+  "step": "completed",
+  "anchor_queue": [
+    "n1",
+    "n2",
+    "n3",
+    "n4",
+    "n10",
+    "n11",
+    "n14",
+    "n15",
+    "n16",
+    "n19",
+    "n21",
+    "n22",
+    "n23",
+    "n24",
+    "n26",
+    "n31",
+    "n32",
+    "n36",
+    "n38"
+  ],
+  "node_counter": 44,
+  "edge_counter": 17,
+  "qa_counter": 14
+}

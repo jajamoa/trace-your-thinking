@@ -1,0 +1,62 @@
+{
+  "agent_id": "e90bc37b80d9456592e36f1a",
+  "timestamp": 1758707143012,
+  "nodes": {
+    "n1": {
+      "label": "Treatment reform",
+      "aggregate_confidence": 0.8591772137852697,
+      "evidence": [
+        {
+          "qa_id": "system",
+          "confidence": 1.0,
+          "importance": 1.0
+        }
+      ],
+      "importance": 1.0,
+      "incoming_edges": [
+        "e1"
+      ],
+      "outgoing_edges": [],
+      "status": "anchor",
+      "frequency": 1,
+      "is_stance": true
+    },
+    "n2": {
+      "label": "Hospital",
+      "aggregate_confidence": 0.8059782634038042,
+      "evidence": [
+        {
+          "qa_id": "qa9",
+          "confidence": 0.8059782634038041,
+          "importance": 0.6479565446615445
+        }
+      ],
+      "importance": 0.6479565446615445,
+      "incoming_edges": [],
+      "outgoing_edges": [
+        "e1"
+      ],
+      "status": "anchor",
+      "frequency": 1,
+      "is_stance": false
+    }
+  },
+  "edges": {
+    "e1": {
+      "source": "n2",
+      "target": "n1",
+      "weight": 0.5,
+      "correlation": 0.5
+    }
+  },
+  "qa_history": {},
+  "stance_node_id": "n1",
+  "step": "completed",
+  "anchor_queue": [
+    "n1",
+    "n2"
+  ],
+  "node_counter": 2,
+  "edge_counter": 1,
+  "qa_counter": 10
+}

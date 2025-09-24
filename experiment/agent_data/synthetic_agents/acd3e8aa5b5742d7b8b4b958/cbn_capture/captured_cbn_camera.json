@@ -1,0 +1,742 @@
+{
+  "agent_id": "experiment_agent",
+  "timestamp": 1758708386122,
+  "nodes": {
+    "n1": {
+      "label": "Support for surveillance",
+      "aggregate_confidence": 0.5857142857142856,
+      "evidence": [
+        {
+          "qa_id": "system",
+          "confidence": 1.0,
+          "importance": 1.0
+        },
+        {
+          "qa_id": "qa2",
+          "confidence": 0.6,
+          "importance": 0.7
+        },
+        {
+          "qa_id": "qa3",
+          "confidence": 0.6,
+          "importance": 0.7
+        },
+        {
+          "qa_id": "qa5",
+          "confidence": 0.6,
+          "importance": 0.7
+        },
+        {
+          "qa_id": "qa6",
+          "confidence": 0.3,
+          "importance": 0.4
+        },
+        {
+          "qa_id": "qa9",
+          "confidence": 0.5,
+          "importance": 0.8
+        },
+        {
+          "qa_id": "qa10",
+          "confidence": 0.5,
+          "importance": 0.6
+        },
+        {
+          "qa_id": "qa11",
+          "confidence": 0.5,
+          "importance": 0.6
+        },
+        {
+          "qa_id": "qa12",
+          "confidence": 0.5,
+          "importance": 0.6
+        },
+        {
+          "qa_id": "qa13",
+          "confidence": 0.5,
+          "importance": 0.8
+        },
+        {
+          "qa_id": "qa14",
+          "confidence": 0.5,
+          "importance": 0.7
+        },
+        {
+          "qa_id": "qa15",
+          "confidence": 0.5,
+          "importance": 0.8
+        },
+        {
+          "qa_id": "qa16",
+          "confidence": 0.5,
+          "importance": 0.6
+        }
+      ],
+      "importance": 0.751219512195122,
+      "incoming_edges": [
+        "e3"
+      ],
+      "outgoing_edges": [
+        "e2"
+      ],
+      "status": "anchor",
+      "frequency": 14,
+      "is_stance": true
+    },
+    "n2": {
+      "label": "Surveillance cameras in public spaces",
+      "aggregate_confidence": 0.3,
+      "importance": 0.4,
+      "evidence": [
+        {
+          "qa_id": "qa1",
+          "confidence": 0.3,
+          "importance": 0.4
+        },
+        {
+          "qa_id": "qa9",
+          "confidence": 0.6,
+          "importance": 0.7
+        }
+      ],
+      "incoming_edges": [
+        "e1"
+      ],
+      "outgoing_edges": [],
+      "status": "anchor",
+      "frequency": 2,
+      "is_stance": false
+    },
+    "n3": {
+      "label": "Need for further consideration",
+      "aggregate_confidence": 0.7666666666666666,
+      "importance": 0.6608695652173914,
+      "evidence": [
+        {
+          "qa_id": "qa1",
+          "confidence": 0.7,
+          "importance": 0.6
+        },
+        {
+          "qa_id": "qa3",
+          "confidence": 0.9,
+          "importance": 0.6
+        },
+        {
+          "qa_id": "qa6",
+          "confidence": 0.7,
+          "importance": 0.8
+        },
+        {
+          "qa_id": "qa17",
+          "confidence": 0.7,
+          "importance": 0.8
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [
+        "e1",
+        "e3"
+      ],
+      "status": "anchor",
+      "frequency": 4,
+      "is_stance": false
+    },
+    "n5": {
+      "label": "Urban areas",
+      "aggregate_confidence": 0.5,
+      "importance": 0.6,
+      "evidence": [
+        {
+          "qa_id": "qa2",
+          "confidence": 0.5,
+          "importance": 0.6
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "candidate",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n7": {
+      "label": "Negative impacts of surveillance",
+      "aggregate_confidence": 0.4666666666666666,
+      "importance": 0.6142857142857143,
+      "evidence": [
+        {
+          "qa_id": "qa2",
+          "confidence": 0.4,
+          "importance": 0.5
+        },
+        {
+          "qa_id": "qa10",
+          "confidence": 0.6,
+          "importance": 0.7
+        },
+        {
+          "qa_id": "qa13",
+          "confidence": 0.4,
+          "importance": 0.6
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "anchor",
+      "frequency": 4,
+      "is_stance": false
+    },
+    "n9": {
+      "label": "Public safety",
+      "aggregate_confidence": 0.5,
+      "importance": 0.8,
+      "evidence": [
+        {
+          "qa_id": "qa3",
+          "confidence": 0.5,
+          "importance": 0.8
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "candidate",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n10": {
+      "label": "Crime rates",
+      "aggregate_confidence": 0.55,
+      "importance": 0.7454545454545455,
+      "evidence": [
+        {
+          "qa_id": "qa3",
+          "confidence": 0.5,
+          "importance": 0.8
+        },
+        {
+          "qa_id": "qa11",
+          "confidence": 0.6,
+          "importance": 0.7
+        },
+        {
+          "qa_id": "qa15",
+          "confidence": 0.6,
+          "importance": 0.7
+        }
+      ],
+      "incoming_edges": [
+        "e2"
+      ],
+      "outgoing_edges": [],
+      "status": "anchor",
+      "frequency": 4,
+      "is_stance": false
+    },
+    "n12": {
+      "label": "Increased surveillance",
+      "aggregate_confidence": 0.6,
+      "importance": 0.7,
+      "evidence": [
+        {
+          "qa_id": "qa4",
+          "confidence": 0.6,
+          "importance": 0.7
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "candidate",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n13": {
+      "label": "Personal privacy",
+      "aggregate_confidence": 0.5,
+      "importance": 0.8,
+      "evidence": [
+        {
+          "qa_id": "qa4",
+          "confidence": 0.5,
+          "importance": 0.8
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "candidate",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n14": {
+      "label": "Individual liberties",
+      "aggregate_confidence": 0.5,
+      "importance": 0.8,
+      "evidence": [
+        {
+          "qa_id": "qa4",
+          "confidence": 0.5,
+          "importance": 0.8
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "candidate",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n16": {
+      "label": "Community trust",
+      "aggregate_confidence": 0.5,
+      "importance": 0.8,
+      "evidence": [
+        {
+          "qa_id": "qa5",
+          "confidence": 0.5,
+          "importance": 0.8
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "candidate",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n17": {
+      "label": "Police-community relations",
+      "aggregate_confidence": 0.5,
+      "importance": 0.8,
+      "evidence": [
+        {
+          "qa_id": "qa5",
+          "confidence": 0.5,
+          "importance": 0.8
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "candidate",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n19": {
+      "label": "Data collection oversight",
+      "aggregate_confidence": 0.3,
+      "importance": 0.4,
+      "evidence": [
+        {
+          "qa_id": "qa6",
+          "confidence": 0.3,
+          "importance": 0.4
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "candidate",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n21": {
+      "label": "Technological concerns",
+      "aggregate_confidence": 0.6,
+      "importance": 0.7,
+      "evidence": [
+        {
+          "qa_id": "qa7",
+          "confidence": 0.6,
+          "importance": 0.7
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "candidate",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n23": {
+      "label": "Reliability of surveillance systems",
+      "aggregate_confidence": 0.5,
+      "importance": 0.8,
+      "evidence": [
+        {
+          "qa_id": "qa7",
+          "confidence": 0.5,
+          "importance": 0.8
+        },
+        {
+          "qa_id": "qa12",
+          "confidence": 0.6,
+          "importance": 0.7
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "anchor",
+      "frequency": 3,
+      "is_stance": false
+    },
+    "n24": {
+      "label": "Decision-making about surveillance",
+      "aggregate_confidence": 0.4,
+      "importance": 0.9,
+      "evidence": [
+        {
+          "qa_id": "qa7",
+          "confidence": 0.4,
+          "importance": 0.9
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "candidate",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n25": {
+      "label": "Widespread surveillance infrastructure",
+      "aggregate_confidence": 0.55,
+      "importance": 0.6545454545454544,
+      "evidence": [
+        {
+          "qa_id": "qa8",
+          "confidence": 0.6,
+          "importance": 0.7
+        },
+        {
+          "qa_id": "qa14",
+          "confidence": 0.5,
+          "importance": 0.6
+        },
+        {
+          "qa_id": "qa16",
+          "confidence": 0.6,
+          "importance": 0.7
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "anchor",
+      "frequency": 3,
+      "is_stance": false
+    },
+    "n26": {
+      "label": "Economic effects",
+      "aggregate_confidence": 0.5,
+      "importance": 0.6,
+      "evidence": [
+        {
+          "qa_id": "qa8",
+          "confidence": 0.5,
+          "importance": 0.6
+        },
+        {
+          "qa_id": "qa13",
+          "confidence": 0.6,
+          "importance": 0.7
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "anchor",
+      "frequency": 4,
+      "is_stance": false
+    },
+    "n29": {
+      "label": "Small changes in surveillance infrastructure",
+      "aggregate_confidence": 0.4,
+      "importance": 0.5499999999999999,
+      "evidence": [
+        {
+          "qa_id": "qa9",
+          "confidence": 0.4,
+          "importance": 0.6
+        },
+        {
+          "qa_id": "qa11",
+          "confidence": 0.4,
+          "importance": 0.5
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "anchor",
+      "frequency": 2,
+      "is_stance": false
+    },
+    "n30": {
+      "label": "Larger shifts in surveillance policy",
+      "aggregate_confidence": 0.4,
+      "importance": 0.6,
+      "evidence": [
+        {
+          "qa_id": "qa9",
+          "confidence": 0.4,
+          "importance": 0.6
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "candidate",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n35": {
+      "label": "Effect of crime rates on surveillance support",
+      "aggregate_confidence": 0.44999999999999996,
+      "importance": 0.7277777777777779,
+      "evidence": [
+        {
+          "qa_id": "qa11",
+          "confidence": 0.5,
+          "importance": 0.8
+        },
+        {
+          "qa_id": "qa9",
+          "confidence": 0.5,
+          "importance": 0.7
+        },
+        {
+          "qa_id": "qa14",
+          "confidence": 0.4,
+          "importance": 0.8
+        },
+        {
+          "qa_id": "qa15",
+          "confidence": 0.4,
+          "importance": 0.6
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "anchor",
+      "frequency": 4,
+      "is_stance": false
+    },
+    "n36": {
+      "label": "Connection between reliability and support",
+      "aggregate_confidence": 0.4,
+      "importance": 0.5,
+      "evidence": [
+        {
+          "qa_id": "qa12",
+          "confidence": 0.4,
+          "importance": 0.5
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "candidate",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n38": {
+      "label": "Effect strength",
+      "aggregate_confidence": 0.4,
+      "importance": 0.6,
+      "evidence": [
+        {
+          "qa_id": "qa13",
+          "confidence": 0.4,
+          "importance": 0.6
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "candidate",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n42": {
+      "label": "Relationship between surveillance infrastructure and public support",
+      "aggregate_confidence": 0.4,
+      "importance": 0.5,
+      "evidence": [
+        {
+          "qa_id": "qa16",
+          "confidence": 0.4,
+          "importance": 0.5
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "candidate",
+      "frequency": 1,
+      "is_stance": false
+    }
+  },
+  "edges": {
+    "e1": {
+      "source": "n3",
+      "target": "n2",
+      "aggregate_confidence": 0.8,
+      "evidence": [
+        {
+          "qa_id": "qa1",
+          "confidence": 0.8,
+          "original_modifier": -0.6
+        }
+      ],
+      "modifier": -0.48,
+      "source_label": "Need for further consideration",
+      "target_label": "Surveillance cameras in public spaces",
+      "explanation": "The need for further consideration suggests hesitation or uncertainty about the deployment of surveillance cameras, implying that this uncertainty reduces the likelihood of supporting their widespread use.",
+      "direction": "negative",
+      "strength": 0.6
+    },
+    "e2": {
+      "source": "n1",
+      "target": "n10",
+      "aggregate_confidence": 0.7,
+      "evidence": [
+        {
+          "qa_id": "qa3",
+          "confidence": 0.7,
+          "original_modifier": -0.6
+        }
+      ],
+      "modifier": -0.42,
+      "source_label": "Surveillance technologies",
+      "target_label": "Crime rates",
+      "explanation": "Surveillance technologies may deter criminal activity by increasing the perceived risk of being caught, potentially leading to a reduction in crime rates.",
+      "direction": "negative",
+      "strength": 0.6
+    },
+    "e3": {
+      "source": "n3",
+      "target": "n1",
+      "aggregate_confidence": 0.8,
+      "evidence": [
+        {
+          "qa_id": "qa6",
+          "confidence": 0.8,
+          "original_modifier": -0.6
+        }
+      ],
+      "modifier": -0.48,
+      "source_label": "Need for further reflection before forming opinion",
+      "target_label": "Government regulation of surveillance technologies",
+      "explanation": "The need for further reflection suggests hesitation in forming a definitive stance, which reduces the likelihood of asserting a clear role for government regulation, thus negatively influencing the strength of that regulatory position.",
+      "direction": "negative",
+      "strength": 0.6
+    }
+  },
+  "qa_history": {
+    "qa1": {
+      "question": "To what extent do you support or oppose the widespread deployment of surveillance cameras in public spaces? Please explain your reasoning.",
+      "answer": "I need to think about this topic more before I can provide a meaningful answer.",
+      "shortText": "Stance on surveillance",
+      "timestamp": 1758708390
+    },
+    "qa2": {
+      "question": "What do you think are the most significant impacts, positive or negative, of increasing surveillance camera coverage in urban areas?",
+      "answer": "I need to think about this topic more before I can provide a meaningful answer.",
+      "shortText": "Surveillance impacts",
+      "timestamp": 1758708393
+    },
+    "qa3": {
+      "question": "How do you think surveillance technologies might affect public safety and crime rates?",
+      "answer": "I need to think about this topic more before I can provide a meaningful answer.",
+      "shortText": "Public safety",
+      "timestamp": 1758708397
+    },
+    "qa4": {
+      "question": "What impact do you believe increased surveillance might have on personal privacy and individual liberties?",
+      "answer": "I need to think about this topic more before I can provide a meaningful answer.",
+      "shortText": "Privacy concerns",
+      "timestamp": 1758708400
+    },
+    "qa5": {
+      "question": "How do you think surveillance camera systems might affect community trust and police-community relations?",
+      "answer": "I need to think about this topic more before I can provide a meaningful answer.",
+      "shortText": "Community relations",
+      "timestamp": 1758708404
+    },
+    "qa6": {
+      "question": "What role do you believe government should play in regulating surveillance technologies and data collection?",
+      "answer": "I need to think about this topic more before I can provide a meaningful answer.",
+      "shortText": "Government regulation",
+      "timestamp": 1758708409
+    },
+    "qa7": {
+      "question": "How might technological concerns about accuracy and reliability factor into decisions about surveillance systems?",
+      "answer": "I need to think about this topic more before I can provide a meaningful answer.",
+      "shortText": "Technical factors",
+      "timestamp": 1758708413
+    },
+    "qa8": {
+      "question": "What economic effects, both positive and negative, might result from investing in widespread surveillance infrastructure?",
+      "answer": "I need to think about this topic more before I can provide a meaningful answer.",
+      "shortText": "Economic effects",
+      "timestamp": 1758708418
+    },
+    "qa9": {
+      "question": "Would small changes in Surveillance cameras in public spaces lead to noticeable changes in Support for surveillance, or would it take larger shifts? Does it have a positive effect (increasing it) or a negative effect (decreasing it)? How strong is this effect?",
+      "answer": "I need to think about this topic more before I can provide a meaningful answer.",
+      "shortText": "Relationship: Surveillance cameras in public spaces → Support for surveillance",
+      "timestamp": 1758708425
+    },
+    "qa10": {
+      "question": "How would you describe the relationship between Negative impacts of surveillance and Support for surveillance? Is it a strong or weak connection? Does it have a positive effect (increasing it) or a negative effect (decreasing it)? How strong is this effect?",
+      "answer": "I need to think about this topic more before I can provide a meaningful answer.",
+      "shortText": "Relationship: Negative impacts of surveillance → Support for surveillance",
+      "timestamp": 1758708434
+    },
+    "qa11": {
+      "question": "Would small changes in Crime rates lead to noticeable changes in Support for surveillance, or would it take larger shifts? Does it have a positive effect (increasing it) or a negative effect (decreasing it)? How strong is this effect?",
+      "answer": "I need to think about this topic more before I can provide a meaningful answer.",
+      "shortText": "Relationship: Crime rates → Support for surveillance",
+      "timestamp": 1758708448
+    },
+    "qa12": {
+      "question": "How would you describe the relationship between Reliability of surveillance systems and Support for surveillance? Is it a strong or weak connection? Does it have a positive effect (increasing it) or a negative effect (decreasing it)? How strong is this effect?",
+      "answer": "I need to think about this topic more before I can provide a meaningful answer.",
+      "shortText": "Relationship: Reliability of surveillance systems → Support for surveillance",
+      "timestamp": 1758708456
+    },
+    "qa13": {
+      "question": "Does Economic effects have a positive or negative effect on Support for surveillance, and how significant is this effect? Does it have a positive effect (increasing it) or a negative effect (decreasing it)? How strong is this effect?",
+      "answer": "I need to think about this topic more before I can provide a meaningful answer.",
+      "shortText": "Relationship: Economic effects → Support for surveillance",
+      "timestamp": 1758708468
+    },
+    "qa14": {
+      "question": "How confident are you that changes in Small changes in surveillance infrastructure lead to changes in Support for surveillance? Does it have a positive effect (increasing it) or a negative effect (decreasing it)? How strong is this effect?",
+      "answer": "I need to think about this topic more before I can provide a meaningful answer.",
+      "shortText": "Relationship: Small changes in surveillance infrastructure → Support for surveillance",
+      "timestamp": 1758708482
+    },
+    "qa15": {
+      "question": "How would you describe the relationship between Effect of crime rates on surveillance support and Support for surveillance? Is it a strong or weak connection? Does it have a positive effect (increasing it) or a negative effect (decreasing it)? How strong is this effect?",
+      "answer": "I need to think about this topic more before I can provide a meaningful answer.",
+      "shortText": "Relationship: Effect of crime rates on surveillance support → Support for surveillance",
+      "timestamp": 1758708495
+    },
+    "qa16": {
+      "question": "How would you describe the relationship between Widespread surveillance infrastructure and Support for surveillance? Is it a strong or weak connection? Does it have a positive effect (increasing it) or a negative effect (decreasing it)? How strong is this effect?",
+      "answer": "I need to think about this topic more before I can provide a meaningful answer.",
+      "shortText": "Relationship: Widespread surveillance infrastructure → Support for surveillance",
+      "timestamp": 1758708508
+    },
+    "qa17": {
+      "question": "What causes changes in Need for further consideration? Are these influences strong or weak?",
+      "answer": "I need to think about this topic more before I can provide a meaningful answer.",
+      "shortText": "Factors affecting Need for further consideration",
+      "timestamp": 1758708518
+    }
+  },
+  "stance_node_id": "n1",
+  "step": "node_discovery",
+  "anchor_queue": [
+    "n1",
+    "n2",
+    "n3",
+    "n7",
+    "n10",
+    "n23",
+    "n26",
+    "n29",
+    "n35",
+    "n25"
+  ],
+  "node_counter": 42,
+  "edge_counter": 3,
+  "qa_counter": 17
+}

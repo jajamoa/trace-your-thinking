@@ -1,0 +1,956 @@
+{
+  "agent_id": "experiment_agent",
+  "timestamp": 1758706377077,
+  "nodes": {
+    "n1": {
+      "label": "Support for zoning",
+      "aggregate_confidence": 0.9,
+      "evidence": [
+        {
+          "qa_id": "system",
+          "confidence": 1.0,
+          "importance": 1.0
+        },
+        {
+          "qa_id": "qa8",
+          "confidence": 0.8,
+          "importance": 0.8
+        },
+        {
+          "qa_id": "qa9",
+          "confidence": 0.7,
+          "importance": 0.8
+        },
+        {
+          "qa_id": "qa10",
+          "confidence": 0.7,
+          "importance": 0.8
+        },
+        {
+          "qa_id": "qa12",
+          "confidence": 0.7,
+          "importance": 0.7
+        },
+        {
+          "qa_id": "qa14",
+          "confidence": 0.7,
+          "importance": 0.6
+        },
+        {
+          "qa_id": "qa15",
+          "confidence": 0.6,
+          "importance": 0.7
+        }
+      ],
+      "importance": 0.9111111111111112,
+      "incoming_edges": [
+        "e8",
+        "e9",
+        "e11",
+        "e14"
+      ],
+      "outgoing_edges": [],
+      "status": "anchor",
+      "frequency": 7,
+      "is_stance": true
+    },
+    "n2": {
+      "label": "Upzoning policies",
+      "aggregate_confidence": 0.8,
+      "importance": 0.9,
+      "evidence": [
+        {
+          "qa_id": "qa1",
+          "confidence": 0.8,
+          "importance": 0.9
+        },
+        {
+          "qa_id": "qa5",
+          "confidence": 0.8,
+          "importance": 0.9
+        },
+        {
+          "qa_id": "qa16",
+          "confidence": 0.7,
+          "importance": 0.8
+        }
+      ],
+      "incoming_edges": [
+        "e15"
+      ],
+      "outgoing_edges": [
+        "e1",
+        "e5"
+      ],
+      "status": "anchor",
+      "frequency": 3,
+      "is_stance": false
+    },
+    "n3": {
+      "label": "Higher density housing",
+      "aggregate_confidence": 0.8333333333333334,
+      "importance": 0.8,
+      "evidence": [
+        {
+          "qa_id": "qa1",
+          "confidence": 0.7,
+          "importance": 0.8
+        },
+        {
+          "qa_id": "qa2",
+          "confidence": 0.9,
+          "importance": 0.8
+        },
+        {
+          "qa_id": "qa4",
+          "confidence": 0.9,
+          "importance": 0.8
+        }
+      ],
+      "incoming_edges": [
+        "e1"
+      ],
+      "outgoing_edges": [
+        "e2"
+      ],
+      "status": "anchor",
+      "frequency": 3,
+      "is_stance": false
+    },
+    "n4": {
+      "label": "Single-family neighborhoods",
+      "aggregate_confidence": 0.7,
+      "importance": 0.7,
+      "evidence": [
+        {
+          "qa_id": "qa1",
+          "confidence": 0.7,
+          "importance": 0.7
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "candidate",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n5": {
+      "label": "Potential benefits",
+      "aggregate_confidence": 0.8,
+      "importance": 0.9,
+      "evidence": [
+        {
+          "qa_id": "qa1",
+          "confidence": 0.8,
+          "importance": 0.9
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "candidate",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n6": {
+      "label": "Valid concerns",
+      "aggregate_confidence": 0.6,
+      "importance": 0.6,
+      "evidence": [
+        {
+          "qa_id": "qa1",
+          "confidence": 0.6,
+          "importance": 0.6
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "candidate",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n8": {
+      "label": "Vibrant communities",
+      "aggregate_confidence": 0.7875,
+      "importance": 0.7928571428571429,
+      "evidence": [
+        {
+          "qa_id": "qa2",
+          "confidence": 0.7,
+          "importance": 0.7
+        },
+        {
+          "qa_id": "qa4",
+          "confidence": 0.85,
+          "importance": 0.75
+        },
+        {
+          "qa_id": "qa9",
+          "confidence": 0.7,
+          "importance": 0.8
+        },
+        {
+          "qa_id": "qa15",
+          "confidence": 0.9,
+          "importance": 0.9
+        }
+      ],
+      "incoming_edges": [
+        "e2"
+      ],
+      "outgoing_edges": [
+        "e8"
+      ],
+      "status": "anchor",
+      "frequency": 4,
+      "is_stance": false
+    },
+    "n9": {
+      "label": "Diverse communities",
+      "aggregate_confidence": 0.7,
+      "importance": 0.7,
+      "evidence": [
+        {
+          "qa_id": "qa2",
+          "confidence": 0.7,
+          "importance": 0.7
+        },
+        {
+          "qa_id": "qa4",
+          "confidence": 0.85,
+          "importance": 0.75
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "anchor",
+      "frequency": 2,
+      "is_stance": false
+    },
+    "n10": {
+      "label": "Better local amenities and services",
+      "aggregate_confidence": 0.8,
+      "importance": 0.753125,
+      "evidence": [
+        {
+          "qa_id": "qa2",
+          "confidence": 0.7,
+          "importance": 0.7
+        },
+        {
+          "qa_id": "qa4",
+          "confidence": 0.8,
+          "importance": 0.7
+        },
+        {
+          "qa_id": "qa12",
+          "confidence": 0.9,
+          "importance": 0.8
+        },
+        {
+          "qa_id": "qa15",
+          "confidence": 0.8,
+          "importance": 0.8
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [
+        "e11"
+      ],
+      "status": "anchor",
+      "frequency": 4,
+      "is_stance": false
+    },
+    "n11": {
+      "label": "Urban and neighborhood",
+      "aggregate_confidence": 0.7833333333333333,
+      "importance": 0.821276595744681,
+      "evidence": [
+        {
+          "qa_id": "qa3",
+          "confidence": 0.8,
+          "importance": 0.8
+        },
+        {
+          "qa_id": "qa5",
+          "confidence": 0.8,
+          "importance": 0.9
+        },
+        {
+          "qa_id": "qa6",
+          "confidence": 0.8,
+          "importance": 0.8
+        },
+        {
+          "qa_id": "qa7",
+          "confidence": 0.8,
+          "importance": 0.9
+        },
+        {
+          "qa_id": "qa12",
+          "confidence": 0.7,
+          "importance": 0.6
+        },
+        {
+          "qa_id": "qa16",
+          "confidence": 0.8,
+          "importance": 0.9
+        },
+        {
+          "qa_id": "qa17",
+          "confidence": 0.7,
+          "importance": 0.8
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [
+        "e3",
+        "e6",
+        "e15",
+        "e16"
+      ],
+      "status": "anchor",
+      "frequency": 7,
+      "is_stance": false
+    },
+    "n12": {
+      "label": "Local urban",
+      "aggregate_confidence": 0.72,
+      "importance": 0.7,
+      "evidence": [
+        {
+          "qa_id": "qa3",
+          "confidence": 0.7,
+          "importance": 0.7
+        },
+        {
+          "qa_id": "qa6",
+          "confidence": 0.7,
+          "importance": 0.7
+        },
+        {
+          "qa_id": "qa7",
+          "confidence": 0.7,
+          "importance": 0.8
+        },
+        {
+          "qa_id": "qa13",
+          "confidence": 0.7,
+          "importance": 0.6
+        },
+        {
+          "qa_id": "qa14",
+          "confidence": 0.8,
+          "importance": 0.7
+        },
+        {
+          "qa_id": "qa17",
+          "confidence": 0.6,
+          "importance": 0.7
+        }
+      ],
+      "incoming_edges": [
+        "e16"
+      ],
+      "outgoing_edges": [
+        "e12"
+      ],
+      "status": "anchor",
+      "frequency": 6,
+      "is_stance": false
+    },
+    "n13": {
+      "label": "Consequence on zoning",
+      "aggregate_confidence": 0.7,
+      "importance": 0.8,
+      "evidence": [
+        {
+          "qa_id": "qa3",
+          "confidence": 0.7,
+          "importance": 0.8
+        },
+        {
+          "qa_id": "qa5",
+          "confidence": 0.8,
+          "importance": 0.9
+        },
+        {
+          "qa_id": "qa7",
+          "confidence": 0.7,
+          "importance": 0.8
+        },
+        {
+          "qa_id": "qa9",
+          "confidence": 0.7,
+          "importance": 0.7
+        },
+        {
+          "qa_id": "qa10",
+          "confidence": 0.8,
+          "importance": 0.9
+        },
+        {
+          "qa_id": "qa11",
+          "confidence": 0.7,
+          "importance": 0.8
+        },
+        {
+          "qa_id": "qa17",
+          "confidence": 0.6,
+          "importance": 0.7
+        }
+      ],
+      "incoming_edges": [
+        "e3",
+        "e5",
+        "e10"
+      ],
+      "outgoing_edges": [
+        "e9"
+      ],
+      "status": "anchor",
+      "frequency": 7,
+      "is_stance": false
+    },
+    "n16": {
+      "label": "Result in density",
+      "aggregate_confidence": 0.7,
+      "importance": 0.7,
+      "evidence": [
+        {
+          "qa_id": "qa6",
+          "confidence": 0.7,
+          "importance": 0.7
+        },
+        {
+          "qa_id": "qa14",
+          "confidence": 0.7,
+          "importance": 0.6
+        }
+      ],
+      "incoming_edges": [
+        "e6"
+      ],
+      "outgoing_edges": [
+        "e13"
+      ],
+      "status": "anchor",
+      "frequency": 2,
+      "is_stance": false
+    },
+    "n17": {
+      "label": "Job creation",
+      "aggregate_confidence": 0.8,
+      "importance": 0.9,
+      "evidence": [
+        {
+          "qa_id": "qa8",
+          "confidence": 0.8,
+          "importance": 0.9
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "candidate",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n18": {
+      "label": "Increased tax revenue",
+      "aggregate_confidence": 0.8,
+      "importance": 0.9,
+      "evidence": [
+        {
+          "qa_id": "qa8",
+          "confidence": 0.8,
+          "importance": 0.9
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "candidate",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n21": {
+      "label": "Positive impacts",
+      "aggregate_confidence": 0.8500000000000001,
+      "importance": 0.8529411764705882,
+      "evidence": [
+        {
+          "qa_id": "qa9",
+          "confidence": 0.9,
+          "importance": 0.9
+        },
+        {
+          "qa_id": "qa10",
+          "confidence": 0.9,
+          "importance": 0.9
+        },
+        {
+          "qa_id": "qa11",
+          "confidence": 0.8,
+          "importance": 0.7
+        },
+        {
+          "qa_id": "qa12",
+          "confidence": 0.8,
+          "importance": 0.9
+        },
+        {
+          "qa_id": "qa13",
+          "confidence": 0.8,
+          "importance": 0.7
+        },
+        {
+          "qa_id": "qa14",
+          "confidence": 0.9,
+          "importance": 0.8
+        }
+      ],
+      "incoming_edges": [
+        "e12",
+        "e13"
+      ],
+      "outgoing_edges": [
+        "e10"
+      ],
+      "status": "anchor",
+      "frequency": 6,
+      "is_stance": false
+    },
+    "n25": {
+      "label": "Neighborhood",
+      "aggregate_confidence": 0.7,
+      "importance": 0.6,
+      "evidence": [
+        {
+          "qa_id": "qa13",
+          "confidence": 0.7,
+          "importance": 0.6
+        },
+        {
+          "qa_id": "qa14",
+          "confidence": 0.8,
+          "importance": 0.7
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "anchor",
+      "frequency": 2,
+      "is_stance": false
+    },
+    "n27": {
+      "label": "Neighborhood changes",
+      "aggregate_confidence": 0.75,
+      "importance": 0.8533333333333334,
+      "evidence": [
+        {
+          "qa_id": "qa15",
+          "confidence": 0.7,
+          "importance": 0.8
+        },
+        {
+          "qa_id": "qa16",
+          "confidence": 0.8,
+          "importance": 0.9
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [
+        "e14"
+      ],
+      "status": "anchor",
+      "frequency": 2,
+      "is_stance": false
+    }
+  },
+  "edges": {
+    "e1": {
+      "source": "n2",
+      "target": "n3",
+      "aggregate_confidence": 0.95,
+      "evidence": [
+        {
+          "qa_id": "qa1",
+          "confidence": 0.95,
+          "original_modifier": 0.9
+        }
+      ],
+      "modifier": 0.855,
+      "source_label": "Upzoning policies",
+      "target_label": "Higher density housing",
+      "explanation": "Upzoning policies directly enable higher density housing by allowing more units or different types of housing in areas previously restricted to single-family homes.",
+      "direction": "positive",
+      "strength": 0.9
+    },
+    "e2": {
+      "source": "n3",
+      "target": "n8",
+      "aggregate_confidence": 0.7,
+      "evidence": [
+        {
+          "qa_id": "qa2",
+          "confidence": 0.7,
+          "original_modifier": 0.8
+        },
+        {
+          "qa_id": "qa4",
+          "confidence": 0.7,
+          "original_modifier": 0.8
+        }
+      ],
+      "modifier": 0.7999999999999999,
+      "source_label": "Increasing housing density",
+      "target_label": "Vibrant communities",
+      "explanation": "Higher housing density often leads to more people living in an area, which can increase social interactions and community activity, making the community more vibrant.",
+      "direction": "positive",
+      "strength": 0.7999999999999999
+    },
+    "e3": {
+      "source": "n11",
+      "target": "n13",
+      "aggregate_confidence": 0.8,
+      "evidence": [
+        {
+          "qa_id": "qa3",
+          "confidence": 0.8,
+          "original_modifier": 0.7
+        },
+        {
+          "qa_id": "qa7",
+          "confidence": 0.8,
+          "original_modifier": 0.7
+        }
+      ],
+      "modifier": 0.6999999999999998,
+      "source_label": "Urban and neighborhood",
+      "target_label": "Consequence on zoning",
+      "explanation": "Urban and neighborhood factors influence how zoning policies are implemented, which in turn affects the consequences of those policies.",
+      "direction": "positive",
+      "strength": 0.6999999999999998
+    },
+    "e5": {
+      "source": "n2",
+      "target": "n13",
+      "aggregate_confidence": 0.85,
+      "evidence": [
+        {
+          "qa_id": "qa5",
+          "confidence": 0.85,
+          "original_modifier": 0.9
+        }
+      ],
+      "modifier": 0.765,
+      "source_label": "Upzoning",
+      "target_label": "Consequence on zoning",
+      "explanation": "Upzoning directly influences the consequence on zoning by altering land use regulations, which can lead to changes in density, development patterns, and urban planning outcomes.",
+      "direction": "positive",
+      "strength": 0.9
+    },
+    "e6": {
+      "source": "n11",
+      "target": "n16",
+      "aggregate_confidence": 0.8,
+      "evidence": [
+        {
+          "qa_id": "qa6",
+          "confidence": 0.8,
+          "original_modifier": 0.7
+        }
+      ],
+      "modifier": 0.5599999999999999,
+      "source_label": "Urban and neighborhood",
+      "target_label": "Result in density",
+      "explanation": "Urban and neighborhood factors influence how density is developed, suggesting that these elements contribute to higher or more structured density outcomes.",
+      "direction": "positive",
+      "strength": 0.7
+    },
+    "e8": {
+      "source": "n8",
+      "target": "n1",
+      "aggregate_confidence": 0.7,
+      "evidence": [
+        {
+          "qa_id": "qa9",
+          "confidence": 0.7,
+          "original_modifier": 0.8
+        }
+      ],
+      "modifier": 0.5599999999999999,
+      "source_label": "Changes in Vibrant communities",
+      "target_label": "Support for zoning",
+      "explanation": "The answer suggests that changes in vibrant communities have positive impacts on zoning, implying that increased vibrancy leads to greater support for zoning.",
+      "direction": "positive",
+      "strength": 0.8
+    },
+    "e9": {
+      "source": "n13",
+      "target": "n1",
+      "aggregate_confidence": 0.7,
+      "evidence": [
+        {
+          "qa_id": "qa10",
+          "confidence": 0.7,
+          "original_modifier": 0.8
+        }
+      ],
+      "modifier": 0.5599999999999999,
+      "source_label": "Consequence on zoning",
+      "target_label": "Support for zoning",
+      "explanation": "The answer suggests that changes in 'Consequence on zoning' have a positive impact on 'Support for zoning', indicating that higher consequences lead to increased support.",
+      "direction": "positive",
+      "strength": 0.8
+    },
+    "e10": {
+      "source": "n21",
+      "target": "n13",
+      "aggregate_confidence": 0.7,
+      "evidence": [
+        {
+          "qa_id": "qa11",
+          "confidence": 0.7,
+          "original_modifier": 0.8
+        }
+      ],
+      "modifier": 0.5599999999999999,
+      "source_label": "Positive impacts",
+      "target_label": "Consequence on zoning",
+      "explanation": "The answer suggests that positive impacts would lead to a substantial consequence on zoning, indicating that positive changes in diverse communities could significantly influence support for zoning.",
+      "direction": "positive",
+      "strength": 0.8
+    },
+    "e11": {
+      "source": "n10",
+      "target": "n1",
+      "aggregate_confidence": 0.7,
+      "evidence": [
+        {
+          "qa_id": "qa12",
+          "confidence": 0.7,
+          "original_modifier": 0.8
+        }
+      ],
+      "modifier": 0.5599999999999999,
+      "source_label": "Better local amenities and services",
+      "target_label": "Support for zoning",
+      "explanation": "Better local amenities and services likely increase support for zoning because they enhance the quality of urban and neighborhood environments, making residents more supportive of policies that maintain or improve these conditions.",
+      "direction": "positive",
+      "strength": 0.8
+    },
+    "e12": {
+      "source": "n12",
+      "target": "n21",
+      "aggregate_confidence": 0.7,
+      "evidence": [
+        {
+          "qa_id": "qa13",
+          "confidence": 0.7,
+          "original_modifier": 0.8
+        }
+      ],
+      "modifier": 0.5599999999999999,
+      "source_label": "Urban",
+      "target_label": "Positive impacts",
+      "explanation": "The answer suggests that Urban has a positive impact, indicating that urban factors contribute to positive outcomes.",
+      "direction": "positive",
+      "strength": 0.8
+    },
+    "e13": {
+      "source": "n16",
+      "target": "n21",
+      "aggregate_confidence": 0.7,
+      "evidence": [
+        {
+          "qa_id": "qa14",
+          "confidence": 0.7,
+          "original_modifier": 0.8
+        }
+      ],
+      "modifier": 0.5599999999999999,
+      "source_label": "Result in density",
+      "target_label": "Positive impacts",
+      "explanation": "The increase in density is associated with positive impacts, particularly in urban and neighborhood areas, suggesting that higher density leads to more positive outcomes.",
+      "direction": "positive",
+      "strength": 0.8
+    },
+    "e14": {
+      "source": "n27",
+      "target": "n1",
+      "aggregate_confidence": 0.8,
+      "evidence": [
+        {
+          "qa_id": "qa15",
+          "confidence": 0.8,
+          "original_modifier": 0.7
+        }
+      ],
+      "modifier": 0.5599999999999999,
+      "source_label": "Neighborhood changes",
+      "target_label": "Support for zoning",
+      "explanation": "Changes in Neighborhood that lead to more vibrant and diverse communities with better local amenities and services are likely to increase Support for zoning, as these improvements can make the area more desirable and well-organized.",
+      "direction": "positive",
+      "strength": 0.7
+    },
+    "e15": {
+      "source": "n11",
+      "target": "n2",
+      "aggregate_confidence": 0.7,
+      "evidence": [
+        {
+          "qa_id": "qa16",
+          "confidence": 0.7,
+          "original_modifier": 0.8
+        }
+      ],
+      "modifier": 0.5599999999999999,
+      "source_label": "Urban development",
+      "target_label": "Upzoning policies",
+      "explanation": "Urban development is a factor that influences Upzoning policies, as areas experiencing growth or development may require changes in zoning to accommodate new projects or infrastructure.",
+      "direction": "positive",
+      "strength": 0.8
+    },
+    "e16": {
+      "source": "n11",
+      "target": "n12",
+      "aggregate_confidence": 0.8,
+      "evidence": [
+        {
+          "qa_id": "qa17",
+          "confidence": 0.8,
+          "original_modifier": 0.7
+        }
+      ],
+      "modifier": 0.5599999999999999,
+      "source_label": "Urban and neighborhood",
+      "target_label": "Local urban",
+      "explanation": "Urban and neighborhood characteristics likely influence the development and definition of local urban areas, suggesting a positive relationship where stronger urban and neighborhood features enhance local urban conditions.",
+      "direction": "positive",
+      "strength": 0.7
+    }
+  },
+  "qa_history": {
+    "qa1": {
+      "question": "To what extent do you support or oppose upzoning policies that allow for higher density housing in traditionally single-family neighborhoods? Please explain your reasoning.",
+      "answer": "I generally support this policy. While there are some valid concerns, the potential benefits seem to outweigh them.",
+      "shortText": "Stance on upzoning",
+      "timestamp": 1758706388
+    },
+    "qa2": {
+      "question": "What do you think are the most significant impacts, positive or negative, of increasing housing density in residential neighborhoods?",
+      "answer": "This would create more vibrant, diverse communities with better local amenities and services.",
+      "shortText": "Upzoning impacts",
+      "timestamp": 1758706398
+    },
+    "qa3": {
+      "question": "How do you think upzoning policies might affect housing affordability in urban areas?",
+      "answer": "The key factors I consider are Urban and neighborhood, Local urban, Consequence on zoning. Each of these plays an important role in shaping my perspective.",
+      "shortText": "Housing affordability",
+      "timestamp": 1758706404
+    },
+    "qa4": {
+      "question": "What impact do you believe increased housing density might have on neighborhood character and quality of life?",
+      "answer": "This would create more vibrant, diverse communities with better local amenities and services.",
+      "shortText": "Neighborhood character",
+      "timestamp": 1758706414
+    },
+    "qa5": {
+      "question": "How do you think upzoning might affect transportation systems and traffic congestion in cities?",
+      "answer": "The key factors I consider are Urban and neighborhood, Consequence on zoning, Upzoning. Each of these plays an important role in shaping my perspective.",
+      "shortText": "Transportation impacts",
+      "timestamp": 1758706422
+    },
+    "qa6": {
+      "question": "What role do you believe local government should play in regulating housing development and density?",
+      "answer": "The key factors I consider are Urban and neighborhood, Local urban, Result in density. Each of these plays an important role in shaping my perspective.",
+      "shortText": "Government role",
+      "timestamp": 1758706428
+    },
+    "qa7": {
+      "question": "How might environmental concerns factor into decisions about urban density and zoning?",
+      "answer": "The key factors I consider are Urban and neighborhood, Local urban, Consequence on zoning. Each of these plays an important role in shaping my perspective.",
+      "shortText": "Environmental factors",
+      "timestamp": 1758706436
+    },
+    "qa8": {
+      "question": "What economic effects, both positive and negative, might result from changing zoning laws to allow more multi-family housing?",
+      "answer": "The economic benefits include job creation, increased tax revenue, and support for local businesses.",
+      "shortText": "Economic effects",
+      "timestamp": 1758706445
+    },
+    "qa9": {
+      "question": "How confident are you that changes in Vibrant communities lead to changes in Support for zoning? Does it have a positive effect (increasing it) or a negative effect (decreasing it)? How strong is this effect?",
+      "answer": "The positive impacts would be substantial, particularly in terms of Consequence on zoning.",
+      "shortText": "Relationship: Vibrant communities → Support for zoning",
+      "timestamp": 1758706452
+    },
+    "qa10": {
+      "question": "How confident are you that changes in Consequence on zoning lead to changes in Support for zoning? Does it have a positive effect (increasing it) or a negative effect (decreasing it)? How strong is this effect?",
+      "answer": "The positive impacts would be substantial, particularly in terms of Consequence on zoning.",
+      "shortText": "Relationship: Consequence on zoning → Support for zoning",
+      "timestamp": 1758706459
+    },
+    "qa11": {
+      "question": "Would small changes in Diverse communities lead to noticeable changes in Support for zoning, or would it take larger shifts? Does it have a positive effect (increasing it) or a negative effect (decreasing it)? How strong is this effect?",
+      "answer": "The positive impacts would be substantial, particularly in terms of Consequence on zoning.",
+      "shortText": "Relationship: Diverse communities → Support for zoning",
+      "timestamp": 1758706464
+    },
+    "qa12": {
+      "question": "Does Better local amenities and services have a positive or negative effect on Support for zoning, and how significant is this effect? Does it have a positive effect (increasing it) or a negative effect (decreasing it)? How strong is this effect?",
+      "answer": "The positive impacts would be substantial, particularly in terms of Urban and neighborhood.",
+      "shortText": "Relationship: Better local amenities and services → Support for zoning",
+      "timestamp": 1758706472
+    },
+    "qa13": {
+      "question": "Is the effect of Local urban on Support for zoning immediate, or does it take time to develop? Does it have a positive effect (increasing it) or a negative effect (decreasing it)? How strong is this effect?",
+      "answer": "The positive impacts would be substantial, particularly in terms of Urban and neighborhood.",
+      "shortText": "Relationship: Local urban → Support for zoning",
+      "timestamp": 1758706481
+    },
+    "qa14": {
+      "question": "How would you describe the relationship between Result in density and Support for zoning? Is it a strong or weak connection? Does it have a positive effect (increasing it) or a negative effect (decreasing it)? How strong is this effect?",
+      "answer": "The positive impacts would be substantial, particularly in terms of Urban and neighborhood.",
+      "shortText": "Relationship: Result in density → Support for zoning",
+      "timestamp": 1758706490
+    },
+    "qa15": {
+      "question": "How confident are you that changes in Neighborhood lead to changes in Support for zoning? Does it have a positive effect (increasing it) or a negative effect (decreasing it)? How strong is this effect?",
+      "answer": "This would create more vibrant, diverse communities with better local amenities and services.",
+      "shortText": "Relationship: Neighborhood → Support for zoning",
+      "timestamp": 1758706502
+    },
+    "qa16": {
+      "question": "What factors do you think influence Upzoning policies, and how strong is their impact? Please also indicate if these influences are positive (increasing) or negative (decreasing).",
+      "answer": "The positive impacts would be substantial, particularly in terms of Urban and neighborhood.",
+      "shortText": "Factors affecting Upzoning policies",
+      "timestamp": 1758706511
+    },
+    "qa17": {
+      "question": "What factors affect Urban and neighborhood, and which ones have the strongest influence? Please also indicate if these influences are positive (increasing) or negative (decreasing).",
+      "answer": "The key factors I consider are Urban and neighborhood, Local urban, Consequence on zoning. Each of these plays an important role in shaping my perspective.",
+      "shortText": "Factors affecting Urban and neighborhood",
+      "timestamp": 1758706521
+    }
+  },
+  "stance_node_id": "n1",
+  "step": "node_discovery",
+  "anchor_queue": [
+    "n1",
+    "n2",
+    "n3",
+    "n8",
+    "n11",
+    "n13",
+    "n9",
+    "n10",
+    "n12",
+    "n16",
+    "n21",
+    "n25",
+    "n27"
+  ],
+  "node_counter": 31,
+  "edge_counter": 16,
+  "qa_counter": 17
+}

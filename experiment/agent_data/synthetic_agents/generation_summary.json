@@ -1,0 +1,57 @@
+{
+  "generated_at": "2025-09-24T05:45:43.941115",
+  "num_agents": 5,
+  "topics_per_agent": [
+    "zoning",
+    "healthcare",
+    "camera"
+  ],
+  "agents": [
+    {
+      "agent_id": "3eb1373206ce4bbf8b93cc8e",
+      "path": "synthetic_agents/3eb1373206ce4bbf8b93cc8e",
+      "topics": [
+        "zoning",
+        "healthcare",
+        "camera"
+      ]
+    },
+    {
+      "agent_id": "857667b4850044b69702d7bb",
+      "path": "synthetic_agents/857667b4850044b69702d7bb",
+      "topics": [
+        "zoning",
+        "healthcare",
+        "camera"
+      ]
+    },
+    {
+      "agent_id": "e90bc37b80d9456592e36f1a",
+      "path": "synthetic_agents/e90bc37b80d9456592e36f1a",
+      "topics": [
+        "zoning",
+        "healthcare",
+        "camera"
+      ]
+    },
+    {
+      "agent_id": "1990ff5494ab4008b3979aac",
+      "path": "synthetic_agents/1990ff5494ab4008b3979aac",
+      "topics": [
+        "zoning",
+        "healthcare",
+        "camera"
+      ]
+    },
+    {
+      "agent_id": "eb07fffc610d4786b2d5bad0",
+      "path": "synthetic_agents/eb07fffc610d4786b2d5bad0",
+      "topics": [
+        "zoning",
+        "healthcare",
+        "camera"
+      ]
+    }
+  ],
+  "note": "Enhanced version with richer prompt CBNs (15-20 nodes)"
+}

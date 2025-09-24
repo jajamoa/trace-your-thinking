@@ -1,0 +1,228 @@
+{
+    "$schema": "https://example.com/policy-survey.schema.json",
+    "title": "Survey on Upzoning & Surveillance Camera & Universal Healthcare — Field Schema",
+    "type": "object",
+    "properties": {
+      "housing_experience": {
+        "section": "Section 1: Housing & Upzoning Public Opinion Survey",
+        "question": "In the past five years, briefly describe your housing experience, including any moves, rental situations, and changes in your housing status. What were the reasons for these changes?",
+        "type": "string",
+        "options": null
+      },
+      "age": {
+        "section": "Section 1: Housing & Upzoning Public Opinion Survey",
+        "question": "What is your age?",
+        "type": "integer",
+        "options": null
+      },
+      "moved_last_year": {
+        "section": "Section 1: Housing & Upzoning Public Opinion Survey",
+        "question": "Have you moved in the past year?",
+        "type": "string",
+        "options": [
+          "Same house 1 year ago",
+          "Different house in United States 1 year ago",
+          "Abroad 1 year ago"
+        ]
+      },
+      "rent_income_ratio": {
+        "section": "Section 1: Housing & Upzoning Public Opinion Survey",
+        "question": "If you rent, what is your approximate monthly rent as a percentage of your income?",
+        "type": "string",
+        "options": [
+          "Less than 20.0 percent",
+          "20.0 to 24.9 percent",
+          "25.0 to 29.9 percent",
+          "30.0 to 34.9 percent",
+          "35.0 to 39.9 percent",
+          "40.0 to 49.9 percent",
+          "50.0 percent or more",
+          "Not computed"
+        ]
+      },
+      "housing_status": {
+        "section": "Section 1: Housing & Upzoning Public Opinion Survey",
+        "question": "What best describes your housing status?",
+        "type": "string",
+        "options": [
+          "Owner-occupied",
+          "Renter",
+          "Other"
+        ]
+      },
+      "transportation": {
+        "section": "Section 1: Housing & Upzoning Public Opinion Survey",
+        "question": "What is your primary mode of transportation? (Please select all that apply)",
+        "type": "array",
+        "items": {
+          "type": "string",
+          "enum": [
+            "Car / Truck / Van",
+            "Taxi / cab",
+            "Motorcycle",
+            "Bicycle",
+            "Walk",
+            "Public Transportation",
+            "Worked from home"
+          ]
+        },
+        "uniqueItems": true
+      },
+      "household_income": {
+        "section": "Section 1: Housing & Upzoning Public Opinion Survey",
+        "question": "What is your annual household income?",
+        "type": "string",
+        "options": [
+          "<$10,000",
+          "$10,000-$14,999",
+          "$15,000–$19,999",
+          "$20,000-$24,999",
+          "$25,000–$29,999",
+          "$30,000-$34,999",
+          "$35,000–$39,999",
+          "$40,000–$44,999",
+          "$45,000–$49,999",
+          "$50,000-$59,999",
+          "$60,000-$74,999",
+          "$75,000-$99,999",
+          "$100,000-$124,999",
+          "$125,000-$149,999",
+          "$150,000-$199,999",
+          ">$200,000"
+        ]
+      },
+      "occupation": {
+        "section": "Section 1: Housing & Upzoning Public Opinion Survey",
+        "question": "Which of the following best describes your occupation?",
+        "type": "string",
+        "options": [
+          "Management, business, science, and arts occupations",
+          "Service occupations",
+          "Sales and office occupations",
+          "Natural resources, construction, and maintenance occupations",
+          "Production, transportation, and material moving occupations"
+        ]
+      },
+      "marital_status": {
+        "section": "Section 1: Housing & Upzoning Public Opinion Survey",
+        "question": "What's your marital status?",
+        "type": "string",
+        "options": [
+          "Never Married",
+          "Now Married (Spouse Present)",
+          "Now Married (Spouse Absent)",
+          "Widowed",
+          "Divorced"
+        ]
+      },
+      "has_children": {
+        "section": "Section 1: Housing & Upzoning Public Opinion Survey",
+        "question": "Do you have any children under the age of 18 living with you?",
+        "type": "string",
+        "options": ["Yes", "No"]
+      },
+      "children_age": {
+        "section": "Section 1: Housing & Upzoning Public Opinion Survey",
+        "question": "What is the age range of your children under 18 years old? (You may select more than one option.)",
+        "type": "array",
+        "items": {
+          "type": "string",
+          "enum": [
+            "Under 6 years old",
+            "6 to 17 years old",
+            "No Children"
+          ]
+        },
+        "uniqueItems": true
+      },
+      "zipcode": {
+        "section": "Section 1: Housing & Upzoning Public Opinion Survey",
+        "question": "What is your ZIP code?",
+        "type": "string",
+        "pattern": "^[0-9]{5}(-[0-9]{4})?$",
+        "options": null
+      },
+      "race_ethnicity": {
+        "section": "Section 2: Surveillance Cameras Survey",
+        "question": "What is your race or ethnicity? (Select all that apply)",
+        "type": "array",
+        "items": {
+          "type": "string",
+          "enum": [
+            "White",
+            "Black or African American",
+            "Hispanic or Latino",
+            "Asian",
+            "Native American or Alaska Native",
+            "Native Hawaiian or Pacific Islander",
+            "Middle Eastern or North African",
+            "Other",
+            "Prefer not to say"
+          ]
+        },
+        "uniqueItems": true
+      },
+      "financial_situation": {
+        "section": "Section 2: Surveillance Cameras Survey",
+        "question": "Which of the following best describes your current financial situation?",
+        "type": "string",
+        "options": [
+          "I struggle to afford basic needs (e.g., food, housing, healthcare)",
+          "I get by, but money is tight",
+          "I live comfortably but budget carefully",
+          "I have more than enough to meet my needs",
+          "Prefer not to say"
+        ]
+      },
+      "neighborhood_safety": {
+        "section": "Section 2: Surveillance Cameras Survey",
+        "question": "How safe do you feel in your neighborhood?",
+        "type": "string",
+        "options": [
+          "Very safe – I rarely worry about crime",
+          "Somewhat safe – I take normal precautions",
+          "Neutral – I don’t think much about safety",
+          "Somewhat unsafe – I worry about crime occasionally",
+          "Very unsafe – I regularly feel threatened or unsafe"
+        ]
+      },
+      "health_insurance": {
+        "section": "Section 4: Universal Health Care Survey",
+        "question": "Which of the following best describes your current health insurance and disability status?",
+        "type": "string",
+        "options": [
+          "with a disability, with private health insurance",
+          "with a disability, with public health insurance",
+          "with a disability, without health insurance",
+          "no disability, with private health insurance",
+          "no disability, with public health insurance",
+          "no disability, without health insurance"
+        ]
+      },
+      "education": {
+        "section": "Section 4: Universal Health Care Survey",
+        "question": "What is the highest level of education you have completed?",
+        "type": "string",
+        "options": [
+          "No formal education or early childhood education",
+          "Some primary or secondary school, no high school diploma",
+          "High school graduate or equivalent",
+          "Some college, no degree",
+          "Associate’s degree",
+          "Bachelor’s degree",
+          "Graduate or professional degree"
+        ]
+      },
+      "citizenship": {
+        "section": "Section 4: Universal Health Care Survey",
+        "question": "What is your citizenship and nativity status?",
+        "type": "string",
+        "options": [
+          "Native-born U.S. citizen",
+          "Foreign-born, naturalized U.S. citizen",
+          "Foreign-born, not a U.S. citizen"
+        ]
+      }
+    }
+  }
+  

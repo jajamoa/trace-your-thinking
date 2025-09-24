@@ -1,0 +1,77 @@
+{
+  "stance_node": "n1",
+  "nodes": {
+    "n69": {
+      "label": "Public care",
+      "is_stance": false
+    },
+    "n52": {
+      "label": "Availability to medical",
+      "is_stance": false
+    },
+    "n48": {
+      "label": "Effectiveness to healthcare",
+      "is_stance": false
+    },
+    "n28": {
+      "label": "Patient effectiveness",
+      "is_stance": false
+    },
+    "n74": {
+      "label": "Quality for treatment",
+      "is_stance": false
+    },
+    "n101": {
+      "label": "Medicine effectiveness",
+      "is_stance": false
+    },
+    "n49": {
+      "label": "Hospital cost",
+      "is_stance": false
+    },
+    "n29": {
+      "label": "Healthcare",
+      "is_stance": false
+    },
+    "n1": {
+      "label": "Opposition to medical",
+      "is_stance": true
+    },
+    "n39": {
+      "label": "Availability with healthcare",
+      "is_stance": false
+    },
+    "n36": {
+      "label": "Coverage for insurance",
+      "is_stance": false
+    },
+    "n93": {
+      "label": "Hospital and care",
+      "is_stance": false
+    },
+    "n94": {
+      "label": "Implementation with treatment",
+      "is_stance": false
+    },
+    "n77": {
+      "label": "Public hospital",
+      "is_stance": false
+    },
+    "n96": {
+      "label": "Insurance",
+      "is_stance": false
+    }
+  },
+  "edges": [
+    {
+      "source": "n1",
+      "target": "n36",
+      "direction": "positive"
+    },
+    {
+      "source": "n93",
+      "target": "n1",
+      "direction": "negative"
+    }
+  ]
+}

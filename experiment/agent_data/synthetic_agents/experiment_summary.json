@@ -1,0 +1,54 @@
+{
+  "statistics": {
+    "total_experiments": 6,
+    "successful": 0,
+    "failed": 0,
+    "skipped": 6,
+    "by_topic": {},
+    "timestamp": "2025-09-24T06:05:48.148294"
+  },
+  "results": [
+    {
+      "agent_id": "1990ff5494ab4008b3979aac",
+      "topic": "zoning",
+      "status": "skipped",
+      "message": "Already processed",
+      "timestamp": "2025-09-24T06:05:47.966992"
+    },
+    {
+      "agent_id": "857667b4850044b69702d7bb",
+      "topic": "zoning",
+      "status": "skipped",
+      "message": "Already processed",
+      "timestamp": "2025-09-24T06:05:47.967067"
+    },
+    {
+      "agent_id": "eb07fffc610d4786b2d5bad0",
+      "topic": "zoning",
+      "status": "skipped",
+      "message": "Already processed",
+      "timestamp": "2025-09-24T06:05:47.967100"
+    },
+    {
+      "agent_id": "acd3e8aa5b5742d7b8b4b958",
+      "topic": "zoning",
+      "status": "skipped",
+      "message": "Already processed",
+      "timestamp": "2025-09-24T06:05:47.969012"
+    },
+    {
+      "agent_id": "e90bc37b80d9456592e36f1a",
+      "topic": "zoning",
+      "status": "skipped",
+      "message": "Already processed",
+      "timestamp": "2025-09-24T06:05:47.969103"
+    },
+    {
+      "agent_id": "3eb1373206ce4bbf8b93cc8e",
+      "topic": "zoning",
+      "status": "skipped",
+      "message": "Already processed",
+      "timestamp": "2025-09-24T06:05:47.969173"
+    }
+  ]
+}

@@ -1,0 +1,1819 @@
+{
+  "agent_id": "experiment_agent",
+  "timestamp": 1758707723977,
+  "nodes": {
+    "n1": {
+      "label": "Support for surveillance",
+      "aggregate_confidence": 0.8676470588235293,
+      "evidence": [
+        {
+          "qa_id": "system",
+          "confidence": 1.0,
+          "importance": 1.0
+        },
+        {
+          "qa_id": "qa2",
+          "confidence": 0.9,
+          "importance": 0.9
+        },
+        {
+          "qa_id": "qa3",
+          "confidence": 0.9,
+          "importance": 0.9
+        },
+        {
+          "qa_id": "qa5",
+          "confidence": 0.9,
+          "importance": 0.9
+        },
+        {
+          "qa_id": "qa6",
+          "confidence": 0.9,
+          "importance": 0.9
+        },
+        {
+          "qa_id": "qa7",
+          "confidence": 0.95,
+          "importance": 0.9
+        },
+        {
+          "qa_id": "qa9",
+          "confidence": 0.8,
+          "importance": 0.85
+        },
+        {
+          "qa_id": "qa10",
+          "confidence": 0.7,
+          "importance": 0.8
+        },
+        {
+          "qa_id": "qa11",
+          "confidence": 0.85,
+          "importance": 0.9
+        },
+        {
+          "qa_id": "qa12",
+          "confidence": 0.8,
+          "importance": 0.85
+        },
+        {
+          "qa_id": "qa13",
+          "confidence": 0.85,
+          "importance": 0.9
+        },
+        {
+          "qa_id": "qa14",
+          "confidence": 0.85,
+          "importance": 0.85
+        },
+        {
+          "qa_id": "qa15",
+          "confidence": 0.85,
+          "importance": 0.9
+        },
+        {
+          "qa_id": "qa16",
+          "confidence": 0.9,
+          "importance": 0.8
+        },
+        {
+          "qa_id": "qa17",
+          "confidence": 0.85,
+          "importance": 0.95
+        },
+        {
+          "qa_id": "qa18",
+          "confidence": 0.85,
+          "importance": 0.85
+        },
+        {
+          "qa_id": "qa19",
+          "confidence": 0.9,
+          "importance": 0.9
+        },
+        {
+          "qa_id": "qa20",
+          "confidence": 0.85,
+          "importance": 0.85
+        }
+      ],
+      "importance": 0.887627118644068,
+      "incoming_edges": [
+        "e9",
+        "e10",
+        "e11",
+        "e12",
+        "e13",
+        "e14",
+        "e16",
+        "e17",
+        "e18",
+        "e19"
+      ],
+      "outgoing_edges": [
+        "e3",
+        "e5"
+      ],
+      "status": "anchor",
+      "frequency": 26,
+      "is_stance": true
+    },
+    "n2": {
+      "label": "Surveillance cameras in public spaces",
+      "aggregate_confidence": 0.9,
+      "importance": 0.9,
+      "evidence": [
+        {
+          "qa_id": "qa1",
+          "confidence": 0.9,
+          "importance": 0.9
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [
+        "e1"
+      ],
+      "status": "anchor",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n3": {
+      "label": "Safety and crime prevention",
+      "aggregate_confidence": 0.7999999999999999,
+      "importance": 0.8625000000000002,
+      "evidence": [
+        {
+          "qa_id": "qa1",
+          "confidence": 0.85,
+          "importance": 0.95
+        },
+        {
+          "qa_id": "qa2",
+          "confidence": 0.7,
+          "importance": 0.8
+        },
+        {
+          "qa_id": "qa5",
+          "confidence": 0.8,
+          "importance": 0.9
+        },
+        {
+          "qa_id": "qa6",
+          "confidence": 0.8,
+          "importance": 0.8
+        },
+        {
+          "qa_id": "qa9",
+          "confidence": 0.85,
+          "importance": 0.85
+        }
+      ],
+      "incoming_edges": [
+        "e1"
+      ],
+      "outgoing_edges": [],
+      "status": "anchor",
+      "frequency": 5,
+      "is_stance": false
+    },
+    "n4": {
+      "label": "Privacy concerns",
+      "aggregate_confidence": 0.7625,
+      "importance": 0.759016393442623,
+      "evidence": [
+        {
+          "qa_id": "qa1",
+          "confidence": 0.7,
+          "importance": 0.7
+        },
+        {
+          "qa_id": "qa2",
+          "confidence": 0.7,
+          "importance": 0.7
+        },
+        {
+          "qa_id": "qa3",
+          "confidence": 0.75,
+          "importance": 0.7
+        },
+        {
+          "qa_id": "qa8",
+          "confidence": 0.9,
+          "importance": 0.9
+        },
+        {
+          "qa_id": "qa9",
+          "confidence": 0.75,
+          "importance": 0.7
+        },
+        {
+          "qa_id": "qa10",
+          "confidence": 0.8,
+          "importance": 0.9
+        },
+        {
+          "qa_id": "qa12",
+          "confidence": 0.75,
+          "importance": 0.7
+        },
+        {
+          "qa_id": "qa15",
+          "confidence": 0.9,
+          "importance": 0.9
+        },
+        {
+          "qa_id": "qa19",
+          "confidence": 0.7,
+          "importance": 0.7
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [
+        "e10"
+      ],
+      "status": "anchor",
+      "frequency": 9,
+      "is_stance": false
+    },
+    "n7": {
+      "label": "Freedom protection",
+      "aggregate_confidence": 0.8142857142857144,
+      "importance": 0.8263157894736842,
+      "evidence": [
+        {
+          "qa_id": "qa1",
+          "confidence": 0.8,
+          "importance": 0.8
+        },
+        {
+          "qa_id": "qa2",
+          "confidence": 0.75,
+          "importance": 0.7
+        },
+        {
+          "qa_id": "qa3",
+          "confidence": 0.8,
+          "importance": 0.8
+        },
+        {
+          "qa_id": "qa4",
+          "confidence": 0.8,
+          "importance": 0.8
+        },
+        {
+          "qa_id": "qa6",
+          "confidence": 0.9,
+          "importance": 0.95
+        },
+        {
+          "qa_id": "qa9",
+          "confidence": 0.9,
+          "importance": 0.9
+        },
+        {
+          "qa_id": "qa17",
+          "confidence": 0.75,
+          "importance": 0.8
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [
+        "e9"
+      ],
+      "status": "anchor",
+      "frequency": 9,
+      "is_stance": false
+    },
+    "n8": {
+      "label": "Infrastructure and community safety",
+      "aggregate_confidence": 0.775,
+      "importance": 0.7731182795698924,
+      "evidence": [
+        {
+          "qa_id": "qa1",
+          "confidence": 0.75,
+          "importance": 0.7
+        },
+        {
+          "qa_id": "qa3",
+          "confidence": 0.6,
+          "importance": 0.55
+        },
+        {
+          "qa_id": "qa7",
+          "confidence": 0.85,
+          "importance": 0.9
+        },
+        {
+          "qa_id": "qa10",
+          "confidence": 0.7,
+          "importance": 0.7
+        },
+        {
+          "qa_id": "qa12",
+          "confidence": 0.85,
+          "importance": 0.9
+        },
+        {
+          "qa_id": "qa20",
+          "confidence": 0.9,
+          "importance": 0.8
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [
+        "e12"
+      ],
+      "status": "anchor",
+      "frequency": 6,
+      "is_stance": false
+    },
+    "n10": {
+      "label": "City safety",
+      "aggregate_confidence": 0.8125,
+      "importance": 0.8676923076923077,
+      "evidence": [
+        {
+          "qa_id": "qa2",
+          "confidence": 0.85,
+          "importance": 0.95
+        },
+        {
+          "qa_id": "qa3",
+          "confidence": 0.85,
+          "importance": 0.95
+        },
+        {
+          "qa_id": "qa1",
+          "confidence": 0.75,
+          "importance": 0.7
+        },
+        {
+          "qa_id": "qa6",
+          "confidence": 0.8,
+          "importance": 0.85
+        },
+        {
+          "qa_id": "qa11",
+          "confidence": 0.9,
+          "importance": 0.9
+        }
+      ],
+      "incoming_edges": [
+        "e3"
+      ],
+      "outgoing_edges": [],
+      "status": "anchor",
+      "frequency": 5,
+      "is_stance": false
+    },
+    "n11": {
+      "label": "Technology and infrastructure",
+      "aggregate_confidence": 0.8,
+      "importance": 0.8,
+      "evidence": [
+        {
+          "qa_id": "qa2",
+          "confidence": 0.8,
+          "importance": 0.8
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "candidate",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n14": {
+      "label": "Benefits outweigh risks",
+      "aggregate_confidence": 0.85,
+      "importance": 0.85,
+      "evidence": [
+        {
+          "qa_id": "qa2",
+          "confidence": 0.85,
+          "importance": 0.85
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "candidate",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n17": {
+      "label": "Crime reduction",
+      "aggregate_confidence": 0.8,
+      "importance": 0.85,
+      "evidence": [
+        {
+          "qa_id": "qa3",
+          "confidence": 0.8,
+          "importance": 0.85
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "candidate",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n22": {
+      "label": "Increased surveillance",
+      "aggregate_confidence": 0.9,
+      "importance": 0.9,
+      "evidence": [
+        {
+          "qa_id": "qa4",
+          "confidence": 0.9,
+          "importance": 0.9
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [
+        "e4"
+      ],
+      "status": "anchor",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n23": {
+      "label": "Personal privacy",
+      "aggregate_confidence": 0.9,
+      "importance": 0.9,
+      "evidence": [
+        {
+          "qa_id": "qa4",
+          "confidence": 0.9,
+          "importance": 0.9
+        },
+        {
+          "qa_id": "qa13",
+          "confidence": 0.9,
+          "importance": 0.9
+        }
+      ],
+      "incoming_edges": [
+        "e4"
+      ],
+      "outgoing_edges": [
+        "e13"
+      ],
+      "status": "anchor",
+      "frequency": 2,
+      "is_stance": false
+    },
+    "n24": {
+      "label": "Individual liberties",
+      "aggregate_confidence": 0.9,
+      "importance": 0.9,
+      "evidence": [
+        {
+          "qa_id": "qa4",
+          "confidence": 0.9,
+          "importance": 0.9
+        },
+        {
+          "qa_id": "qa14",
+          "confidence": 0.9,
+          "importance": 0.9
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [
+        "e14"
+      ],
+      "status": "anchor",
+      "frequency": 2,
+      "is_stance": false
+    },
+    "n26": {
+      "label": "Data collection",
+      "aggregate_confidence": 0.8333333333333334,
+      "importance": 0.7840000000000001,
+      "evidence": [
+        {
+          "qa_id": "qa4",
+          "confidence": 0.8,
+          "importance": 0.8
+        },
+        {
+          "qa_id": "qa6",
+          "confidence": 0.8,
+          "importance": 0.75
+        },
+        {
+          "qa_id": "qa15",
+          "confidence": 0.9,
+          "importance": 0.8
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "anchor",
+      "frequency": 4,
+      "is_stance": false
+    },
+    "n28": {
+      "label": "Technology",
+      "aggregate_confidence": 0.7,
+      "importance": 0.7,
+      "evidence": [
+        {
+          "qa_id": "qa4",
+          "confidence": 0.7,
+          "importance": 0.7
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "candidate",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n30": {
+      "label": "Cautious approach",
+      "aggregate_confidence": 0.7,
+      "importance": 0.7,
+      "evidence": [
+        {
+          "qa_id": "qa4",
+          "confidence": 0.7,
+          "importance": 0.7
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "candidate",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n32": {
+      "label": "Community trust",
+      "aggregate_confidence": 0.8,
+      "importance": 0.8,
+      "evidence": [
+        {
+          "qa_id": "qa5",
+          "confidence": 0.8,
+          "importance": 0.8
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "candidate",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n33": {
+      "label": "Police-community relations",
+      "aggregate_confidence": 0.8,
+      "importance": 0.8,
+      "evidence": [
+        {
+          "qa_id": "qa5",
+          "confidence": 0.8,
+          "importance": 0.8
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "candidate",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n34": {
+      "label": "Feeling safe",
+      "aggregate_confidence": 0.7,
+      "importance": 0.7,
+      "evidence": [
+        {
+          "qa_id": "qa5",
+          "confidence": 0.7,
+          "importance": 0.7
+        },
+        {
+          "qa_id": "qa16",
+          "confidence": 0.9,
+          "importance": 0.8
+        }
+      ],
+      "incoming_edges": [
+        "e5"
+      ],
+      "outgoing_edges": [
+        "e16"
+      ],
+      "status": "anchor",
+      "frequency": 2,
+      "is_stance": false
+    },
+    "n35": {
+      "label": "Feeling watched",
+      "aggregate_confidence": 0.7,
+      "importance": 0.7,
+      "evidence": [
+        {
+          "qa_id": "qa5",
+          "confidence": 0.7,
+          "importance": 0.7
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "candidate",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n36": {
+      "label": "Unfair monitoring",
+      "aggregate_confidence": 0.7,
+      "importance": 0.7,
+      "evidence": [
+        {
+          "qa_id": "qa5",
+          "confidence": 0.7,
+          "importance": 0.7
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "candidate",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n38": {
+      "label": "Harm to relationships",
+      "aggregate_confidence": 0.7,
+      "importance": 0.7,
+      "evidence": [
+        {
+          "qa_id": "qa5",
+          "confidence": 0.7,
+          "importance": 0.7
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "candidate",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n46": {
+      "label": "Clear guidelines for data access",
+      "aggregate_confidence": 0.75,
+      "importance": 0.7,
+      "evidence": [
+        {
+          "qa_id": "qa6",
+          "confidence": 0.75,
+          "importance": 0.7
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "candidate",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n47": {
+      "label": "Avoiding government overreach",
+      "aggregate_confidence": 0.8,
+      "importance": 0.8,
+      "evidence": [
+        {
+          "qa_id": "qa6",
+          "confidence": 0.8,
+          "importance": 0.8
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "candidate",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n48": {
+      "label": "Reliability of technology",
+      "aggregate_confidence": 0.8500000000000001,
+      "importance": 0.7764705882352942,
+      "evidence": [
+        {
+          "qa_id": "qa7",
+          "confidence": 0.9,
+          "importance": 0.8
+        },
+        {
+          "qa_id": "qa1",
+          "confidence": 0.8,
+          "importance": 0.75
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [
+        "e7"
+      ],
+      "status": "anchor",
+      "frequency": 2,
+      "is_stance": false
+    },
+    "n51": {
+      "label": "Accuracy concerns",
+      "aggregate_confidence": 0.7,
+      "importance": 0.7,
+      "evidence": [
+        {
+          "qa_id": "qa7",
+          "confidence": 0.7,
+          "importance": 0.7
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "candidate",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n52": {
+      "label": "Balance between risks and benefits",
+      "aggregate_confidence": 0.77,
+      "importance": 0.7987012987012987,
+      "evidence": [
+        {
+          "qa_id": "qa7",
+          "confidence": 0.8,
+          "importance": 0.85
+        },
+        {
+          "qa_id": "qa4",
+          "confidence": 0.8,
+          "importance": 0.8
+        },
+        {
+          "qa_id": "qa10",
+          "confidence": 0.6,
+          "importance": 0.7
+        },
+        {
+          "qa_id": "qa17",
+          "confidence": 0.9,
+          "importance": 0.9
+        },
+        {
+          "qa_id": "qa18",
+          "confidence": 0.75,
+          "importance": 0.7
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [
+        "e17"
+      ],
+      "status": "anchor",
+      "frequency": 5,
+      "is_stance": false
+    },
+    "n53": {
+      "label": "Trust in technology when used properly",
+      "aggregate_confidence": 0.85,
+      "importance": 0.8,
+      "evidence": [
+        {
+          "qa_id": "qa7",
+          "confidence": 0.85,
+          "importance": 0.8
+        },
+        {
+          "qa_id": "qa18",
+          "confidence": 0.9,
+          "importance": 0.9
+        }
+      ],
+      "incoming_edges": [
+        "e7"
+      ],
+      "outgoing_edges": [
+        "e18"
+      ],
+      "status": "anchor",
+      "frequency": 2,
+      "is_stance": false
+    },
+    "n54": {
+      "label": "Economic benefits of surveillance infrastructure",
+      "aggregate_confidence": 0.75,
+      "importance": 0.7333333333333334,
+      "evidence": [
+        {
+          "qa_id": "qa8",
+          "confidence": 0.7,
+          "importance": 0.6
+        },
+        {
+          "qa_id": "qa17",
+          "confidence": 0.8,
+          "importance": 0.85
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [
+        "e8"
+      ],
+      "status": "anchor",
+      "frequency": 2,
+      "is_stance": false
+    },
+    "n55": {
+      "label": "Job creation in technology sectors",
+      "aggregate_confidence": 0.6,
+      "importance": 0.5,
+      "evidence": [
+        {
+          "qa_id": "qa8",
+          "confidence": 0.6,
+          "importance": 0.5
+        },
+        {
+          "qa_id": "qa19",
+          "confidence": 0.8,
+          "importance": 0.7
+        }
+      ],
+      "incoming_edges": [
+        "e8"
+      ],
+      "outgoing_edges": [
+        "e19"
+      ],
+      "status": "anchor",
+      "frequency": 2,
+      "is_stance": false
+    },
+    "n56": {
+      "label": "Infringement on liberties",
+      "aggregate_confidence": 0.9,
+      "importance": 0.8,
+      "evidence": [
+        {
+          "qa_id": "qa8",
+          "confidence": 0.9,
+          "importance": 0.8
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "candidate",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n57": {
+      "label": "Stifling of innovation",
+      "aggregate_confidence": 0.7,
+      "importance": 0.7,
+      "evidence": [
+        {
+          "qa_id": "qa8",
+          "confidence": 0.7,
+          "importance": 0.7
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "candidate",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n58": {
+      "label": "Consumer spending reduction",
+      "aggregate_confidence": 0.6,
+      "importance": 0.6,
+      "evidence": [
+        {
+          "qa_id": "qa8",
+          "confidence": 0.6,
+          "importance": 0.6
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "candidate",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n59": {
+      "label": "High maintenance costs",
+      "aggregate_confidence": 0.7,
+      "importance": 0.6,
+      "evidence": [
+        {
+          "qa_id": "qa8",
+          "confidence": 0.7,
+          "importance": 0.6
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "candidate",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n61": {
+      "label": "Need for careful risk-benefit analysis",
+      "aggregate_confidence": 0.8,
+      "importance": 0.7,
+      "evidence": [
+        {
+          "qa_id": "qa8",
+          "confidence": 0.8,
+          "importance": 0.7
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "candidate",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n64": {
+      "label": "Technology helping",
+      "aggregate_confidence": 0.7,
+      "importance": 0.65,
+      "evidence": [
+        {
+          "qa_id": "qa9",
+          "confidence": 0.7,
+          "importance": 0.65
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "candidate",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n65": {
+      "label": "Camera effectiveness",
+      "aggregate_confidence": 0.65,
+      "importance": 0.6,
+      "evidence": [
+        {
+          "qa_id": "qa9",
+          "confidence": 0.65,
+          "importance": 0.6
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "candidate",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n66": {
+      "label": "Public opinion on cameras",
+      "aggregate_confidence": 0.6,
+      "importance": 0.55,
+      "evidence": [
+        {
+          "qa_id": "qa9",
+          "confidence": 0.6,
+          "importance": 0.55
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "candidate",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n72": {
+      "label": "Large shifts in safety",
+      "aggregate_confidence": 0.7749999999999999,
+      "importance": 0.7225806451612903,
+      "evidence": [
+        {
+          "qa_id": "qa11",
+          "confidence": 0.7,
+          "importance": 0.75
+        },
+        {
+          "qa_id": "qa15",
+          "confidence": 0.85,
+          "importance": 0.7
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [
+        "e11"
+      ],
+      "status": "anchor",
+      "frequency": 3,
+      "is_stance": false
+    },
+    "n73": {
+      "label": "Cameras helping with safety",
+      "aggregate_confidence": 0.8,
+      "importance": 0.7250000000000001,
+      "evidence": [
+        {
+          "qa_id": "qa11",
+          "confidence": 0.8,
+          "importance": 0.75
+        },
+        {
+          "qa_id": "qa19",
+          "confidence": 0.8,
+          "importance": 0.7
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "candidate",
+      "frequency": 2,
+      "is_stance": false
+    },
+    "n74": {
+      "label": "Downsides of cameras",
+      "aggregate_confidence": 0.75,
+      "importance": 0.7,
+      "evidence": [
+        {
+          "qa_id": "qa11",
+          "confidence": 0.75,
+          "importance": 0.7
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "candidate",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n76": {
+      "label": "Positive effect of infrastructure on safety",
+      "aggregate_confidence": 0.7,
+      "importance": 0.7571428571428572,
+      "evidence": [
+        {
+          "qa_id": "qa12",
+          "confidence": 0.8,
+          "importance": 0.8
+        },
+        {
+          "qa_id": "qa10",
+          "confidence": 0.6,
+          "importance": 0.7
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "anchor",
+      "frequency": 4,
+      "is_stance": false
+    },
+    "n79": {
+      "label": "Trade-offs",
+      "aggregate_confidence": 0.75,
+      "importance": 0.6999999999999998,
+      "evidence": [
+        {
+          "qa_id": "qa13",
+          "confidence": 0.8,
+          "importance": 0.7
+        },
+        {
+          "qa_id": "qa3",
+          "confidence": 0.7,
+          "importance": 0.7
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "anchor",
+      "frequency": 2,
+      "is_stance": false
+    },
+    "n82": {
+      "label": "Benefits like safety or infrastructure",
+      "aggregate_confidence": 0.7,
+      "importance": 0.6,
+      "evidence": [
+        {
+          "qa_id": "qa13",
+          "confidence": 0.7,
+          "importance": 0.6
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "candidate",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n83": {
+      "label": "Strength of the effect",
+      "aggregate_confidence": 0.7625,
+      "importance": 0.6778688524590164,
+      "evidence": [
+        {
+          "qa_id": "qa13",
+          "confidence": 0.8,
+          "importance": 0.7
+        },
+        {
+          "qa_id": "qa15",
+          "confidence": 0.75,
+          "importance": 0.65
+        },
+        {
+          "qa_id": "qa16",
+          "confidence": 0.7,
+          "importance": 0.6
+        },
+        {
+          "qa_id": "qa17",
+          "confidence": 0.8,
+          "importance": 0.75
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "anchor",
+      "frequency": 4,
+      "is_stance": false
+    },
+    "n84": {
+      "label": "People's freedoms",
+      "aggregate_confidence": 0.85,
+      "importance": 0.8,
+      "evidence": [
+        {
+          "qa_id": "qa13",
+          "confidence": 0.85,
+          "importance": 0.8
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "candidate",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n86": {
+      "label": "Necessity perception",
+      "aggregate_confidence": 0.7,
+      "importance": 0.6,
+      "evidence": [
+        {
+          "qa_id": "qa13",
+          "confidence": 0.7,
+          "importance": 0.6
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "candidate",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n87": {
+      "label": "Time to develop",
+      "aggregate_confidence": 0.8625,
+      "importance": 0.7166666666666667,
+      "evidence": [
+        {
+          "qa_id": "qa14",
+          "confidence": 0.9,
+          "importance": 0.8
+        },
+        {
+          "qa_id": "qa16",
+          "confidence": 0.8,
+          "importance": 0.7
+        },
+        {
+          "qa_id": "qa19",
+          "confidence": 0.8,
+          "importance": 0.6
+        },
+        {
+          "qa_id": "qa20",
+          "confidence": 0.95,
+          "importance": 0.75
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "anchor",
+      "frequency": 4,
+      "is_stance": false
+    },
+    "n88": {
+      "label": "Negative effect",
+      "aggregate_confidence": 0.8300000000000001,
+      "importance": 0.7819277108433734,
+      "evidence": [
+        {
+          "qa_id": "qa14",
+          "confidence": 0.8,
+          "importance": 0.85
+        },
+        {
+          "qa_id": "qa13",
+          "confidence": 0.85,
+          "importance": 0.8
+        },
+        {
+          "qa_id": "qa16",
+          "confidence": 0.8,
+          "importance": 0.7
+        },
+        {
+          "qa_id": "qa18",
+          "confidence": 0.9,
+          "importance": 0.85
+        },
+        {
+          "qa_id": "qa20",
+          "confidence": 0.8,
+          "importance": 0.7
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "anchor",
+      "frequency": 6,
+      "is_stance": false
+    },
+    "n89": {
+      "label": "Safety vs privacy",
+      "aggregate_confidence": 0.7749999999999999,
+      "importance": 0.7548387096774194,
+      "evidence": [
+        {
+          "qa_id": "qa14",
+          "confidence": 0.85,
+          "importance": 0.8
+        },
+        {
+          "qa_id": "qa16",
+          "confidence": 0.7,
+          "importance": 0.7
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "anchor",
+      "frequency": 2,
+      "is_stance": false
+    },
+    "n90": {
+      "label": "Visibility of surveillance",
+      "aggregate_confidence": 0.75,
+      "importance": 0.7,
+      "evidence": [
+        {
+          "qa_id": "qa14",
+          "confidence": 0.75,
+          "importance": 0.7
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "candidate",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n93": {
+      "label": "Invasive data practices",
+      "aggregate_confidence": 0.75,
+      "importance": 0.7033333333333335,
+      "evidence": [
+        {
+          "qa_id": "qa15",
+          "confidence": 0.8,
+          "importance": 0.75
+        },
+        {
+          "qa_id": "qa3",
+          "confidence": 0.7,
+          "importance": 0.65
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "anchor",
+      "frequency": 3,
+      "is_stance": false
+    },
+    "n105": {
+      "label": "Strong connection",
+      "aggregate_confidence": 0.95,
+      "importance": 0.8,
+      "evidence": [
+        {
+          "qa_id": "qa18",
+          "confidence": 0.95,
+          "importance": 0.8
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "candidate",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n108": {
+      "label": "Technology needs to be used wisely",
+      "aggregate_confidence": 0.7,
+      "importance": 0.65,
+      "evidence": [
+        {
+          "qa_id": "qa18",
+          "confidence": 0.7,
+          "importance": 0.65
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "candidate",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n116": {
+      "label": "Gradual change",
+      "aggregate_confidence": 0.85,
+      "importance": 0.65,
+      "evidence": [
+        {
+          "qa_id": "qa20",
+          "confidence": 0.85,
+          "importance": 0.65
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "candidate",
+      "frequency": 1,
+      "is_stance": false
+    }
+  },
+  "edges": {
+    "e1": {
+      "source": "n2",
+      "target": "n3",
+      "aggregate_confidence": 0.95,
+      "evidence": [
+        {
+          "qa_id": "qa1",
+          "confidence": 0.95,
+          "original_modifier": 0.9
+        }
+      ],
+      "modifier": 0.855,
+      "source_label": "Surveillance cameras in public spaces",
+      "target_label": "Safety and crime prevention",
+      "explanation": "The answer states that surveillance cameras help with safety and prevent crime, indicating a strong positive relationship.",
+      "direction": "positive",
+      "strength": 0.9
+    },
+    "e3": {
+      "source": "n1",
+      "target": "n10",
+      "aggregate_confidence": 0.875,
+      "evidence": [
+        {
+          "qa_id": "qa3",
+          "confidence": 0.9,
+          "original_modifier": 0.8
+        },
+        {
+          "qa_id": "qa2",
+          "confidence": 0.85,
+          "original_modifier": 0.9
+        }
+      ],
+      "modifier": 0.8485714285714286,
+      "source_label": "Surveillance technology",
+      "target_label": "Public safety",
+      "explanation": "Surveillance technology, such as cameras, can increase public safety by deterring criminal behavior and providing evidence for law enforcement.",
+      "direction": "positive",
+      "strength": 0.8485714285714286
+    },
+    "e4": {
+      "source": "n22",
+      "target": "n23",
+      "aggregate_confidence": 0.9,
+      "evidence": [
+        {
+          "qa_id": "qa4",
+          "confidence": 0.9,
+          "original_modifier": -0.8
+        }
+      ],
+      "modifier": -0.7200000000000001,
+      "source_label": "Increased surveillance",
+      "target_label": "Personal privacy",
+      "explanation": "Increased surveillance leads to more data collection and monitoring, which can reduce personal privacy as individuals feel their private lives are being observed.",
+      "direction": "negative",
+      "strength": 0.8
+    },
+    "e5": {
+      "source": "n1",
+      "target": "n34",
+      "aggregate_confidence": 0.8,
+      "evidence": [
+        {
+          "qa_id": "qa5",
+          "confidence": 0.8,
+          "original_modifier": 0.7
+        }
+      ],
+      "modifier": 0.5599999999999999,
+      "source_label": "Surveillance cameras",
+      "target_label": "Feeling safe",
+      "explanation": "The presence of surveillance cameras can make people feel safer, which is a common perception associated with increased security measures.",
+      "direction": "positive",
+      "strength": 0.7
+    },
+    "e7": {
+      "source": "n48",
+      "target": "n53",
+      "aggregate_confidence": 0.9,
+      "evidence": [
+        {
+          "qa_id": "qa7",
+          "confidence": 0.9,
+          "original_modifier": 0.8
+        }
+      ],
+      "modifier": 0.7200000000000001,
+      "source_label": "Reliability of technology",
+      "target_label": "Trust in technology when used properly",
+      "explanation": "The answer suggests that if the technology is strong, it increases confidence in its use, indicating that reliability contributes to trust when used properly.",
+      "direction": "positive",
+      "strength": 0.8
+    },
+    "e8": {
+      "source": "n54",
+      "target": "n55",
+      "aggregate_confidence": 0.9,
+      "evidence": [
+        {
+          "qa_id": "qa8",
+          "confidence": 0.9,
+          "original_modifier": 0.8
+        }
+      ],
+      "modifier": 0.7200000000000001,
+      "source_label": "Economic benefits of surveillance infrastructure",
+      "target_label": "Job creation in technology sectors",
+      "explanation": "Investing in surveillance infrastructure is likely to stimulate job creation in technology sectors due to the demand for development, installation, and maintenance of such systems.",
+      "direction": "positive",
+      "strength": 0.8
+    },
+    "e9": {
+      "source": "n7",
+      "target": "n1",
+      "aggregate_confidence": 0.8,
+      "evidence": [
+        {
+          "qa_id": "qa9",
+          "confidence": 0.8,
+          "original_modifier": 0.7
+        }
+      ],
+      "modifier": 0.5599999999999999,
+      "source_label": "Safety",
+      "target_label": "Support for surveillance",
+      "explanation": "If cameras make people feel safer, that boosts support for surveillance.",
+      "direction": "positive",
+      "strength": 0.7
+    },
+    "e10": {
+      "source": "n4",
+      "target": "n1",
+      "aggregate_confidence": 0.7,
+      "evidence": [
+        {
+          "qa_id": "qa10",
+          "confidence": 0.7,
+          "original_modifier": -0.6
+        }
+      ],
+      "modifier": -0.42,
+      "source_label": "Privacy concerns",
+      "target_label": "Support for surveillance",
+      "explanation": "The answer suggests that increased privacy concerns can lead to decreased support for surveillance, as people may question the use of cameras if they feel their privacy is being invaded.",
+      "direction": "negative",
+      "strength": 0.6
+    },
+    "e11": {
+      "source": "n72",
+      "target": "n1",
+      "aggregate_confidence": 0.8,
+      "evidence": [
+        {
+          "qa_id": "qa11",
+          "confidence": 0.8,
+          "original_modifier": 0.6
+        },
+        {
+          "qa_id": "qa15",
+          "confidence": 0.8,
+          "original_modifier": 0.6
+        }
+      ],
+      "modifier": 0.6,
+      "source_label": "Small changes in safety",
+      "target_label": "Support for surveillance",
+      "explanation": "If city safety improves slightly, people may feel more comfortable with surveillance, leading to increased support.",
+      "direction": "positive",
+      "strength": 0.6
+    },
+    "e12": {
+      "source": "n8",
+      "target": "n1",
+      "aggregate_confidence": 0.8,
+      "evidence": [
+        {
+          "qa_id": "qa12",
+          "confidence": 0.8,
+          "original_modifier": 0.7
+        },
+        {
+          "qa_id": "qa20",
+          "confidence": 0.8,
+          "original_modifier": 0.6
+        }
+      ],
+      "modifier": 0.65,
+      "source_label": "Infrastructure and community safety",
+      "target_label": "Support for surveillance",
+      "explanation": "Better infrastructure often includes more surveillance technologies like cameras, which can increase support for surveillance as people perceive it as enhancing safety.",
+      "direction": "positive",
+      "strength": 0.65
+    },
+    "e13": {
+      "source": "n23",
+      "target": "n1",
+      "aggregate_confidence": 0.8,
+      "evidence": [
+        {
+          "qa_id": "qa13",
+          "confidence": 0.8,
+          "original_modifier": -0.6
+        }
+      ],
+      "modifier": -0.48,
+      "source_label": "Personal privacy",
+      "target_label": "Support for surveillance",
+      "explanation": "The initial effect of personal privacy on support for surveillance is negative because people may feel their privacy is being invaded, leading to decreased support.",
+      "direction": "negative",
+      "strength": 0.6
+    },
+    "e14": {
+      "source": "n24",
+      "target": "n1",
+      "aggregate_confidence": 0.8,
+      "evidence": [
+        {
+          "qa_id": "qa14",
+          "confidence": 0.8,
+          "original_modifier": -0.6
+        }
+      ],
+      "modifier": -0.48,
+      "source_label": "Individual liberties",
+      "target_label": "Support for surveillance",
+      "explanation": "As people become more aware of how much surveillance affects their individual liberties, they may start to oppose it, leading to a decrease in support for surveillance over time.",
+      "direction": "negative",
+      "strength": 0.6
+    },
+    "e16": {
+      "source": "n34",
+      "target": "n1",
+      "aggregate_confidence": 0.8,
+      "evidence": [
+        {
+          "qa_id": "qa16",
+          "confidence": 0.8,
+          "original_modifier": 0.6
+        }
+      ],
+      "modifier": 0.48,
+      "source_label": "Feeling safe",
+      "target_label": "Support for surveillance",
+      "explanation": "The answer suggests that as people feel safer over time, their support for surveillance increases, indicating a positive relationship between feeling safe and support for surveillance.",
+      "direction": "positive",
+      "strength": 0.6
+    },
+    "e17": {
+      "source": "n52",
+      "target": "n1",
+      "aggregate_confidence": 0.8,
+      "evidence": [
+        {
+          "qa_id": "qa17",
+          "confidence": 0.8,
+          "original_modifier": 0.6
+        }
+      ],
+      "modifier": 0.48,
+      "source_label": "Balance between risks and benefits",
+      "target_label": "Support for surveillance",
+      "explanation": "The answer suggests that small changes in the balance between risks and benefits can affect support for surveillance. If people perceive more benefits, such as safety, it could increase support.",
+      "direction": "positive",
+      "strength": 0.6
+    },
+    "e18": {
+      "source": "n53",
+      "target": "n1",
+      "aggregate_confidence": 0.95,
+      "evidence": [
+        {
+          "qa_id": "qa18",
+          "confidence": 0.95,
+          "original_modifier": 0.9
+        }
+      ],
+      "modifier": 0.855,
+      "source_label": "Trust in technology when used properly",
+      "target_label": "Support for surveillance",
+      "explanation": "The answer states that trust in technology when used properly increases support for surveillance, as people are more likely to back cameras if they believe the tech is reliable and used correctly.",
+      "direction": "positive",
+      "strength": 0.9
+    },
+    "e19": {
+      "source": "n55",
+      "target": "n1",
+      "aggregate_confidence": 0.8,
+      "evidence": [
+        {
+          "qa_id": "qa19",
+          "confidence": 0.8,
+          "original_modifier": 0.6
+        }
+      ],
+      "modifier": 0.48,
+      "source_label": "Job creation in technology sectors",
+      "target_label": "Support for surveillance",
+      "explanation": "Job creation in tech sectors can lead to improved safety through better technology, which increases support for surveillance. However, the effect is not immediate and takes time to develop.",
+      "direction": "positive",
+      "strength": 0.6
+    }
+  },
+  "qa_history": {
+    "qa1": {
+      "question": "To what extent do you support or oppose the widespread deployment of surveillance cameras in public spaces? Please explain your reasoning.",
+      "answer": "I support the widespread use of surveillance cameras in public spaces. I think they help with safety and can prevent crime. Even though some people worry about privacy, I believe the benefits outweigh the risks. Cameras make people behave better and can catch bad actors. Plus, technology is strong and reliable these days. I don’t think cameras take away our freedoms—they actually help protect them. If anything, more cameras mean better infrastructure and a safer community. I’m not against cameras; I see them as a positive tool for security.",
+      "shortText": "Stance on surveillance",
+      "timestamp": 1758707736
+    },
+    "qa2": {
+      "question": "What do you think are the most significant impacts, positive or negative, of increasing surveillance camera coverage in urban areas?",
+      "answer": "I think more cameras make cities safer, even if some people worry about privacy. I believe in strong technology and better infrastructure. Even though I'm worried about how surveillance might affect our freedoms, I still think the benefits outweigh the risks. Cameras help keep people secure, and that's important. Plus, with better tech, we can manage it wisely. It's a balance, but I support cameras because they help create a safer environment.",
+      "shortText": "Surveillance impacts",
+      "timestamp": 1758707749
+    },
+    "qa3": {
+      "question": "How do you think surveillance technologies might affect public safety and crime rates?",
+      "answer": "I think surveillance tech, like cameras, can help with public safety. Even though I'm a bit worried about privacy, I believe the benefits outweigh the downsides. Cameras make people act more responsibly, which can lower crime. Plus, they support better infrastructure and technology. It's a trade-off, but I feel safer knowing there's some level of monitoring. Overall, I think it's a good thing for keeping communities secure.",
+      "shortText": "Public safety",
+      "timestamp": 1758707766
+    },
+    "qa4": {
+      "question": "What impact do you believe increased surveillance might have on personal privacy and individual liberties?",
+      "answer": "I think increased surveillance can be a double-edged sword. On one hand, cameras and technology help keep us safer, which is important. But I also worry about how much we’re giving up in terms of privacy. I feel like there’s a fine line between protection and overreach. Even though I support cameras for safety, I’m concerned about how much data is being collected and who has access to it. It’s a tough balance—technology is strong, but we need to make sure it doesn’t erode our freedoms. I believe we should be cautious and ensure that surveillance doesn’t negatively impact our individual liberties.",
+      "shortText": "Privacy concerns",
+      "timestamp": 1758707787
+    },
+    "qa5": {
+      "question": "How do you think surveillance camera systems might affect community trust and police-community relations?",
+      "answer": "I think surveillance cameras can have a mixed effect. On one hand, they might make people feel safer, which could improve trust in the community. But I also worry that too much surveillance could make people feel watched and uncomfortable. It might create tension with the police if people think they're being monitored unfairly. I believe cameras can support safety, but we need to balance that with protecting our liberties. If not done right, it could harm relationships instead of helping them.",
+      "shortText": "Community relations",
+      "timestamp": 1758707805
+    },
+    "qa6": {
+      "question": "What role do you believe government should play in regulating surveillance technologies and data collection?",
+      "answer": "I think the government should regulate surveillance to make sure it's used responsibly. Even though I believe cameras support safety, I'm worried about how data is collected. It needs rules to protect our privacy. But I also see that technology helps keep us safe, so the government should balance both. They need to ensure that surveillance doesn't infringe on our freedoms. Maybe they can set clear guidelines on who can access data and how it's used. Overall, I think regulation is necessary but should be done carefully to avoid overreach.",
+      "shortText": "Government regulation",
+      "timestamp": 1758707832
+    },
+    "qa7": {
+      "question": "How might technological concerns about accuracy and reliability factor into decisions about surveillance systems?",
+      "answer": "I think about how reliable the tech is, but I still believe cameras help. If the tech is strong, it makes me more confident in using it. Even if there are concerns about accuracy, I feel like the benefits for safety and infrastructure outweigh the risks. Plus, I don’t think the negatives of cameras are as bad as people say. It’s about balance—technology can be trusted if it’s used right.",
+      "shortText": "Technical factors",
+      "timestamp": 1758707854
+    },
+    "qa8": {
+      "question": "What economic effects, both positive and negative, might result from investing in widespread surveillance infrastructure?",
+      "answer": "Investing in surveillance infrastructure could have mixed economic effects. On the positive side, it might boost technology sectors and create jobs in installation and maintenance. But I worry about the negative side too—like how it could infringe on liberties. If people feel watched, they might become more cautious, which could stifle innovation or consumer spending. Plus, the cost of maintaining such systems could be high. I think the benefits need to be weighed carefully against the risks to privacy and freedom.",
+      "shortText": "Economic effects",
+      "timestamp": 1758707881
+    },
+    "qa9": {
+      "question": "How would you describe the relationship between Safety and crime prevention and Support for surveillance? Is it a strong or weak connection? Does it have a positive effect (increasing it) or a negative effect (decreasing it)? How strong is this effect?",
+      "answer": "I think the connection between safety and crime prevention with support for surveillance is pretty strong. If cameras make people feel safer, that boosts support. But I also worry about privacy. Even though I believe in technology helping, I'm not sure if more cameras always means better safety. It’s a mix—some say it helps, others say it invades. I lean toward supporting cameras because of the safety impact, but I’m not fully convinced. It's a moderate effect, maybe medium strength.",
+      "shortText": "Relationship: Safety and crime prevention → Support for surveillance",
+      "timestamp": 1758707908
+    },
+    "qa10": {
+      "question": "Would small changes in Privacy concerns lead to noticeable changes in Support for surveillance, or would it take larger shifts? Does it have a positive effect (increasing it) or a negative effect (decreasing it)? How strong is this effect?",
+      "answer": "I think small changes in privacy concerns could definitely affect support for surveillance. If people feel their privacy is being invaded, even slightly, it might make them question cameras. But since I believe cameras support safety and infrastructure, I might still lean towards supporting them. However, if privacy issues grow, that could tip the balance. The effect isn't super strong, but it's there. It depends on how much people value their privacy versus feeling safe. I'm not sure how big the shift needs to be, but I think it matters.",
+      "shortText": "Relationship: Privacy concerns → Support for surveillance",
+      "timestamp": 1758707938
+    },
+    "qa11": {
+      "question": "Would small changes in City safety lead to noticeable changes in Support for surveillance, or would it take larger shifts? Does it have a positive effect (increasing it) or a negative effect (decreasing it)? How strong is this effect?",
+      "answer": "I think small changes in city safety could definitely affect support for surveillance. If things get a little safer, people might feel more comfortable with cameras. But if safety drops, that could make people more anxious and maybe even push for more surveillance. From what I've thought about, the effect isn't super strong, but it's real. I believe cameras do help, but they also have downsides. So it's a balance—small shifts might not change much, but bigger ones could tip the scale either way.",
+      "shortText": "Relationship: City safety → Support for surveillance",
+      "timestamp": 1758707970
+    },
+    "qa12": {
+      "question": "How would you describe the relationship between Infrastructure and community safety and Support for surveillance? Is it a strong or weak connection? Does it have a positive effect (increasing it) or a negative effect (decreasing it)? How strong is this effect?",
+      "answer": "I think infrastructure and community safety are linked, but not directly. Better infrastructure can help with safety, like having cameras. I support surveillance because it helps keep things safe. But I also worry about privacy. The connection between infrastructure and support for surveillance is pretty strong—more infrastructure often means more cameras, which makes people feel safer. But it's a mixed bag; it increases safety but might affect freedoms. I see it as a moderate positive effect.",
+      "shortText": "Relationship: Infrastructure and community safety → Support for surveillance",
+      "timestamp": 1758708003
+    },
+    "qa13": {
+      "question": "Is the effect of Personal privacy on Support for surveillance immediate, or does it take time to develop? Does it have a positive effect (increasing it) or a negative effect (decreasing it)? How strong is this effect?",
+      "answer": "I think the effect of personal privacy on support for surveillance isn't immediate. It takes time for people to see the trade-offs. At first, maybe it feels like a negative—like your privacy is being invaded. But over time, if you start seeing benefits like safety or better infrastructure, it might shift. I believe the effect is negative at first but could turn positive if the benefits become clear. It's not super strong, though—people still care about their freedoms. I guess it depends on how the surveillance is used and whether it feels necessary.",
+      "shortText": "Relationship: Personal privacy → Support for surveillance",
+      "timestamp": 1758708043
+    },
+    "qa14": {
+      "question": "Is the effect of Individual liberties on Support for surveillance immediate, or does it take time to develop? Does it have a positive effect (increasing it) or a negative effect (decreasing it)? How strong is this effect?",
+      "answer": "I think the effect on individual liberties isn't immediate—it takes time for people to notice. At first, cameras might feel like a good idea for safety, but over time, people start realizing it's a bit invasive. I believe it has a negative effect because as people see how much surveillance is happening, they might push back. But it's not super strong. Some people still support cameras because they value safety more than privacy. It’s a balance, and it depends on how visible the surveillance is.",
+      "shortText": "Relationship: Individual liberties → Support for surveillance",
+      "timestamp": 1758708089
+    },
+    "qa15": {
+      "question": "Would small changes in Data collection lead to noticeable changes in Support for surveillance, or would it take larger shifts? Does it have a positive effect (increasing it) or a negative effect (decreasing it)? How strong is this effect?",
+      "answer": "I think small changes in data collection could definitely affect support for surveillance. If people see that data is being used responsibly, it might increase support. But if it feels invasive, it could lower trust. From what I believe, negative experiences with cameras really impact how people feel. So even small shifts in how data is handled could tip the balance. I think the effect isn't super strong, but it matters. People are sensitive to how their privacy is treated. Small changes might not flip opinions overnight, but they can add up over time.",
+      "shortText": "Relationship: Data collection → Support for surveillance",
+      "timestamp": 1758708144
+    },
+    "qa16": {
+      "question": "Is the effect of Feeling safe on Support for surveillance immediate, or does it take time to develop? Does it have a positive effect (increasing it) or a negative effect (decreasing it)? How strong is this effect?",
+      "answer": "I think the feeling of safety definitely affects support for surveillance, but it's not immediate. At first, people might be uneasy about cameras, but over time, if they start feeling safer, their support grows. I believe it has a positive effect—once people see the benefits, they're more likely to back surveillance. The effect isn't super strong, though. It depends on how much they value their privacy versus their safety. Still, I think the link is there.",
+      "shortText": "Relationship: Feeling safe → Support for surveillance",
+      "timestamp": 1758708185
+    },
+    "qa17": {
+      "question": "Would small changes in Balance between risks and benefits lead to noticeable changes in Support for surveillance, or would it take larger shifts? Does it have a positive effect (increasing it) or a negative effect (decreasing it)? How strong is this effect?",
+      "answer": "I think even small changes in the balance between risks and benefits could affect support for surveillance. If people start seeing more benefits, like better safety, that might increase support. But if they feel their liberties are being harmed, it could decrease support. From what I believe, cameras do support safety, but there's a negative side too. So the effect isn't super strong, but it matters. A little shift either way could make a difference, especially if people start noticing more pros or cons.",
+      "shortText": "Relationship: Balance between risks and benefits → Support for surveillance",
+      "timestamp": 1758708220
+    },
+    "qa18": {
+      "question": "How would you describe the relationship between Trust in technology when used properly and Support for surveillance? Is it a strong or weak connection? Does it have a positive effect (increasing it) or a negative effect (decreasing it)? How strong is this effect?",
+      "answer": "I think trust in technology when used properly definitely supports surveillance. If people believe the tech is reliable and used correctly, they’re more likely to back cameras. It’s a strong connection—positive, because it increases support. I mean, if you trust the system, you’re less worried about it being abused. But I still think there’s a balance. Technology is strong, but it needs to be used wisely. Overall, it's a solid, positive influence on supporting surveillance.",
+      "shortText": "Relationship: Trust in technology when used properly → Support for surveillance",
+      "timestamp": 1758708256
+    },
+    "qa19": {
+      "question": "Is the effect of Job creation in technology sectors on Support for surveillance immediate, or does it take time to develop? Does it have a positive effect (increasing it) or a negative effect (decreasing it)? How strong is this effect?",
+      "answer": "I think the effect of job creation in tech on support for surveillance isn't immediate. It takes time as people see the benefits over years. I believe it has a positive effect because stronger tech can improve safety, which supports cameras. But it's not super strong—people might still worry about privacy. Overall, it helps, but it's not the main factor. My main belief is that cameras support safety, even if there are some negatives.",
+      "shortText": "Relationship: Job creation in technology sectors → Support for surveillance",
+      "timestamp": 1758708294
+    },
+    "qa20": {
+      "question": "Is the effect of Positive effect of infrastructure on safety on Support for surveillance immediate, or does it take time to develop? Does it have a positive effect (increasing it) or a negative effect (decreasing it)? How strong is this effect?",
+      "answer": "I think the effect of infrastructure on safety and support for surveillance isn't immediate. It takes time for people to see the benefits. I believe it has a positive effect because better infrastructure can make communities feel safer, which in turn supports surveillance. But it's not super strong—people might not notice it right away. Still, over time, if they see that cameras and tech help keep things secure, they might lean more toward supporting surveillance. It's gradual, but real.",
+      "shortText": "Relationship: Positive effect of infrastructure on safety → Support for surveillance",
+      "timestamp": 1758708335
+    }
+  },
+  "stance_node_id": "n1",
+  "step": "node_discovery",
+  "anchor_queue": [
+    "n1",
+    "n2",
+    "n3",
+    "n4",
+    "n7",
+    "n10",
+    "n8",
+    "n22",
+    "n23",
+    "n24",
+    "n26",
+    "n34",
+    "n48",
+    "n52",
+    "n53",
+    "n54",
+    "n55",
+    "n72",
+    "n76",
+    "n79",
+    "n88",
+    "n83",
+    "n93",
+    "n87",
+    "n89"
+  ],
+  "node_counter": 116,
+  "edge_counter": 20,
+  "qa_counter": 20
+}

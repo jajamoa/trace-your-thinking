@@ -1,0 +1,128 @@
+{
+  "stance_node": "n1",
+  "nodes": {
+    "n4": {
+      "label": "Residents",
+      "is_stance": false
+    },
+    "n7": {
+      "label": "Consequence on zoning",
+      "is_stance": false
+    },
+    "n5": {
+      "label": "Neighborhood impact",
+      "is_stance": false
+    },
+    "n2": {
+      "label": "Negative development",
+      "is_stance": false
+    },
+    "n1": {
+      "label": "Support for density",
+      "is_stance": true
+    },
+    "n3": {
+      "label": "Traffic",
+      "is_stance": false
+    },
+    "n9": {
+      "label": "Residents effect",
+      "is_stance": false
+    },
+    "n8": {
+      "label": "Positive urban",
+      "is_stance": false
+    },
+    "n6": {
+      "label": "Upzoning",
+      "is_stance": false
+    }
+  },
+  "edges": [
+    {
+      "source": "n5",
+      "target": "n7",
+      "direction": "positive"
+    },
+    {
+      "source": "n9",
+      "target": "n7",
+      "direction": "positive"
+    },
+    {
+      "source": "n4",
+      "target": "n9",
+      "direction": "positive"
+    },
+    {
+      "source": "n4",
+      "target": "n2",
+      "direction": "positive"
+    },
+    {
+      "source": "n8",
+      "target": "n4",
+      "direction": "positive"
+    },
+    {
+      "source": "n4",
+      "target": "n5",
+      "direction": "positive"
+    },
+    {
+      "source": "n8",
+      "target": "n6",
+      "direction": "positive"
+    },
+    {
+      "source": "n1",
+      "target": "n4",
+      "direction": "positive"
+    },
+    {
+      "source": "n6",
+      "target": "n1",
+      "direction": "positive"
+    },
+    {
+      "source": "n2",
+      "target": "n7",
+      "direction": "positive"
+    },
+    {
+      "source": "n9",
+      "target": "n5",
+      "direction": "positive"
+    },
+    {
+      "source": "n1",
+      "target": "n5",
+      "direction": "positive"
+    },
+    {
+      "source": "n3",
+      "target": "n8",
+      "direction": "positive"
+    },
+    {
+      "source": "n3",
+      "target": "n5",
+      "direction": "positive"
+    },
+    {
+      "source": "n3",
+      "target": "n6",
+      "direction": "positive"
+    },
+    {
+      "source": "n6",
+      "target": "n5",
+      "direction": "positive"
+    },
+    {
+      "source": "n1",
+      "target": "n7",
+      "direction": "positive"
+    }
+  ]
+}
