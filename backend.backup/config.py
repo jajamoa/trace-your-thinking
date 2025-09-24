@@ -25,7 +25,7 @@ class Config:
         
         # LLM configuration
         self.DASHSCOPE_API_KEY = os.environ.get('DASHSCOPE_API_KEY')
-        self.LLM_MODEL = os.environ.get('LLM_MODEL', 'qwen-turbo')
+        self.LLM_MODEL = os.environ.get('LLM_MODEL', 'qwen-flash')
         self.LLM_TEMPERATURE = float(os.environ.get('LLM_TEMPERATURE', '0.01'))
         self.DEBUG_LLM_IO = os.environ.get('DEBUG_LLM_IO', 'false').lower() == 'true'
         

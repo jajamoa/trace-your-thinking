@@ -32,12 +32,8 @@ class SemanticSimilarityEngine:
         
         # Prepare NLTK resources if using WordNet
         if use_wordnet:
-            try:
-                nltk.data.find('corpora/wordnet')
-            except LookupError:
-                self.logger.info("Downloading WordNet...")
-                nltk.download('wordnet')
-                nltk.download('punkt')
+            from nltk_setup import ensure_nltk_data
+            ensure_nltk_data()
         
         # Load word vectors if available and requested
         if use_word_vectors and word_vectors_path and os.path.exists(word_vectors_path):

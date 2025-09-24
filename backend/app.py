@@ -16,16 +16,9 @@ import nltk  # Add NLTK import
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
-# Check and download NLTK data if needed
-try:
-    logger.info("Checking for required NLTK data...")
-    nltk.data.find('corpora/wordnet')
-    logger.info("WordNet data found")
-except LookupError:
-    logger.info("WordNet data not found. Downloading...")
-    nltk.download('wordnet')
-    nltk.download('punkt')
-    logger.info("NLTK data downloaded successfully")
+# Setup NLTK data
+from nltk_setup import ensure_nltk_data
+ensure_nltk_data()
 
 # Load environment variables from parent directory .env file or .env.local file
 parent_env_path = Path(__file__).parent.parent / '.env'
@@ -54,7 +47,7 @@ CORS(app)  # Allow cross-origin requests
 # Initialize the components
 extractor = QwenLLMExtractor(
     api_key=os.getenv('DASHSCOPE_API_KEY'),
-    model="qwen-turbo",
+    model="qwen-flash",
     temperature=0.01  # Set temperature to lowest possible value for maximum consistency
 )
 cbn_manager = CBNManager()
