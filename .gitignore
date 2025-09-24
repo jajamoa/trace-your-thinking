@@ -118,5 +118,5 @@ experiment/agent_data/ref_data/cbns/*/all-causal-graphs-*.json
 experiment/agent_data/ref_data/cbns/*/graph_*.json
 
 # Keep important CBN analysis files
-!experiment/agent_data/ref_data/cbns/*_statistics.json
-!experiment/agent_data/ref_data/cbns/*_edge_patterns.json
+!experiment/agent_data/ref_data/cbns/*/*_statistics.json
+!experiment/agent_data/ref_data/cbns/*/*_edge_patterns.json
