@@ -61,7 +61,7 @@ class CBNStatisticsAnalyzer:
         
         # Find JSON files in topic directory (exclude statistics files)
         all_json_files = list(topic_path.glob("*.json"))
-        json_files = [f for f in all_json_files if not f.name.endswith('_statistics.json')]
+        json_files = [f for f in all_json_files if not f.name.endswith(('_statistics.json', '_edge_patterns.json'))]
         
         if not json_files:
             print(f"Warning: No CBN data files found for topic '{topic}' in {topic_path}")
@@ -97,10 +97,15 @@ class CBNStatisticsAnalyzer:
         
         # Check if file list changed (exclude statistics files)
         all_current_files = list(topic_path.glob("*.json"))
-        current_files = [f for f in all_current_files if not f.name.endswith('_statistics.json')]
+        current_files = [f for f in all_current_files if not f.name.endswith(('_statistics.json', '_edge_patterns.json'))]
         existing_files = existing_stats.get('source_files', [])
         current_file_names = {f.name for f in current_files}
         existing_file_names = set(existing_files)
+        
+        # If only statistics files exist (no CBN data files), don't regenerate
+        if len(current_files) == 0:
+            print(f"No CBN data files found for {topic_path.name}, using existing statistics.")
+            return False
         
         if current_file_names != existing_file_names:
             print(f"File list changed for {topic_path.name}. Regenerating statistics.")
