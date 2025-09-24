@@ -14,13 +14,16 @@ print("Setting up NLTK data...")
 try:
     from backend.nltk_setup import ensure_nltk_data, check_nltk_data
     
-    # Check if data already exists
+    # Force NLTK setup to ensure it's done before parallel processing
+    print("Ensuring NLTK data is available for all worker processes...")
+    ensure_nltk_data()
+    
+    # Verify setup was successful
     if check_nltk_data():
-        print("NLTK data already present.")
+        print("NLTK data setup complete and verified.")
     else:
-        print("Downloading NLTK data...")
-        ensure_nltk_data()
-        print("NLTK data setup complete.")
+        print("Warning: NLTK data verification failed.")
+        sys.exit(1)
         
 except Exception as e:
     print(f"Error setting up NLTK data: {e}")
