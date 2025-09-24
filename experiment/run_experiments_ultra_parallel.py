@@ -101,7 +101,13 @@ def process_agent_survey_parallel(agent, topic, agent_data_path):
                         elif "choice" in result:
                             opinions[q_id] = result["choice"]
                         elif "response" in result:
-                            opinions[q_id] = result["response"]
+                            # If response is text, try to extract score using keyword analysis
+                            if isinstance(result["response"], str):
+                                scale = q.get("scale", [1, 10])
+                                extracted_score = agent._extract_score_from_text(result["response"], scale)
+                                opinions[q_id] = extracted_score
+                            else:
+                                opinions[q_id] = result["response"]
                     except Exception as e:
                         print(f"Survey question {q_id} failed: {e}")
                         # Fallback to template response
@@ -196,7 +202,9 @@ def _generate_reasons_for_opinions(opinions, survey_questions, reverse_mapping, 
         # Process follow-up reason questions
         if q.get("has_reason_followup") and "followup" in q and q_id in opinions:
             followup = q["followup"]
-            reasons[followup["id"]] = {}
+            # Use the main question ID (remove 'r' suffix) for reasons
+            main_q_id = q_id
+            reasons[main_q_id] = {}
             
             for reason_code in followup.get("reasons", []):
                 # Get actual reason text
@@ -222,7 +230,9 @@ def _generate_reasons_for_opinions(opinions, survey_questions, reverse_mapping, 
                     else:
                         reason_score = 3
                 
-                reasons[followup["id"]][reason_code] = reason_score
+                # Use the main question ID (remove 'r' suffix) for reasons
+                main_q_id = q_id
+                reasons[main_q_id][reason_code] = reason_score
 
 
 def process_single_agent_topic_ultra(args):

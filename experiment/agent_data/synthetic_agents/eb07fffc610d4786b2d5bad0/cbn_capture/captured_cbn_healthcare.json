@@ -1,0 +1,1684 @@
+{
+  "agent_id": "experiment_agent",
+  "timestamp": 1758719769083,
+  "nodes": {
+    "n1": {
+      "label": "Support for healthcare",
+      "aggregate_confidence": 0.8500000000000002,
+      "evidence": [
+        {
+          "qa_id": "system",
+          "confidence": 1.0,
+          "importance": 1.0
+        },
+        {
+          "qa_id": "qa1",
+          "confidence": 0.9,
+          "importance": 0.9
+        },
+        {
+          "qa_id": "qa2",
+          "confidence": 0.7,
+          "importance": 0.8
+        },
+        {
+          "qa_id": "qa3",
+          "confidence": 0.9,
+          "importance": 0.95
+        },
+        {
+          "qa_id": "qa4",
+          "confidence": 0.85,
+          "importance": 0.85
+        },
+        {
+          "qa_id": "qa5",
+          "confidence": 0.9,
+          "importance": 0.95
+        },
+        {
+          "qa_id": "qa7",
+          "confidence": 0.85,
+          "importance": 0.9
+        },
+        {
+          "qa_id": "qa8",
+          "confidence": 0.7,
+          "importance": 0.8
+        },
+        {
+          "qa_id": "qa9",
+          "confidence": 0.85,
+          "importance": 0.9
+        },
+        {
+          "qa_id": "qa10",
+          "confidence": 0.9,
+          "importance": 0.9
+        },
+        {
+          "qa_id": "qa11",
+          "confidence": 0.85,
+          "importance": 0.9
+        },
+        {
+          "qa_id": "qa12",
+          "confidence": 0.8,
+          "importance": 0.85
+        },
+        {
+          "qa_id": "qa13",
+          "confidence": 0.9,
+          "importance": 0.85
+        },
+        {
+          "qa_id": "qa14",
+          "confidence": 0.8,
+          "importance": 0.85
+        },
+        {
+          "qa_id": "qa15",
+          "confidence": 0.8,
+          "importance": 0.8
+        },
+        {
+          "qa_id": "qa16",
+          "confidence": 0.8,
+          "importance": 0.8
+        },
+        {
+          "qa_id": "qa17",
+          "confidence": 0.85,
+          "importance": 0.9
+        },
+        {
+          "qa_id": "qa18",
+          "confidence": 0.9,
+          "importance": 0.9
+        },
+        {
+          "qa_id": "qa19",
+          "confidence": 0.9,
+          "importance": 0.9
+        },
+        {
+          "qa_id": "qa20",
+          "confidence": 0.85,
+          "importance": 0.9
+        }
+      ],
+      "importance": 0.8836764705882353,
+      "incoming_edges": [
+        "e9",
+        "e10",
+        "e11",
+        "e12",
+        "e14",
+        "e15",
+        "e17",
+        "e20"
+      ],
+      "outgoing_edges": [
+        "e2",
+        "e4",
+        "e5",
+        "e8"
+      ],
+      "status": "anchor",
+      "frequency": 37,
+      "is_stance": true
+    },
+    "n2": {
+      "label": "Private healthcare",
+      "aggregate_confidence": 0.9000000000000001,
+      "importance": 0.9150793650793652,
+      "evidence": [
+        {
+          "qa_id": "qa1",
+          "confidence": 0.9,
+          "importance": 0.95
+        },
+        {
+          "qa_id": "qa2",
+          "confidence": 0.9,
+          "importance": 0.9
+        },
+        {
+          "qa_id": "qa3",
+          "confidence": 0.85,
+          "importance": 0.9
+        },
+        {
+          "qa_id": "qa4",
+          "confidence": 0.95,
+          "importance": 0.95
+        },
+        {
+          "qa_id": "qa5",
+          "confidence": 0.9,
+          "importance": 0.9
+        },
+        {
+          "qa_id": "qa6",
+          "confidence": 0.9,
+          "importance": 0.9
+        },
+        {
+          "qa_id": "qa7",
+          "confidence": 0.9,
+          "importance": 0.95
+        },
+        {
+          "qa_id": "qa8",
+          "confidence": 0.95,
+          "importance": 0.9
+        },
+        {
+          "qa_id": "qa10",
+          "confidence": 0.9,
+          "importance": 0.9
+        },
+        {
+          "qa_id": "qa11",
+          "confidence": 0.8,
+          "importance": 0.85
+        },
+        {
+          "qa_id": "qa13",
+          "confidence": 0.95,
+          "importance": 0.95
+        },
+        {
+          "qa_id": "qa15",
+          "confidence": 0.9,
+          "importance": 0.9
+        },
+        {
+          "qa_id": "qa16",
+          "confidence": 0.9,
+          "importance": 0.9
+        },
+        {
+          "qa_id": "qa17",
+          "confidence": 0.9,
+          "importance": 0.95
+        },
+        {
+          "qa_id": "qa18",
+          "confidence": 0.7,
+          "importance": 0.7
+        },
+        {
+          "qa_id": "qa19",
+          "confidence": 0.7,
+          "importance": 0.7
+        },
+        {
+          "qa_id": "qa20",
+          "confidence": 0.9,
+          "importance": 0.9
+        }
+      ],
+      "incoming_edges": [
+        "e6"
+      ],
+      "outgoing_edges": [
+        "e1"
+      ],
+      "status": "anchor",
+      "frequency": 18,
+      "is_stance": false
+    },
+    "n3": {
+      "label": "Quality of care",
+      "aggregate_confidence": 0.8785714285714288,
+      "importance": 0.9056910569105691,
+      "evidence": [
+        {
+          "qa_id": "qa1",
+          "confidence": 0.85,
+          "importance": 0.9
+        },
+        {
+          "qa_id": "qa2",
+          "confidence": 0.9,
+          "importance": 0.95
+        },
+        {
+          "qa_id": "qa3",
+          "confidence": 0.9,
+          "importance": 0.9
+        },
+        {
+          "qa_id": "qa5",
+          "confidence": 0.85,
+          "importance": 0.9
+        },
+        {
+          "qa_id": "qa7",
+          "confidence": 0.9,
+          "importance": 0.95
+        },
+        {
+          "qa_id": "qa8",
+          "confidence": 0.8,
+          "importance": 0.9
+        },
+        {
+          "qa_id": "qa9",
+          "confidence": 0.9,
+          "importance": 0.95
+        },
+        {
+          "qa_id": "qa12",
+          "confidence": 0.9,
+          "importance": 0.9
+        },
+        {
+          "qa_id": "qa13",
+          "confidence": 0.9,
+          "importance": 0.9
+        },
+        {
+          "qa_id": "qa14",
+          "confidence": 0.95,
+          "importance": 0.95
+        },
+        {
+          "qa_id": "qa15",
+          "confidence": 0.95,
+          "importance": 0.95
+        },
+        {
+          "qa_id": "qa16",
+          "confidence": 0.8,
+          "importance": 0.8
+        },
+        {
+          "qa_id": "qa17",
+          "confidence": 0.9,
+          "importance": 0.9
+        },
+        {
+          "qa_id": "qa18",
+          "confidence": 0.8,
+          "importance": 0.8
+        },
+        {
+          "qa_id": "qa19",
+          "confidence": 0.9,
+          "importance": 0.9
+        },
+        {
+          "qa_id": "qa20",
+          "confidence": 0.85,
+          "importance": 0.8
+        }
+      ],
+      "incoming_edges": [
+        "e1",
+        "e2"
+      ],
+      "outgoing_edges": [
+        "e9"
+      ],
+      "status": "anchor",
+      "frequency": 23,
+      "is_stance": false
+    },
+    "n7": {
+      "label": "Tax dollars",
+      "aggregate_confidence": 0.75,
+      "importance": 0.7,
+      "evidence": [
+        {
+          "qa_id": "qa1",
+          "confidence": 0.75,
+          "importance": 0.7
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "candidate",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n12": {
+      "label": "Personalized care",
+      "aggregate_confidence": 0.825,
+      "importance": 0.8515151515151517,
+      "evidence": [
+        {
+          "qa_id": "qa2",
+          "confidence": 0.85,
+          "importance": 0.9
+        },
+        {
+          "qa_id": "qa4",
+          "confidence": 0.8,
+          "importance": 0.8
+        },
+        {
+          "qa_id": "qa6",
+          "confidence": 0.85,
+          "importance": 0.85
+        },
+        {
+          "qa_id": "qa11",
+          "confidence": 0.9,
+          "importance": 0.95
+        },
+        {
+          "qa_id": "qa15",
+          "confidence": 0.9,
+          "importance": 0.9
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [
+        "e11"
+      ],
+      "status": "anchor",
+      "frequency": 5,
+      "is_stance": false
+    },
+    "n14": {
+      "label": "Access speed in emergencies",
+      "aggregate_confidence": 0.75,
+      "importance": 0.8,
+      "evidence": [
+        {
+          "qa_id": "qa2",
+          "confidence": 0.75,
+          "importance": 0.8
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "candidate",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n19": {
+      "label": "Waiting times",
+      "aggregate_confidence": 0.8833333333333334,
+      "importance": 0.8726415094339621,
+      "evidence": [
+        {
+          "qa_id": "qa3",
+          "confidence": 0.9,
+          "importance": 0.9
+        },
+        {
+          "qa_id": "qa1",
+          "confidence": 0.8,
+          "importance": 0.75
+        },
+        {
+          "qa_id": "qa10",
+          "confidence": 0.95,
+          "importance": 0.95
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [
+        "e10"
+      ],
+      "status": "anchor",
+      "frequency": 4,
+      "is_stance": false
+    },
+    "n22": {
+      "label": "Medical innovation",
+      "aggregate_confidence": 0.8166666666666668,
+      "importance": 0.773469387755102,
+      "evidence": [
+        {
+          "qa_id": "qa4",
+          "confidence": 0.9,
+          "importance": 0.9
+        },
+        {
+          "qa_id": "qa12",
+          "confidence": 0.85,
+          "importance": 0.7
+        },
+        {
+          "qa_id": "qa14",
+          "confidence": 0.7,
+          "importance": 0.7
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [
+        "e12"
+      ],
+      "status": "anchor",
+      "frequency": 4,
+      "is_stance": false
+    },
+    "n24": {
+      "label": "Incentives for research and development",
+      "aggregate_confidence": 0.8,
+      "importance": 0.85,
+      "evidence": [
+        {
+          "qa_id": "qa4",
+          "confidence": 0.8,
+          "importance": 0.85
+        },
+        {
+          "qa_id": "qa13",
+          "confidence": 0.95,
+          "importance": 0.9
+        }
+      ],
+      "incoming_edges": [
+        "e4"
+      ],
+      "outgoing_edges": [
+        "e13"
+      ],
+      "status": "anchor",
+      "frequency": 2,
+      "is_stance": false
+    },
+    "n25": {
+      "label": "Cost-saving over breakthroughs",
+      "aggregate_confidence": 0.8,
+      "importance": 0.8,
+      "evidence": [
+        {
+          "qa_id": "qa4",
+          "confidence": 0.8,
+          "importance": 0.8
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "candidate",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n29": {
+      "label": "Economic burden on individuals and families",
+      "aggregate_confidence": 0.95,
+      "importance": 0.95,
+      "evidence": [
+        {
+          "qa_id": "qa5",
+          "confidence": 0.95,
+          "importance": 0.95
+        },
+        {
+          "qa_id": "qa14",
+          "confidence": 0.9,
+          "importance": 0.95
+        }
+      ],
+      "incoming_edges": [
+        "e5"
+      ],
+      "outgoing_edges": [
+        "e14"
+      ],
+      "status": "anchor",
+      "frequency": 2,
+      "is_stance": false
+    },
+    "n30": {
+      "label": "Wait times in public systems",
+      "aggregate_confidence": 0.8,
+      "importance": 0.8250000000000002,
+      "evidence": [
+        {
+          "qa_id": "qa5",
+          "confidence": 0.8,
+          "importance": 0.85
+        },
+        {
+          "qa_id": "qa1",
+          "confidence": 0.8,
+          "importance": 0.8
+        },
+        {
+          "qa_id": "qa15",
+          "confidence": 0.9,
+          "importance": 0.7
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [
+        "e15"
+      ],
+      "status": "anchor",
+      "frequency": 3,
+      "is_stance": false
+    },
+    "n31": {
+      "label": "Resource limitations in public healthcare",
+      "aggregate_confidence": 0.7833333333333332,
+      "importance": 0.7872340425531916,
+      "evidence": [
+        {
+          "qa_id": "qa5",
+          "confidence": 0.8,
+          "importance": 0.85
+        },
+        {
+          "qa_id": "qa6",
+          "confidence": 0.85,
+          "importance": 0.8
+        },
+        {
+          "qa_id": "qa16",
+          "confidence": 0.7,
+          "importance": 0.7
+        },
+        {
+          "qa_id": "qa17",
+          "confidence": 0.9,
+          "importance": 0.95
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "anchor",
+      "frequency": 4,
+      "is_stance": false
+    },
+    "n32": {
+      "label": "Tax increases to fund universal healthcare",
+      "aggregate_confidence": 0.9,
+      "importance": 0.9,
+      "evidence": [
+        {
+          "qa_id": "qa5",
+          "confidence": 0.9,
+          "importance": 0.9
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "anchor",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n33": {
+      "label": "Financial stability",
+      "aggregate_confidence": 0.85,
+      "importance": 0.9,
+      "evidence": [
+        {
+          "qa_id": "qa5",
+          "confidence": 0.85,
+          "importance": 0.9
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "candidate",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n35": {
+      "label": "Limited government role in healthcare",
+      "aggregate_confidence": 0.8333333333333334,
+      "importance": 0.843,
+      "evidence": [
+        {
+          "qa_id": "qa6",
+          "confidence": 0.95,
+          "importance": 0.95
+        },
+        {
+          "qa_id": "qa7",
+          "confidence": 0.75,
+          "importance": 0.7
+        },
+        {
+          "qa_id": "qa9",
+          "confidence": 0.8,
+          "importance": 0.85
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [
+        "e6"
+      ],
+      "status": "anchor",
+      "frequency": 3,
+      "is_stance": false
+    },
+    "n38": {
+      "label": "Flexibility of private coverage",
+      "aggregate_confidence": 0.8,
+      "importance": 0.8,
+      "evidence": [
+        {
+          "qa_id": "qa6",
+          "confidence": 0.8,
+          "importance": 0.8
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "candidate",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n40": {
+      "label": "Government responsibility for basic standards",
+      "aggregate_confidence": 0.8,
+      "importance": 0.75,
+      "evidence": [
+        {
+          "qa_id": "qa6",
+          "confidence": 0.8,
+          "importance": 0.75
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "candidate",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n42": {
+      "label": "Patient-doctor relationship",
+      "aggregate_confidence": 0.8583333333333334,
+      "importance": 0.8781553398058252,
+      "evidence": [
+        {
+          "qa_id": "qa7",
+          "confidence": 0.8,
+          "importance": 0.85
+        },
+        {
+          "qa_id": "qa1",
+          "confidence": 0.8,
+          "importance": 0.85
+        },
+        {
+          "qa_id": "qa11",
+          "confidence": 0.8,
+          "importance": 0.8
+        },
+        {
+          "qa_id": "qa15",
+          "confidence": 0.9,
+          "importance": 0.9
+        },
+        {
+          "qa_id": "qa18",
+          "confidence": 0.95,
+          "importance": 0.95
+        },
+        {
+          "qa_id": "qa19",
+          "confidence": 0.9,
+          "importance": 0.9
+        }
+      ],
+      "incoming_edges": [
+        "e19"
+      ],
+      "outgoing_edges": [
+        "e18"
+      ],
+      "status": "anchor",
+      "frequency": 6,
+      "is_stance": false
+    },
+    "n48": {
+      "label": "Increased taxes",
+      "aggregate_confidence": 0.9,
+      "importance": 0.85,
+      "evidence": [
+        {
+          "qa_id": "qa8",
+          "confidence": 0.9,
+          "importance": 0.85
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "candidate",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n51": {
+      "label": "Doctor autonomy",
+      "aggregate_confidence": 0.775,
+      "importance": 0.8000000000000002,
+      "evidence": [
+        {
+          "qa_id": "qa8",
+          "confidence": 0.8,
+          "importance": 0.8
+        },
+        {
+          "qa_id": "qa4",
+          "confidence": 0.75,
+          "importance": 0.8
+        },
+        {
+          "qa_id": "qa19",
+          "confidence": 0.95,
+          "importance": 0.95
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [
+        "e19"
+      ],
+      "status": "anchor",
+      "frequency": 3,
+      "is_stance": false
+    },
+    "n52": {
+      "label": "Long-term cost savings from early treatment",
+      "aggregate_confidence": 0.6,
+      "importance": 0.7,
+      "evidence": [
+        {
+          "qa_id": "qa8",
+          "confidence": 0.6,
+          "importance": 0.7
+        },
+        {
+          "qa_id": "qa20",
+          "confidence": 0.9,
+          "importance": 0.95
+        }
+      ],
+      "incoming_edges": [
+        "e8"
+      ],
+      "outgoing_edges": [
+        "e20"
+      ],
+      "status": "anchor",
+      "frequency": 2,
+      "is_stance": false
+    },
+    "n55": {
+      "label": "Patient experience",
+      "aggregate_confidence": 0.825,
+      "importance": 0.8000000000000003,
+      "evidence": [
+        {
+          "qa_id": "qa9",
+          "confidence": 0.85,
+          "importance": 0.8
+        },
+        {
+          "qa_id": "qa10",
+          "confidence": 0.8,
+          "importance": 0.8
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "anchor",
+      "frequency": 2,
+      "is_stance": false
+    },
+    "n57": {
+      "label": "Health outcomes",
+      "aggregate_confidence": 0.8,
+      "importance": 0.8,
+      "evidence": [
+        {
+          "qa_id": "qa9",
+          "confidence": 0.8,
+          "importance": 0.8
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "candidate",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n58": {
+      "label": "Recommendation behavior",
+      "aggregate_confidence": 0.7,
+      "importance": 0.75,
+      "evidence": [
+        {
+          "qa_id": "qa9",
+          "confidence": 0.7,
+          "importance": 0.75
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "candidate",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n60": {
+      "label": "Faster access to care",
+      "aggregate_confidence": 0.825,
+      "importance": 0.8757575757575758,
+      "evidence": [
+        {
+          "qa_id": "qa10",
+          "confidence": 0.85,
+          "importance": 0.9
+        },
+        {
+          "qa_id": "qa20",
+          "confidence": 0.8,
+          "importance": 0.85
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "anchor",
+      "frequency": 2,
+      "is_stance": false
+    },
+    "n63": {
+      "label": "Urgent medical needs",
+      "aggregate_confidence": 0.85,
+      "importance": 0.85,
+      "evidence": [
+        {
+          "qa_id": "qa10",
+          "confidence": 0.85,
+          "importance": 0.85
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "candidate",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n65": {
+      "label": "Perceived quality of coverage",
+      "aggregate_confidence": 0.85,
+      "importance": 0.9,
+      "evidence": [
+        {
+          "qa_id": "qa11",
+          "confidence": 0.85,
+          "importance": 0.9
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "candidate",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n66": {
+      "label": "Patient confidence in the system",
+      "aggregate_confidence": 0.8166666666666668,
+      "importance": 0.8530612244897959,
+      "evidence": [
+        {
+          "qa_id": "qa11",
+          "confidence": 0.8,
+          "importance": 0.85
+        },
+        {
+          "qa_id": "qa3",
+          "confidence": 0.75,
+          "importance": 0.8
+        },
+        {
+          "qa_id": "qa18",
+          "confidence": 0.9,
+          "importance": 0.9
+        }
+      ],
+      "incoming_edges": [
+        "e18"
+      ],
+      "outgoing_edges": [],
+      "status": "anchor",
+      "frequency": 3,
+      "is_stance": false
+    },
+    "n67": {
+      "label": "Moderate positive effect",
+      "aggregate_confidence": 0.75,
+      "importance": 0.7,
+      "evidence": [
+        {
+          "qa_id": "qa11",
+          "confidence": 0.75,
+          "importance": 0.7
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "candidate",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n69": {
+      "label": "Major breakthroughs in medical innovation",
+      "aggregate_confidence": 0.9,
+      "importance": 0.9175925925925925,
+      "evidence": [
+        {
+          "qa_id": "qa12",
+          "confidence": 0.95,
+          "importance": 0.95
+        },
+        {
+          "qa_id": "qa13",
+          "confidence": 0.9,
+          "importance": 0.9
+        },
+        {
+          "qa_id": "qa17",
+          "confidence": 0.85,
+          "importance": 0.9
+        }
+      ],
+      "incoming_edges": [
+        "e13"
+      ],
+      "outgoing_edges": [],
+      "status": "anchor",
+      "frequency": 3,
+      "is_stance": false
+    },
+    "n70": {
+      "label": "Widespread adoption of new medical technology",
+      "aggregate_confidence": 0.9,
+      "importance": 0.9,
+      "evidence": [
+        {
+          "qa_id": "qa12",
+          "confidence": 0.9,
+          "importance": 0.9
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "anchor",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n78": {
+      "label": "Medical breakthroughs",
+      "aggregate_confidence": 0.85,
+      "importance": 0.85,
+      "evidence": [
+        {
+          "qa_id": "qa13",
+          "confidence": 0.85,
+          "importance": 0.85
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "candidate",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n82": {
+      "label": "Resilience of private healthcare system",
+      "aggregate_confidence": 0.85,
+      "importance": 0.8,
+      "evidence": [
+        {
+          "qa_id": "qa14",
+          "confidence": 0.85,
+          "importance": 0.8
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "candidate",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n84": {
+      "label": "Coverage and cost",
+      "aggregate_confidence": 0.85,
+      "importance": 0.85,
+      "evidence": [
+        {
+          "qa_id": "qa15",
+          "confidence": 0.85,
+          "importance": 0.85
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "candidate",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n86": {
+      "label": "Impersonal nature of public systems",
+      "aggregate_confidence": 0.8,
+      "importance": 0.75,
+      "evidence": [
+        {
+          "qa_id": "qa15",
+          "confidence": 0.8,
+          "importance": 0.75
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "candidate",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n90": {
+      "label": "Perceived misuse of tax money",
+      "aggregate_confidence": 0.8,
+      "importance": 0.8,
+      "evidence": [
+        {
+          "qa_id": "qa16",
+          "confidence": 0.8,
+          "importance": 0.8
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "candidate",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n91": {
+      "label": "Negative long-term effect on support",
+      "aggregate_confidence": 0.8,
+      "importance": 0.9,
+      "evidence": [
+        {
+          "qa_id": "qa16",
+          "confidence": 0.8,
+          "importance": 0.9
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "candidate",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n93": {
+      "label": "Small changes in resources",
+      "aggregate_confidence": 0.8,
+      "importance": 0.8,
+      "evidence": [
+        {
+          "qa_id": "qa17",
+          "confidence": 0.8,
+          "importance": 0.8
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [
+        "e17"
+      ],
+      "status": "anchor",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n99": {
+      "label": "Following medical advice",
+      "aggregate_confidence": 0.85,
+      "importance": 0.8,
+      "evidence": [
+        {
+          "qa_id": "qa18",
+          "confidence": 0.85,
+          "importance": 0.8
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "candidate",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n101": {
+      "label": "Feeling heard and cared for",
+      "aggregate_confidence": 0.85,
+      "importance": 0.85,
+      "evidence": [
+        {
+          "qa_id": "qa18",
+          "confidence": 0.85,
+          "importance": 0.85
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "candidate",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n103": {
+      "label": "Public healthcare",
+      "aggregate_confidence": 0.7,
+      "importance": 0.7,
+      "evidence": [
+        {
+          "qa_id": "qa18",
+          "confidence": 0.7,
+          "importance": 0.7
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "candidate",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n106": {
+      "label": "Patient satisfaction",
+      "aggregate_confidence": 0.85,
+      "importance": 0.85,
+      "evidence": [
+        {
+          "qa_id": "qa19",
+          "confidence": 0.85,
+          "importance": 0.85
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "candidate",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n108": {
+      "label": "Frustration among doctors",
+      "aggregate_confidence": 0.8,
+      "importance": 0.75,
+      "evidence": [
+        {
+          "qa_id": "qa19",
+          "confidence": 0.8,
+          "importance": 0.75
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "candidate",
+      "frequency": 1,
+      "is_stance": false
+    }
+  },
+  "edges": {
+    "e1": {
+      "source": "n2",
+      "target": "n3",
+      "aggregate_confidence": 0.85,
+      "evidence": [
+        {
+          "qa_id": "qa1",
+          "confidence": 0.85,
+          "original_modifier": 0.9
+        }
+      ],
+      "modifier": 0.765,
+      "source_label": "Private healthcare",
+      "target_label": "Quality of care",
+      "explanation": "The speaker believes private healthcare delivers better quality and more personalized care, suggesting that private systems inherently lead to higher quality outcomes compared to government-funded alternatives.",
+      "direction": "positive",
+      "strength": 0.9
+    },
+    "e2": {
+      "source": "n1",
+      "target": "n3",
+      "aggregate_confidence": 0.8000000000000002,
+      "evidence": [
+        {
+          "qa_id": "qa2",
+          "confidence": 0.8,
+          "original_modifier": -0.6
+        },
+        {
+          "qa_id": "qa3",
+          "confidence": 0.8,
+          "original_modifier": -0.7
+        },
+        {
+          "qa_id": "qa7",
+          "confidence": 0.8,
+          "original_modifier": -0.7
+        }
+      ],
+      "modifier": -0.6666666666666666,
+      "source_label": "Universal healthcare",
+      "target_label": "Quality of care",
+      "explanation": "The answer expresses concern that public systems may prioritize numbers over individual patients, potentially reducing the quality of care due to systemic focus on efficiency rather than individualized attention.",
+      "direction": "negative",
+      "strength": 0.6666666666666666
+    },
+    "e4": {
+      "source": "n1",
+      "target": "n24",
+      "aggregate_confidence": 0.8,
+      "evidence": [
+        {
+          "qa_id": "qa4",
+          "confidence": 0.8,
+          "original_modifier": -0.7
+        }
+      ],
+      "modifier": -0.5599999999999999,
+      "source_label": "Government-funded healthcare",
+      "target_label": "Incentives for research and development",
+      "explanation": "The answer suggests that when healthcare is fully government-funded, private hospitals and doctors have less incentive to invest in new treatments, reducing motivation for innovation and R&D.",
+      "direction": "negative",
+      "strength": 0.7
+    },
+    "e5": {
+      "source": "n1",
+      "target": "n29",
+      "aggregate_confidence": 0.8,
+      "evidence": [
+        {
+          "qa_id": "qa5",
+          "confidence": 0.8,
+          "original_modifier": 0.7
+        }
+      ],
+      "modifier": 0.5599999999999999,
+      "source_label": "Universal healthcare",
+      "target_label": "Economic burden on individuals and families",
+      "explanation": "The answer suggests that universal healthcare may increase the economic burden on individuals and families due to potential tax increases needed to fund the system, which could reduce their ability to afford other necessities.",
+      "direction": "positive",
+      "strength": 0.7
+    },
+    "e6": {
+      "source": "n35",
+      "target": "n2",
+      "aggregate_confidence": 0.85,
+      "evidence": [
+        {
+          "qa_id": "qa6",
+          "confidence": 0.85,
+          "original_modifier": 0.9
+        }
+      ],
+      "modifier": 0.765,
+      "source_label": "Limited government role in healthcare",
+      "target_label": "Private healthcare quality",
+      "explanation": "The belief that the government should have a limited role in healthcare is directly tied to the perception that private healthcare delivers better quality, as it allows for more competition and innovation, which enhances service quality.",
+      "direction": "positive",
+      "strength": 0.9
+    },
+    "e8": {
+      "source": "n1",
+      "target": "n52",
+      "aggregate_confidence": 0.8,
+      "evidence": [
+        {
+          "qa_id": "qa8",
+          "confidence": 0.8,
+          "original_modifier": 0.7
+        }
+      ],
+      "modifier": 0.5599999999999999,
+      "source_label": "Universal healthcare system",
+      "target_label": "Long-term cost savings from early treatment",
+      "explanation": "A universal healthcare system ensures broader access to medical care, enabling earlier diagnosis and treatment of conditions, which can prevent more expensive complications later, leading to long-term cost savings.",
+      "direction": "positive",
+      "strength": 0.7
+    },
+    "e9": {
+      "source": "n3",
+      "target": "n1",
+      "aggregate_confidence": 0.85,
+      "evidence": [
+        {
+          "qa_id": "qa9",
+          "confidence": 0.85,
+          "original_modifier": 0.9
+        }
+      ],
+      "modifier": 0.765,
+      "source_label": "Quality of care",
+      "target_label": "Support for healthcare",
+      "explanation": "Better quality of care leads to higher patient satisfaction and trust, increasing their support for healthcare systems, particularly private ones, as patients are more likely to remain engaged or recommend services.",
+      "direction": "positive",
+      "strength": 0.9
+    },
+    "e10": {
+      "source": "n19",
+      "target": "n1",
+      "aggregate_confidence": 0.85,
+      "evidence": [
+        {
+          "qa_id": "qa10",
+          "confidence": 0.85,
+          "original_modifier": -0.8
+        }
+      ],
+      "modifier": -0.68,
+      "source_label": "Waiting times",
+      "target_label": "Support for healthcare",
+      "explanation": "Long waiting times frustrate patients and reduce confidence in the healthcare system, leading to decreased support for public healthcare systems, which are often associated with delays.",
+      "direction": "negative",
+      "strength": 0.8
+    },
+    "e11": {
+      "source": "n12",
+      "target": "n1",
+      "aggregate_confidence": 0.8,
+      "evidence": [
+        {
+          "qa_id": "qa11",
+          "confidence": 0.8,
+          "original_modifier": 0.5
+        }
+      ],
+      "modifier": 0.4,
+      "source_label": "Personalized care",
+      "target_label": "Support for healthcare",
+      "explanation": "Personalized care increases patient confidence in the system and improves perceived quality of coverage, which strengthens support for healthcare, particularly private options.",
+      "direction": "positive",
+      "strength": 0.5
+    },
+    "e12": {
+      "source": "n22",
+      "target": "n1",
+      "aggregate_confidence": 0.8,
+      "evidence": [
+        {
+          "qa_id": "qa12",
+          "confidence": 0.8,
+          "original_modifier": 0.6
+        }
+      ],
+      "modifier": 0.48,
+      "source_label": "Small changes in medical innovation",
+      "target_label": "Support for healthcare system",
+      "explanation": "Small changes in medical innovation improve treatments and patient options, which enhances confidence in the healthcare system, particularly in private healthcare, thereby increasing support.",
+      "direction": "positive",
+      "strength": 0.6
+    },
+    "e13": {
+      "source": "n24",
+      "target": "n69",
+      "aggregate_confidence": 0.85,
+      "evidence": [
+        {
+          "qa_id": "qa13",
+          "confidence": 0.85,
+          "original_modifier": 0.9
+        }
+      ],
+      "modifier": 0.765,
+      "source_label": "Incentives for research and development",
+      "target_label": "Innovation in medicine",
+      "explanation": "Incentives for R&D directly encourage investment in scientific exploration and technological advancement, leading to increased innovation in medicine.",
+      "direction": "positive",
+      "strength": 0.9
+    },
+    "e14": {
+      "source": "n29",
+      "target": "n1",
+      "aggregate_confidence": 0.8,
+      "evidence": [
+        {
+          "qa_id": "qa14",
+          "confidence": 0.8,
+          "original_modifier": 0.6
+        }
+      ],
+      "modifier": 0.48,
+      "source_label": "Economic burden on individuals and families",
+      "target_label": "Support for public healthcare",
+      "explanation": "When economic burden increases, individuals may be more likely to support public healthcare options due to affordability concerns, leading to higher support for public systems.",
+      "direction": "positive",
+      "strength": 0.6
+    },
+    "e15": {
+      "source": "n30",
+      "target": "n1",
+      "aggregate_confidence": 0.6,
+      "evidence": [
+        {
+          "qa_id": "qa15",
+          "confidence": 0.6,
+          "original_modifier": 0.4
+        }
+      ],
+      "modifier": 0.24,
+      "source_label": "Wait times in public systems",
+      "target_label": "Support for healthcare",
+      "explanation": "Small improvements in wait times can reduce patient frustration, leading to slightly increased support for public healthcare, though the effect is limited by other systemic issues.",
+      "direction": "positive",
+      "strength": 0.4
+    },
+    "e17": {
+      "source": "n93",
+      "target": "n1",
+      "aggregate_confidence": 0.8,
+      "evidence": [
+        {
+          "qa_id": "qa17",
+          "confidence": 0.8,
+          "original_modifier": 0.4
+        }
+      ],
+      "modifier": 0.32000000000000006,
+      "source_label": "Small changes in resources",
+      "target_label": "Support for public healthcare",
+      "explanation": "Small improvements in resources can boost confidence in the public healthcare system, leading to increased support, though the effect is limited without larger reforms.",
+      "direction": "positive",
+      "strength": 0.4
+    },
+    "e18": {
+      "source": "n42",
+      "target": "n66",
+      "aggregate_confidence": 0.85,
+      "evidence": [
+        {
+          "qa_id": "qa18",
+          "confidence": 0.85,
+          "original_modifier": 0.9
+        }
+      ],
+      "modifier": 0.765,
+      "source_label": "Patient-doctor relationship",
+      "target_label": "Trust in doctors",
+      "explanation": "A strong patient-doctor relationship fosters trust, as patients feel more confident in their doctor's expertise and intentions when they have a positive, respectful interaction.",
+      "direction": "positive",
+      "strength": 0.9
+    },
+    "e19": {
+      "source": "n51",
+      "target": "n42",
+      "aggregate_confidence": 0.8,
+      "evidence": [
+        {
+          "qa_id": "qa19",
+          "confidence": 0.8,
+          "original_modifier": 0.6
+        }
+      ],
+      "modifier": 0.48,
+      "source_label": "Doctor autonomy",
+      "target_label": "Patient trust",
+      "explanation": "When doctors have more autonomy, they can make decisions aligned with patient needs, leading to greater confidence in care and thus increased patient trust.",
+      "direction": "positive",
+      "strength": 0.6
+    },
+    "e20": {
+      "source": "n52",
+      "target": "n1",
+      "aggregate_confidence": 0.85,
+      "evidence": [
+        {
+          "qa_id": "qa20",
+          "confidence": 0.85,
+          "original_modifier": 0.9
+        }
+      ],
+      "modifier": 0.765,
+      "source_label": "Long-term cost savings from early treatment",
+      "target_label": "Support for healthcare",
+      "explanation": "Early treatment reduces future medical complications and expenses, leading to significant long-term cost savings. This financial benefit strengthens the argument for supporting healthcare systems that prioritize early intervention, thereby increasing overall support for healthcare.",
+      "direction": "positive",
+      "strength": 0.9
+    }
+  },
+  "qa_history": {
+    "qa1": {
+      "question": "To what extent do you support or oppose universal healthcare policies that provide government-funded healthcare coverage for all citizens? Please explain your reasoning.",
+      "answer": "I'm not a fan of universal healthcare. I believe in private healthcare because it offers better quality and more personalized care. The doctor-patient relationship is stronger when you're not just another number in a public system. Plus, I worry about the cost—tax dollars could be better spent elsewhere. Hospitals supporting private care mean they’re focused on patient needs, not bureaucracy. If something happens in an emergency, I want quick, reliable care without long waits. Private coverage gives me that peace of mind.",
+      "shortText": "Stance on universal healthcare",
+      "timestamp": 1758719781
+    },
+    "qa2": {
+      "question": "What do you think are the most significant impacts, positive or negative, of implementing a universal healthcare system?",
+      "answer": "I think a universal healthcare system could have some good points, like making sure everyone gets basic care. But I worry about the quality. If everything's public, maybe doctors and hospitals focus more on numbers than on individual patients. I believe in private healthcare because it gives better coverage and quicker access, especially in emergencies. Plus, when you pay for your own coverage, you value it more. I've seen how private systems can offer more personalized care, and that matters a lot to me.",
+      "shortText": "Healthcare system impacts",
+      "timestamp": 1758719788
+    },
+    "qa3": {
+      "question": "How do you think universal healthcare policies might affect healthcare quality and accessibility?",
+      "answer": "I think universal healthcare could lower the quality of care because it might limit choices. If everything is government-run, I worry doctors might not have the resources or incentive to provide the best care. Also, waiting times could get longer, especially for emergencies. I believe private healthcare offers better access and faster treatment. Plus, when you pay for your own coverage, you're more invested in your health. I’ve heard stories where people in public systems wait weeks for appointments, and that’s not good. I prefer a system where I can choose my doctor and get the care I need without delays.",
+      "shortText": "Quality and accessibility",
+      "timestamp": 1758719798
+    },
+    "qa4": {
+      "question": "What impact do you believe a universal healthcare system might have on medical innovation and research?",
+      "answer": "I think a universal healthcare system might slow down medical innovation. If everything's covered by the government, there's less incentive for private hospitals and doctors to invest in new treatments. Private healthcare pushes for better quality and faster care, especially in emergencies. Plus, patients who can afford private coverage often get more personalized attention. I worry that with universal care, research might focus more on cost-saving than breakthroughs. Doctors might not have the resources or freedom to experiment as much. I believe private healthcare drives progress, and that's important for patients who need the best care possible.",
+      "shortText": "Medical innovation",
+      "timestamp": 1758719807
+    },
+    "qa5": {
+      "question": "How do you think universal healthcare might affect the economic burden on individuals and families?",
+      "answer": "In my view, universal healthcare could place a bigger economic burden on individuals and families. While it sounds good on paper, I believe private healthcare offers better quality and more personalized care. Public systems often struggle with long wait times and limited resources, which can be stressful during emergencies. Plus, I worry that taxes to support universal care might go up, making it harder for families to afford other necessities. I think private options give people more control over their coverage and ensure they get the care they need without compromising their financial stability.",
+      "shortText": "Economic burden",
+      "timestamp": 1758719824
+    },
+    "qa6": {
+      "question": "What role do you believe government should play in healthcare delivery and financing?",
+      "answer": "In my view, the government should have a limited role in healthcare. I believe that private healthcare offers better quality and more personalized care. While the government can provide some support, especially in emergencies, I think it's important for individuals to have options. Private coverage allows for more flexibility and better access to doctors. I've seen how public systems can be stretched thin, and that's not ideal for patients. Ultimately, I trust private healthcare more because it focuses on the individual's needs. The government should ensure basic standards but not take over the entire system. After all, it's the patient's right to choose what's best for them.",
+      "shortText": "Government role",
+      "timestamp": 1758719842
+    },
+    "qa7": {
+      "question": "How might healthcare provider concerns factor into decisions about universal healthcare implementation?",
+      "answer": "I think healthcare providers might worry that universal healthcare could lower the quality of care. If everything's government-run, they might feel pressured to see more patients quickly, which could hurt the doctor-patient relationship. Also, if costs are controlled too much, there might not be enough resources for advanced treatments. I believe private healthcare offers better choices and faster access, especially in emergencies. Providers might prefer a system where they can focus on patient care without too much bureaucracy. That’s why I support private options—so people get the coverage they need without compromising on quality.",
+      "shortText": "Provider concerns",
+      "timestamp": 1758719857
+    },
+    "qa8": {
+      "question": "What economic effects, both positive and negative, might result from transitioning to a universal healthcare system?",
+      "answer": "From my perspective, transitioning to a universal healthcare system could have mixed economic effects. On the positive side, it might ensure more people get care, which could reduce long-term costs from untreated conditions. But I worry about the cost for coverage—taxes might go up, and quality of coverage could suffer if the system is underfunded. As an emergency patient, I value quick access, and I believe private healthcare offers better support in crises. I also think doctors need the freedom to provide the best care, which might be limited in a public system. Overall, I’m cautious about shifting away from private options.",
+      "shortText": "Economic effects",
+      "timestamp": 1758719875
+    },
+    "qa9": {
+      "question": "How confident are you that changes in Quality of care lead to changes in Support for healthcare? Does it have a positive effect (increasing it) or a negative effect (decreasing it)? How strong is this effect?",
+      "answer": "I'm pretty confident that better quality of care boosts support for healthcare, especially private ones. If patients get good treatment, they’re more likely to stick with it or recommend it. I think the effect is strong because people value their health and want reliable care. If the quality drops, trust fades. For me, quality isn’t just about doctors—it’s about how you’re treated, access, and outcomes. So yes, quality really drives support.",
+      "shortText": "Relationship: Quality of care → Support for healthcare",
+      "timestamp": 1758719893
+    },
+    "qa10": {
+      "question": "Does Waiting times have a positive or negative effect on Support for healthcare, and how significant is this effect? Does it have a positive effect (increasing it) or a negative effect (decreasing it)? How strong is this effect?",
+      "answer": "In my view, waiting times have a negative effect on support for healthcare. Long waits can frustrate patients and make them question the quality of care. Since I believe in private healthcare, I see it as offering faster access, which is crucial, especially in emergencies. Public systems often struggle with delays, which can harm patient outcomes. The effect is significant because people value timely care. If you're in pain or need urgent help, waiting too long can be dangerous. So, waiting times definitely decrease support for public systems and increase the appeal of private options.",
+      "shortText": "Relationship: Waiting times → Support for healthcare",
+      "timestamp": 1758719911
+    },
+    "qa11": {
+      "question": "How confident are you that changes in Personalized care lead to changes in Support for healthcare? Does it have a positive effect (increasing it) or a negative effect (decreasing it)? How strong is this effect?",
+      "answer": "I think personalized care definitely boosts support for healthcare, especially when it comes to private options. When care is tailored, people feel more valued and confident in the system. It makes the quality of coverage better, which is super important to me. I don’t think it’s a huge shift, but it’s a positive one. If hospitals and doctors focus on personalized care, they support private healthcare more. It strengthens the bond between doctor and patient, making everyone happier. So, I’d say it has a moderate positive effect.",
+      "shortText": "Relationship: Personalized care → Support for healthcare",
+      "timestamp": 1758719932
+    },
+    "qa12": {
+      "question": "Would small changes in Medical innovation lead to noticeable changes in Support for healthcare, or would it take larger shifts? Does it have a positive effect (increasing it) or a negative effect (decreasing it)? How strong is this effect?",
+      "answer": "In my view, small changes in medical innovation can definitely make a difference, especially when it comes to private healthcare. They often lead to better treatments and more options for patients like me. But I think bigger shifts—like major breakthroughs or widespread adoption of new tech—would have a stronger positive effect on support for healthcare. The hospital and medicine system backing private care means that advancements here really boost confidence. It’s not just about the science; it’s about how these innovations improve quality and accessibility for patients. Small changes help, but real transformation comes from larger, sustained efforts.",
+      "shortText": "Relationship: Medical innovation → Support for healthcare",
+      "timestamp": 1758719959
+    },
+    "qa13": {
+      "question": "Does Incentives for research and development have a positive or negative effect on Support for healthcare, and how significant is this effect? Does it have a positive effect (increasing it) or a negative effect (decreasing it)? How strong is this effect?",
+      "answer": "In my view, incentives for R&D definitely have a positive effect on support for healthcare. When there's more innovation, it leads to better treatments and higher quality care. Since I believe in private healthcare, these advancements make private options even more attractive. It strengthens the system by offering better coverage and results. The effect is pretty strong because new medical breakthroughs can change how people perceive and choose their healthcare. It's not just about cost—it's about getting better outcomes, which supports the idea that private healthcare is worth investing in.",
+      "shortText": "Relationship: Incentives for research and development → Support for healthcare",
+      "timestamp": 1758719982
+    },
+    "qa14": {
+      "question": "How confident are you that changes in Economic burden on individuals and families lead to changes in Support for healthcare? Does it have a positive effect (increasing it) or a negative effect (decreasing it)? How strong is this effect?",
+      "answer": "I think economic burden definitely affects support for healthcare. When people struggle financially, they might lean more toward public options, but I still believe private healthcare offers better quality. If costs go up, it could push some to public systems, but I don’t think it weakens support for private care overall. The effect isn’t super strong, though—people still value quality over cost. I think the hospital and medicine backing private care makes it resilient, even with economic shifts.",
+      "shortText": "Relationship: Economic burden on individuals and families → Support for healthcare",
+      "timestamp": 1758720005
+    },
+    "qa15": {
+      "question": "Would small changes in Wait times in public systems lead to noticeable changes in Support for healthcare, or would it take larger shifts? Does it have a positive effect (increasing it) or a negative effect (decreasing it)? How strong is this effect?",
+      "answer": "In my view, even small improvements in wait times in public systems could boost support for healthcare, but I think the real shift would come from better quality and more personalized care—something private healthcare offers. Public systems often feel impersonal, and longer waits can frustrate patients. If wait times got slightly better, it might help, but it's not the main issue. The bigger picture is about coverage, cost, and the doctor-patient relationship. For me, private healthcare delivers on those fronts better, so I’d still lean toward it even with minor changes in public wait times.",
+      "shortText": "Relationship: Wait times in public systems → Support for healthcare",
+      "timestamp": 1758720033
+    },
+    "qa16": {
+      "question": "Is the effect of Tax increases to fund universal healthcare on Support for healthcare immediate, or does it take time to develop? Does it have a positive effect (increasing it) or a negative effect (decreasing it)? How strong is this effect?",
+      "answer": "I think tax increases for universal healthcare might have a negative effect on support, especially if people feel it's taking away from their own coverage. I believe in private healthcare because I value quality and choice. If taxes go up, it could make people worry about the cost of their own plans. Plus, I don’t think public healthcare is as effective in emergencies. The effect might not be immediate, but over time, people could become more resistant if they feel their money isn’t being used well. Overall, I’d say the effect is negative and somewhat strong.",
+      "shortText": "Relationship: Tax increases to fund universal healthcare → Support for healthcare",
+      "timestamp": 1758720065
+    },
+    "qa17": {
+      "question": "Would small changes in Resource limitations in public healthcare lead to noticeable changes in Support for healthcare, or would it take larger shifts? Does it have a positive effect (increasing it) or a negative effect (decreasing it)? How strong is this effect?",
+      "answer": "In my view, even small changes in resource limitations within public healthcare can really affect support. If resources are stretched thin, it might lead to longer waits or lower quality care, which could make people turn toward private options. But if resources improve a bit, that could boost confidence in the system. However, I think the effect isn't huge unless there's a major shift. Public healthcare is important, but I still believe private options offer better quality and reliability, especially in emergencies. So, while small changes matter, they don’t usually flip the overall support as much as bigger reforms would.",
+      "shortText": "Relationship: Resource limitations in public healthcare → Support for healthcare",
+      "timestamp": 1758720106
+    },
+    "qa18": {
+      "question": "How would you describe the relationship between Patient-doctor relationship and Support for healthcare? Is it a strong or weak connection? Does it have a positive effect (increasing it) or a negative effect (decreasing it)? How strong is this effect?",
+      "answer": "The patient-doctor relationship is super important to me. I think it's a strong connection because when you trust your doctor, you're more likely to follow their advice and get the care you need. That trust supports better healthcare outcomes. In my view, this relationship positively affects support for healthcare. If patients feel heard and cared for, they’re more inclined to invest in quality coverage, whether public or private. I believe a good doctor-patient bond strengthens overall healthcare support. It’s not just about treatment—it’s about feeling supported, which makes the whole system work better.",
+      "shortText": "Relationship: Patient-doctor relationship → Support for healthcare",
+      "timestamp": 1758720145
+    },
+    "qa19": {
+      "question": "Would small changes in Doctor autonomy lead to noticeable changes in Support for healthcare, or would it take larger shifts? Does it have a positive effect (increasing it) or a negative effect (decreasing it)? How strong is this effect?",
+      "answer": "In my view, even small changes in doctor autonomy can really affect support for healthcare. If doctors have more control, patients tend to feel more confident in the care they receive. That builds trust and supports private healthcare. But if autonomy is limited, it might lead to frustration and lower satisfaction. I think the effect is positive but moderate—small shifts can make a difference, especially when it comes to quality and patient outcomes. Overall, supporting doctor autonomy strengthens the whole system.",
+      "shortText": "Relationship: Doctor autonomy → Support for healthcare",
+      "timestamp": 1758720180
+    },
+    "qa20": {
+      "question": "How would you describe the relationship between Long-term cost savings from early treatment and Support for healthcare? Is it a strong or weak connection? Does it have a positive effect (increasing it) or a negative effect (decreasing it)? How strong is this effect?",
+      "answer": "I think the connection between long-term cost savings from early treatment and support for healthcare is pretty strong. If people get treated early, they avoid bigger problems later, which saves money overall. That makes me support private healthcare more because it can offer quicker access and better coverage. I believe hospitals backing private care helps ensure quality and timely treatment. So, this relationship has a positive effect—strong enough to make me value early treatment as part of a solid healthcare strategy. It definitely strengthens my belief in private options.",
+      "shortText": "Relationship: Long-term cost savings from early treatment → Support for healthcare",
+      "timestamp": 1758720212
+    }
+  },
+  "stance_node_id": "n1",
+  "step": "node_discovery",
+  "anchor_queue": [
+    "n1",
+    "n2",
+    "n3",
+    "n19",
+    "n12",
+    "n22",
+    "n24",
+    "n29",
+    "n30",
+    "n32",
+    "n31",
+    "n35",
+    "n42",
+    "n51",
+    "n52",
+    "n55",
+    "n66",
+    "n69",
+    "n70",
+    "n93",
+    "n60"
+  ],
+  "node_counter": 110,
+  "edge_counter": 20,
+  "qa_counter": 20
+}

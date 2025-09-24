@@ -287,7 +287,9 @@ def process_agent_survey(agent, topic, agent_data_path):
                 # Process follow-up reason questions
                 if q.get("has_reason_followup") and "followup" in q:
                     followup = q["followup"]
-                    reasons[followup["id"]] = {}
+                    # Use the main question ID (remove 'r' suffix) for reasons
+                    main_q_id = q_id
+                    reasons[main_q_id] = {}
                     
                     for reason_code in followup.get("reasons", []):
                         # Get actual reason text
@@ -313,7 +315,9 @@ def process_agent_survey(agent, topic, agent_data_path):
                             else:
                                 reason_score = 3
                         
-                        reasons[followup["id"]][reason_code] = reason_score
+                        # Use the main question ID (remove 'r' suffix) for reasons
+                        main_q_id = q_id
+                        reasons[main_q_id][reason_code] = reason_score
             
             elif q["type"] == "reason_evaluation":
                 # Direct reason evaluation questions

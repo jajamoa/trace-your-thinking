@@ -1,0 +1,492 @@
+{
+  "agent_id": "3b1e64b016d945509cd5496f",
+  "timestamp": 1758720397594,
+  "nodes": {
+    "n1": {
+      "label": "Opposition to camera",
+      "aggregate_confidence": 0.6599473657923116,
+      "evidence": [
+        {
+          "qa_id": "system",
+          "confidence": 1.0,
+          "importance": 1.0
+        }
+      ],
+      "importance": 1.0,
+      "incoming_edges": [
+        "e3"
+      ],
+      "outgoing_edges": [
+        "e1",
+        "e2"
+      ],
+      "status": "anchor",
+      "frequency": 1,
+      "is_stance": true
+    },
+    "n2": {
+      "label": "Technologies negative",
+      "aggregate_confidence": 0.7505159695545988,
+      "evidence": [
+        {
+          "qa_id": "qa12",
+          "confidence": 0.7505159695545988,
+          "importance": 0.6579908960485192
+        }
+      ],
+      "importance": 0.6579908960485192,
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "anchor",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n3": {
+      "label": "Systems effect",
+      "aggregate_confidence": 0.8521848728223581,
+      "evidence": [
+        {
+          "qa_id": "qa2",
+          "confidence": 0.8521848728223581,
+          "importance": 0.9290496545726982
+        }
+      ],
+      "importance": 0.9290496545726982,
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "candidate",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n4": {
+      "label": "effect for camera",
+      "aggregate_confidence": 0.7815193160806115,
+      "evidence": [
+        {
+          "qa_id": "qa11",
+          "confidence": 0.7815193160806115,
+          "importance": 0.8910024343852853
+        }
+      ],
+      "importance": 0.8910024343852853,
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "candidate",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n5": {
+      "label": "Surveillance influence",
+      "aggregate_confidence": 0.7473147533957482,
+      "evidence": [
+        {
+          "qa_id": "qa13",
+          "confidence": 0.7473147533957482,
+          "importance": 0.7358804858818714
+        }
+      ],
+      "importance": 0.7358804858818714,
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "candidate",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n6": {
+      "label": "Positive liberties",
+      "aggregate_confidence": 0.7576238037488344,
+      "evidence": [
+        {
+          "qa_id": "qa11",
+          "confidence": 0.788722416136739,
+          "importance": 0.6431706036617559
+        },
+        {
+          "qa_id": "qa9",
+          "confidence": 0.7270450338576239,
+          "importance": 0.6541045756167199
+        }
+      ],
+      "importance": 0.6486375896392379,
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "candidate",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n7": {
+      "label": "Data",
+      "aggregate_confidence": 0.7922058096759057,
+      "evidence": [
+        {
+          "qa_id": "qa10",
+          "confidence": 0.7922058096759057,
+          "importance": 0.8137942356389771
+        }
+      ],
+      "importance": 0.8137942356389771,
+      "incoming_edges": [
+        "e1",
+        "e2"
+      ],
+      "outgoing_edges": [],
+      "status": "candidate",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n8": {
+      "label": "Security positive",
+      "aggregate_confidence": 0.6301743421756679,
+      "evidence": [
+        {
+          "qa_id": "qa10",
+          "confidence": 0.6301743421756679,
+          "importance": 0.7137501083396613
+        }
+      ],
+      "importance": 0.7137501083396613,
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "candidate",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n9": {
+      "label": "Reliability influence",
+      "aggregate_confidence": 0.9356358577841507,
+      "evidence": [
+        {
+          "qa_id": "qa15",
+          "confidence": 0.9356358577841507,
+          "importance": 0.5281159686818205
+        }
+      ],
+      "importance": 0.5281159686818205,
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "anchor",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n10": {
+      "label": "Infrastructure",
+      "aggregate_confidence": 0.7844408953132199,
+      "evidence": [
+        {
+          "qa_id": "qa13",
+          "confidence": 0.78444089531322,
+          "importance": 0.6506888446456566
+        }
+      ],
+      "importance": 0.6506888446456566,
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "candidate",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n11": {
+      "label": "Positive in surveillance",
+      "aggregate_confidence": 0.9687103007794178,
+      "evidence": [
+        {
+          "qa_id": "qa9",
+          "confidence": 0.9687103007794177,
+          "importance": 0.8375536484945333
+        }
+      ],
+      "importance": 0.8375536484945333,
+      "incoming_edges": [
+        "e4"
+      ],
+      "outgoing_edges": [],
+      "status": "candidate",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n12": {
+      "label": "Accuracy",
+      "aggregate_confidence": 0.720273933939503,
+      "evidence": [
+        {
+          "qa_id": "qa3",
+          "confidence": 0.720273933939503,
+          "importance": 0.6209079515195279
+        }
+      ],
+      "importance": 0.6209079515195279,
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "anchor",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n13": {
+      "label": "Deterrence impact",
+      "aggregate_confidence": 0.6504307365964594,
+      "evidence": [
+        {
+          "qa_id": "qa7",
+          "confidence": 0.6504307365964594,
+          "importance": 0.620275185212837
+        }
+      ],
+      "importance": 0.620275185212837,
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "anchor",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n14": {
+      "label": "Reduced infrastructure",
+      "aggregate_confidence": 0.7071409091838843,
+      "evidence": [
+        {
+          "qa_id": "qa6",
+          "confidence": 0.7636568486532561,
+          "importance": 0.7215488392840556
+        },
+        {
+          "qa_id": "qa5",
+          "confidence": 0.6500859543807894,
+          "importance": 0.7147321501858647
+        }
+      ],
+      "importance": 0.7181404947349601,
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "candidate",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n15": {
+      "label": "Invasion impact",
+      "aggregate_confidence": 0.90427624209811,
+      "evidence": [
+        {
+          "qa_id": "qa13",
+          "confidence": 0.8068734660156771,
+          "importance": 0.7656461471843968
+        },
+        {
+          "qa_id": "qa4",
+          "confidence": 1.0,
+          "importance": 0.7790757683062794
+        }
+      ],
+      "importance": 0.7723609577453381,
+      "incoming_edges": [],
+      "outgoing_edges": [
+        "e4"
+      ],
+      "status": "anchor",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n16": {
+      "label": "Negative on monitoring",
+      "aggregate_confidence": 0.7730798132374804,
+      "evidence": [
+        {
+          "qa_id": "qa9",
+          "confidence": 0.7730798132374804,
+          "importance": 0.6769945804988706
+        }
+      ],
+      "importance": 0.6769945804988706,
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "anchor",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n17": {
+      "label": "Positive liberties",
+      "aggregate_confidence": 0.6267690405857032,
+      "evidence": [
+        {
+          "qa_id": "qa15",
+          "confidence": 0.6267690405857032,
+          "importance": 0.8336276210971694
+        }
+      ],
+      "importance": 0.8336276210971694,
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "candidate",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n18": {
+      "label": "Positive infrastructure",
+      "aggregate_confidence": 0.9436053198656896,
+      "evidence": [
+        {
+          "qa_id": "qa6",
+          "confidence": 0.9436053198656896,
+          "importance": 0.6669288537557537
+        }
+      ],
+      "importance": 0.6669288537557537,
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "candidate",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n19": {
+      "label": "Increased systems",
+      "aggregate_confidence": 0.7615890047646278,
+      "evidence": [
+        {
+          "qa_id": "qa14",
+          "confidence": 0.7615890047646278,
+          "importance": 0.7891415548324556
+        }
+      ],
+      "importance": 0.7891415548324556,
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "candidate",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n20": {
+      "label": "Increased accuracy",
+      "aggregate_confidence": 0.9037919216766426,
+      "evidence": [
+        {
+          "qa_id": "qa9",
+          "confidence": 0.9037919216766426,
+          "importance": 0.8234793331650712
+        }
+      ],
+      "importance": 0.8234793331650712,
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "anchor",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n21": {
+      "label": "Reliability negative",
+      "aggregate_confidence": 0.787682839146797,
+      "evidence": [
+        {
+          "qa_id": "qa6",
+          "confidence": 0.8327812718908065,
+          "importance": 0.8109098689451552
+        },
+        {
+          "qa_id": "qa10",
+          "confidence": 0.7337751579600515,
+          "importance": 0.6783961650917443
+        }
+      ],
+      "importance": 0.7446530170184498,
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "anchor",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n22": {
+      "label": "Reduced confidence",
+      "aggregate_confidence": 0.6191982139665975,
+      "evidence": [
+        {
+          "qa_id": "qa12",
+          "confidence": 0.6191982139665975,
+          "importance": 0.9883755958596098
+        }
+      ],
+      "importance": 0.9883755958596098,
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "candidate",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n23": {
+      "label": "Technology",
+      "aggregate_confidence": 0.6044972384598403,
+      "evidence": [
+        {
+          "qa_id": "qa6",
+          "confidence": 0.6044972384598403,
+          "importance": 0.6684000607165846
+        }
+      ],
+      "importance": 0.6684000607165846,
+      "incoming_edges": [],
+      "outgoing_edges": [
+        "e3"
+      ],
+      "status": "anchor",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n24": {
+      "label": "Infrastructure influence",
+      "aggregate_confidence": 0.85757003277588,
+      "evidence": [
+        {
+          "qa_id": "qa12",
+          "confidence": 0.85757003277588,
+          "importance": 0.779506315896535
+        }
+      ],
+      "importance": 0.779506315896535,
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "candidate",
+      "frequency": 1,
+      "is_stance": false
+    }
+  },
+  "edges": {
+    "e1": {
+      "source": "n1",
+      "target": "n7",
+      "weight": 0.5,
+      "correlation": 0.5
+    },
+    "e2": {
+      "source": "n1",
+      "target": "n7",
+      "weight": 0.5,
+      "correlation": 0.5
+    },
+    "e3": {
+      "source": "n23",
+      "target": "n1",
+      "weight": 0.5,
+      "correlation": 0.5
+    },
+    "e4": {
+      "source": "n15",
+      "target": "n11",
+      "weight": 0.5,
+      "correlation": 0.5
+    }
+  },
+  "qa_history": {},
+  "stance_node_id": "n1",
+  "step": "completed",
+  "anchor_queue": [
+    "n1",
+    "n2",
+    "n9",
+    "n12",
+    "n13",
+    "n15",
+    "n16",
+    "n20",
+    "n21",
+    "n23"
+  ],
+  "node_counter": 24,
+  "edge_counter": 8,
+  "qa_counter": 11
+}

@@ -1,10 +1,10 @@
 {
   "agent_id": "experiment_agent",
-  "timestamp": 1758707806035,
+  "timestamp": 1758719769096,
   "nodes": {
     "n1": {
       "label": "Support for zoning",
-      "aggregate_confidence": 0.8666666666666666,
+      "aggregate_confidence": 0.8444444444444446,
       "evidence": [
         {
           "qa_id": "system",
@@ -12,188 +12,482 @@
           "importance": 1.0
         },
         {
-          "qa_id": "qa1",
+          "qa_id": "qa4",
+          "confidence": 0.8,
+          "importance": 0.85
+        },
+        {
+          "qa_id": "qa5",
+          "confidence": 0.8,
+          "importance": 0.8
+        },
+        {
+          "qa_id": "qa6",
+          "confidence": 0.85,
+          "importance": 0.8
+        },
+        {
+          "qa_id": "qa7",
+          "confidence": 0.9,
+          "importance": 0.95
+        },
+        {
+          "qa_id": "qa9",
+          "confidence": 0.85,
+          "importance": 0.9
+        },
+        {
+          "qa_id": "qa10",
+          "confidence": 0.9,
+          "importance": 0.95
+        },
+        {
+          "qa_id": "qa11",
+          "confidence": 0.65,
+          "importance": 0.9
+        },
+        {
+          "qa_id": "qa12",
+          "confidence": 0.85,
+          "importance": 0.9
+        },
+        {
+          "qa_id": "qa13",
+          "confidence": 0.85,
+          "importance": 0.9
+        },
+        {
+          "qa_id": "qa14",
+          "confidence": 0.8,
+          "importance": 0.8
+        },
+        {
+          "qa_id": "qa15",
+          "confidence": 0.8,
+          "importance": 0.9
+        },
+        {
+          "qa_id": "qa16",
           "confidence": 0.9,
           "importance": 0.9
         },
         {
-          "qa_id": "qa2",
-          "confidence": 0.7,
-          "importance": 0.6
+          "qa_id": "qa17",
+          "confidence": 0.85,
+          "importance": 0.9
+        },
+        {
+          "qa_id": "qa18",
+          "confidence": 0.8,
+          "importance": 0.9
+        },
+        {
+          "qa_id": "qa19",
+          "confidence": 0.85,
+          "importance": 0.9
+        },
+        {
+          "qa_id": "qa20",
+          "confidence": 0.85,
+          "importance": 0.9
         }
       ],
-      "importance": 0.8576923076923078,
-      "incoming_edges": [],
-      "outgoing_edges": [
-        "e1"
+      "importance": 0.8980263157894736,
+      "incoming_edges": [
+        "e9",
+        "e10",
+        "e11",
+        "e13",
+        "e14",
+        "e15",
+        "e16",
+        "e17",
+        "e18",
+        "e19",
+        "e20"
       ],
+      "outgoing_edges": [],
       "status": "anchor",
-      "frequency": 4,
+      "frequency": 20,
       "is_stance": true
     },
-    "n3": {
-      "label": "Meeting housing needs",
-      "aggregate_confidence": 0.8333333333333334,
-      "importance": 0.8019999999999999,
+    "n2": {
+      "label": "Upzoning policies",
+      "aggregate_confidence": 0.9,
+      "importance": 0.95,
       "evidence": [
         {
           "qa_id": "qa1",
-          "confidence": 0.85,
-          "importance": 0.85
-        },
-        {
-          "qa_id": "qa2",
-          "confidence": 0.8,
-          "importance": 0.7
+          "confidence": 0.9,
+          "importance": 0.95
         },
         {
           "qa_id": "qa3",
-          "confidence": 0.85,
-          "importance": 0.85
+          "confidence": 0.9,
+          "importance": 0.95
+        },
+        {
+          "qa_id": "qa5",
+          "confidence": 0.9,
+          "importance": 0.95
         }
       ],
-      "incoming_edges": [
+      "incoming_edges": [],
+      "outgoing_edges": [
         "e1",
-        "e2"
+        "e3",
+        "e5"
       ],
-      "outgoing_edges": [],
       "status": "anchor",
       "frequency": 3,
       "is_stance": false
     },
-    "n4": {
-      "label": "Inclusivity",
-      "aggregate_confidence": 0.8,
-      "importance": 0.8,
+    "n3": {
+      "label": "Housing shortages",
+      "aggregate_confidence": 0.85,
+      "importance": 0.9,
       "evidence": [
         {
           "qa_id": "qa1",
-          "confidence": 0.8,
-          "importance": 0.8
+          "confidence": 0.85,
+          "importance": 0.9
+        },
+        {
+          "qa_id": "qa6",
+          "confidence": 0.85,
+          "importance": 0.9
+        },
+        {
+          "qa_id": "qa9",
+          "confidence": 0.9,
+          "importance": 0.95
         }
       ],
-      "incoming_edges": [],
-      "outgoing_edges": [],
-      "status": "candidate",
-      "frequency": 1,
+      "incoming_edges": [
+        "e1",
+        "e6"
+      ],
+      "outgoing_edges": [
+        "e9"
+      ],
+      "status": "anchor",
+      "frequency": 3,
       "is_stance": false
     },
     "n5": {
       "label": "Neighborhood character",
-      "aggregate_confidence": 0.75,
-      "importance": 0.7533333333333334,
+      "aggregate_confidence": 0.8250000000000001,
+      "importance": 0.8541666666666667,
       "evidence": [
+        {
+          "qa_id": "qa1",
+          "confidence": 0.8,
+          "importance": 0.85
+        },
+        {
+          "qa_id": "qa3",
+          "confidence": 0.7,
+          "importance": 0.75
+        },
+        {
+          "qa_id": "qa4",
+          "confidence": 0.85,
+          "importance": 0.9
+        },
+        {
+          "qa_id": "qa7",
+          "confidence": 0.75,
+          "importance": 0.8
+        },
+        {
+          "qa_id": "qa12",
+          "confidence": 0.85,
+          "importance": 0.85
+        },
+        {
+          "qa_id": "qa13",
+          "confidence": 0.9,
+          "importance": 0.95
+        },
+        {
+          "qa_id": "qa15",
+          "confidence": 0.85,
+          "importance": 0.8
+        },
+        {
+          "qa_id": "qa16",
+          "confidence": 0.9,
+          "importance": 0.9
+        }
+      ],
+      "incoming_edges": [
+        "e4"
+      ],
+      "outgoing_edges": [
+        "e13"
+      ],
+      "status": "anchor",
+      "frequency": 10,
+      "is_stance": false
+    },
+    "n6": {
+      "label": "Thoughtful planning",
+      "aggregate_confidence": 0.85,
+      "importance": 0.8,
+      "evidence": [
+        {
+          "qa_id": "qa1",
+          "confidence": 0.85,
+          "importance": 0.8
+        },
+        {
+          "qa_id": "qa4",
+          "confidence": 0.8,
+          "importance": 0.9
+        },
+        {
+          "qa_id": "qa16",
+          "confidence": 0.95,
+          "importance": 0.95
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [
+        "e16"
+      ],
+      "status": "anchor",
+      "frequency": 3,
+      "is_stance": false
+    },
+    "n7": {
+      "label": "Urban growth",
+      "aggregate_confidence": 0.7785714285714286,
+      "importance": 0.7999999999999998,
+      "evidence": [
+        {
+          "qa_id": "qa1",
+          "confidence": 0.75,
+          "importance": 0.7
+        },
+        {
+          "qa_id": "qa4",
+          "confidence": 0.75,
+          "importance": 0.8
+        },
+        {
+          "qa_id": "qa9",
+          "confidence": 0.7,
+          "importance": 0.7
+        },
+        {
+          "qa_id": "qa16",
+          "confidence": 0.8,
+          "importance": 0.75
+        },
+        {
+          "qa_id": "qa17",
+          "confidence": 0.9,
+          "importance": 0.95
+        },
+        {
+          "qa_id": "qa18",
+          "confidence": 0.85,
+          "importance": 0.9
+        },
+        {
+          "qa_id": "qa19",
+          "confidence": 0.7,
+          "importance": 0.75
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [
+        "e17"
+      ],
+      "status": "anchor",
+      "frequency": 7,
+      "is_stance": false
+    },
+    "n10": {
+      "label": "Access to services",
+      "aggregate_confidence": 0.7333333333333334,
+      "importance": 0.7522727272727273,
+      "evidence": [
+        {
+          "qa_id": "qa1",
+          "confidence": 0.7,
+          "importance": 0.65
+        },
+        {
+          "qa_id": "qa4",
+          "confidence": 0.75,
+          "importance": 0.8
+        },
+        {
+          "qa_id": "qa8",
+          "confidence": 0.75,
+          "importance": 0.8
+        },
+        {
+          "qa_id": "qa10",
+          "confidence": 0.9,
+          "importance": 0.95
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [
+        "e10"
+      ],
+      "status": "anchor",
+      "frequency": 5,
+      "is_stance": false
+    },
+    "n11": {
+      "label": "Housing density",
+      "aggregate_confidence": 0.8666666666666667,
+      "importance": 0.9346153846153846,
+      "evidence": [
+        {
+          "qa_id": "qa2",
+          "confidence": 0.9,
+          "importance": 0.95
+        },
+        {
+          "qa_id": "qa1",
+          "confidence": 0.8,
+          "importance": 0.9
+        },
+        {
+          "qa_id": "qa4",
+          "confidence": 0.9,
+          "importance": 0.95
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [
+        "e2",
+        "e4"
+      ],
+      "status": "anchor",
+      "frequency": 3,
+      "is_stance": false
+    },
+    "n12": {
+      "label": "Community and diversity",
+      "aggregate_confidence": 0.807142857142857,
+      "importance": 0.8725663716814159,
+      "evidence": [
+        {
+          "qa_id": "qa2",
+          "confidence": 0.85,
+          "importance": 0.9
+        },
         {
           "qa_id": "qa1",
           "confidence": 0.8,
           "importance": 0.8
         },
         {
-          "qa_id": "qa2",
+          "qa_id": "qa4",
+          "confidence": 0.8,
+          "importance": 0.85
+        },
+        {
+          "qa_id": "qa7",
+          "confidence": 0.85,
+          "importance": 0.9
+        },
+        {
+          "qa_id": "qa11",
           "confidence": 0.7,
-          "importance": 0.7
+          "importance": 0.85
+        },
+        {
+          "qa_id": "qa13",
+          "confidence": 0.85,
+          "importance": 0.9
+        },
+        {
+          "qa_id": "qa17",
+          "confidence": 0.8,
+          "importance": 0.9
         }
       ],
-      "incoming_edges": [],
-      "outgoing_edges": [],
+      "incoming_edges": [
+        "e2"
+      ],
+      "outgoing_edges": [
+        "e11"
+      ],
       "status": "anchor",
-      "frequency": 2,
-      "is_stance": false
-    },
-    "n6": {
-      "label": "Smart growth",
-      "aggregate_confidence": 0.75,
-      "importance": 0.75,
-      "evidence": [
-        {
-          "qa_id": "qa1",
-          "confidence": 0.75,
-          "importance": 0.75
-        }
-      ],
-      "incoming_edges": [],
-      "outgoing_edges": [],
-      "status": "candidate",
-      "frequency": 1,
-      "is_stance": false
-    },
-    "n7": {
-      "label": "Reduced traffic",
-      "aggregate_confidence": 0.7,
-      "importance": 0.7,
-      "evidence": [
-        {
-          "qa_id": "qa1",
-          "confidence": 0.7,
-          "importance": 0.7
-        }
-      ],
-      "incoming_edges": [],
-      "outgoing_edges": [],
-      "status": "candidate",
-      "frequency": 1,
-      "is_stance": false
-    },
-    "n8": {
-      "label": "Thoughtful density",
-      "aggregate_confidence": 0.8,
-      "importance": 0.8,
-      "evidence": [
-        {
-          "qa_id": "qa1",
-          "confidence": 0.8,
-          "importance": 0.8
-        }
-      ],
-      "incoming_edges": [],
-      "outgoing_edges": [],
-      "status": "candidate",
-      "frequency": 1,
-      "is_stance": false
-    },
-    "n10": {
-      "label": "Neighborhood vibrancy",
-      "aggregate_confidence": 0.7,
-      "importance": 0.6,
-      "evidence": [
-        {
-          "qa_id": "qa2",
-          "confidence": 0.7,
-          "importance": 0.6
-        }
-      ],
-      "incoming_edges": [],
-      "outgoing_edges": [],
-      "status": "candidate",
-      "frequency": 1,
-      "is_stance": false
-    },
-    "n11": {
-      "label": "Traffic congestion",
-      "aggregate_confidence": 0.8,
-      "importance": 0.8,
-      "evidence": [
-        {
-          "qa_id": "qa2",
-          "confidence": 0.8,
-          "importance": 0.8
-        }
-      ],
-      "incoming_edges": [],
-      "outgoing_edges": [],
-      "status": "candidate",
-      "frequency": 1,
+      "frequency": 7,
       "is_stance": false
     },
     "n13": {
-      "label": "Balancing growth with existing residents' needs",
-      "aggregate_confidence": 0.8,
-      "importance": 0.9,
+      "label": "Traffic reduction",
+      "aggregate_confidence": 0.7312500000000001,
+      "importance": 0.7213675213675211,
       "evidence": [
         {
           "qa_id": "qa2",
           "confidence": 0.8,
-          "importance": 0.9
+          "importance": 0.85
+        },
+        {
+          "qa_id": "qa4",
+          "confidence": 0.7,
+          "importance": 0.7
+        },
+        {
+          "qa_id": "qa6",
+          "confidence": 0.75,
+          "importance": 0.7
+        },
+        {
+          "qa_id": "qa7",
+          "confidence": 0.7,
+          "importance": 0.7
+        },
+        {
+          "qa_id": "qa9",
+          "confidence": 0.7,
+          "importance": 0.7
+        },
+        {
+          "qa_id": "qa12",
+          "confidence": 0.75,
+          "importance": 0.7
+        },
+        {
+          "qa_id": "qa18",
+          "confidence": 0.7,
+          "importance": 0.6
+        },
+        {
+          "qa_id": "qa19",
+          "confidence": 0.75,
+          "importance": 0.8
+        }
+      ],
+      "incoming_edges": [
+        "e7"
+      ],
+      "outgoing_edges": [
+        "e18"
+      ],
+      "status": "anchor",
+      "frequency": 8,
+      "is_stance": false
+    },
+    "n14": {
+      "label": "Overcrowding",
+      "aggregate_confidence": 0.75,
+      "importance": 0.8,
+      "evidence": [
+        {
+          "qa_id": "qa2",
+          "confidence": 0.75,
+          "importance": 0.8
         }
       ],
       "incoming_edges": [],
@@ -203,56 +497,47 @@
       "is_stance": false
     },
     "n15": {
-      "label": "Local environment impact",
+      "label": "Strain on local resources",
       "aggregate_confidence": 0.7,
-      "importance": 0.6,
+      "importance": 0.775,
       "evidence": [
         {
           "qa_id": "qa2",
           "confidence": 0.7,
-          "importance": 0.6
+          "importance": 0.8
+        },
+        {
+          "qa_id": "qa8",
+          "confidence": 0.7,
+          "importance": 0.75
         }
       ],
       "incoming_edges": [],
       "outgoing_edges": [],
-      "status": "candidate",
-      "frequency": 1,
+      "status": "anchor",
+      "frequency": 2,
       "is_stance": false
     },
     "n16": {
-      "label": "Thoughtful housing development",
-      "aggregate_confidence": 0.8,
-      "importance": 0.8,
-      "evidence": [
-        {
-          "qa_id": "qa2",
-          "confidence": 0.8,
-          "importance": 0.8
-        }
-      ],
-      "incoming_edges": [],
-      "outgoing_edges": [],
-      "status": "candidate",
-      "frequency": 1,
-      "is_stance": false
-    },
-    "n17": {
-      "label": "Upzoning",
+      "label": "Zoning policies",
       "aggregate_confidence": 0.9,
       "importance": 0.9,
       "evidence": [
         {
-          "qa_id": "qa3",
+          "qa_id": "qa2",
           "confidence": 0.9,
           "importance": 0.9
+        },
+        {
+          "qa_id": "qa12",
+          "confidence": 0.9,
+          "importance": 0.95
         }
       ],
       "incoming_edges": [],
-      "outgoing_edges": [
-        "e2"
-      ],
+      "outgoing_edges": [],
       "status": "anchor",
-      "frequency": 1,
+      "frequency": 2,
       "is_stance": false
     },
     "n19": {
@@ -264,6 +549,188 @@
           "qa_id": "qa3",
           "confidence": 0.9,
           "importance": 0.95
+        },
+        {
+          "qa_id": "qa14",
+          "confidence": 0.9,
+          "importance": 0.9
+        }
+      ],
+      "incoming_edges": [
+        "e3"
+      ],
+      "outgoing_edges": [
+        "e14"
+      ],
+      "status": "anchor",
+      "frequency": 3,
+      "is_stance": false
+    },
+    "n22": {
+      "label": "Traffic congestion",
+      "aggregate_confidence": 0.75,
+      "importance": 0.7,
+      "evidence": [
+        {
+          "qa_id": "qa3",
+          "confidence": 0.75,
+          "importance": 0.7
+        },
+        {
+          "qa_id": "qa5",
+          "confidence": 0.85,
+          "importance": 0.9
+        },
+        {
+          "qa_id": "qa20",
+          "confidence": 0.9,
+          "importance": 0.95
+        }
+      ],
+      "incoming_edges": [
+        "e5"
+      ],
+      "outgoing_edges": [
+        "e20"
+      ],
+      "status": "anchor",
+      "frequency": 3,
+      "is_stance": false
+    },
+    "n23": {
+      "label": "Urban planning",
+      "aggregate_confidence": 0.9,
+      "importance": 0.9,
+      "evidence": [
+        {
+          "qa_id": "qa3",
+          "confidence": 0.9,
+          "importance": 0.9
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "anchor",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n24": {
+      "label": "Balance between development and livability",
+      "aggregate_confidence": 0.85,
+      "importance": 0.9014705882352941,
+      "evidence": [
+        {
+          "qa_id": "qa3",
+          "confidence": 0.85,
+          "importance": 0.9
+        },
+        {
+          "qa_id": "qa6",
+          "confidence": 0.8,
+          "importance": 0.85
+        },
+        {
+          "qa_id": "qa8",
+          "confidence": 0.85,
+          "importance": 0.9
+        },
+        {
+          "qa_id": "qa14",
+          "confidence": 0.9,
+          "importance": 0.95
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "anchor",
+      "frequency": 4,
+      "is_stance": false
+    },
+    "n26": {
+      "label": "Quality of life",
+      "aggregate_confidence": 0.7999999999999999,
+      "importance": 0.795,
+      "evidence": [
+        {
+          "qa_id": "qa4",
+          "confidence": 0.9,
+          "importance": 0.95
+        },
+        {
+          "qa_id": "qa9",
+          "confidence": 0.75,
+          "importance": 0.7
+        },
+        {
+          "qa_id": "qa13",
+          "confidence": 0.75,
+          "importance": 0.7
+        },
+        {
+          "qa_id": "qa18",
+          "confidence": 0.7,
+          "importance": 0.6
+        },
+        {
+          "qa_id": "qa19",
+          "confidence": 0.9,
+          "importance": 0.95
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [
+        "e19"
+      ],
+      "status": "anchor",
+      "frequency": 6,
+      "is_stance": false
+    },
+    "n33": {
+      "label": "Smart growth",
+      "aggregate_confidence": 0.8,
+      "importance": 0.875,
+      "evidence": [
+        {
+          "qa_id": "qa5",
+          "confidence": 0.8,
+          "importance": 0.9
+        },
+        {
+          "qa_id": "qa6",
+          "confidence": 0.8,
+          "importance": 0.85
+        },
+        {
+          "qa_id": "qa7",
+          "confidence": 0.8,
+          "importance": 0.9
+        },
+        {
+          "qa_id": "qa13",
+          "confidence": 0.8,
+          "importance": 0.85
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "anchor",
+      "frequency": 4,
+      "is_stance": false
+    },
+    "n34": {
+      "label": "Public transit options",
+      "aggregate_confidence": 0.8500000000000001,
+      "importance": 0.8794117647058823,
+      "evidence": [
+        {
+          "qa_id": "qa5",
+          "confidence": 0.9,
+          "importance": 0.95
+        },
+        {
+          "qa_id": "qa7",
+          "confidence": 0.8,
+          "importance": 0.8
         }
       ],
       "incoming_edges": [],
@@ -272,83 +739,743 @@
       "frequency": 2,
       "is_stance": false
     },
-    "n20": {
-      "label": "Density",
-      "aggregate_confidence": 0.75,
-      "importance": 0.7,
-      "evidence": [
-        {
-          "qa_id": "qa3",
-          "confidence": 0.75,
-          "importance": 0.7
-        }
-      ],
-      "incoming_edges": [],
-      "outgoing_edges": [],
-      "status": "candidate",
-      "frequency": 1,
-      "is_stance": false
-    },
-    "n21": {
-      "label": "Traffic",
-      "aggregate_confidence": 0.7,
-      "importance": 0.65,
-      "evidence": [
-        {
-          "qa_id": "qa3",
-          "confidence": 0.7,
-          "importance": 0.65
-        }
-      ],
-      "incoming_edges": [],
-      "outgoing_edges": [],
-      "status": "candidate",
-      "frequency": 1,
-      "is_stance": false
-    },
-    "n22": {
-      "label": "Neighborhood changes",
-      "aggregate_confidence": 0.65,
-      "importance": 0.6,
-      "evidence": [
-        {
-          "qa_id": "qa3",
-          "confidence": 0.65,
-          "importance": 0.6
-        }
-      ],
-      "incoming_edges": [],
-      "outgoing_edges": [],
-      "status": "candidate",
-      "frequency": 1,
-      "is_stance": false
-    },
-    "n23": {
-      "label": "Quality of life",
-      "aggregate_confidence": 0.7,
-      "importance": 0.7,
-      "evidence": [
-        {
-          "qa_id": "qa3",
-          "confidence": 0.7,
-          "importance": 0.7
-        }
-      ],
-      "incoming_edges": [],
-      "outgoing_edges": [],
-      "status": "candidate",
-      "frequency": 1,
-      "is_stance": false
-    },
-    "n24": {
-      "label": "Planning",
+    "n35": {
+      "label": "Walking and biking infrastructure",
       "aggregate_confidence": 0.8,
-      "importance": 0.75,
+      "importance": 0.85,
       "evidence": [
+        {
+          "qa_id": "qa5",
+          "confidence": 0.8,
+          "importance": 0.85
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "candidate",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n36": {
+      "label": "Density in urban areas",
+      "aggregate_confidence": 0.8625,
+      "importance": 0.9007246376811594,
+      "evidence": [
+        {
+          "qa_id": "qa5",
+          "confidence": 0.85,
+          "importance": 0.9
+        },
         {
           "qa_id": "qa3",
           "confidence": 0.8,
+          "importance": 0.85
+        },
+        {
+          "qa_id": "qa7",
+          "confidence": 0.85,
+          "importance": 0.95
+        },
+        {
+          "qa_id": "qa15",
+          "confidence": 0.95,
+          "importance": 0.9
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [
+        "e7",
+        "e15"
+      ],
+      "status": "anchor",
+      "frequency": 4,
+      "is_stance": false
+    },
+    "n38": {
+      "label": "Local government regulation",
+      "aggregate_confidence": 0.8,
+      "importance": 0.8624999999999999,
+      "evidence": [
+        {
+          "qa_id": "qa6",
+          "confidence": 0.9,
+          "importance": 0.95
+        },
+        {
+          "qa_id": "qa4",
+          "confidence": 0.7,
           "importance": 0.75
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [
+        "e6"
+      ],
+      "status": "anchor",
+      "frequency": 2,
+      "is_stance": false
+    },
+    "n40": {
+      "label": "Density",
+      "aggregate_confidence": 0.9,
+      "importance": 0.9,
+      "evidence": [
+        {
+          "qa_id": "qa6",
+          "confidence": 0.9,
+          "importance": 0.9
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "anchor",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n44": {
+      "label": "Environmental sustainability",
+      "aggregate_confidence": 0.7,
+      "importance": 0.75,
+      "evidence": [
+        {
+          "qa_id": "qa6",
+          "confidence": 0.7,
+          "importance": 0.75
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "candidate",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n45": {
+      "label": "Environmental concerns",
+      "aggregate_confidence": 0.9,
+      "importance": 0.9,
+      "evidence": [
+        {
+          "qa_id": "qa7",
+          "confidence": 0.9,
+          "importance": 0.9
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "anchor",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n52": {
+      "label": "Increased housing supply",
+      "aggregate_confidence": 0.9,
+      "importance": 0.95,
+      "evidence": [
+        {
+          "qa_id": "qa8",
+          "confidence": 0.9,
+          "importance": 0.95
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [
+        "e8"
+      ],
+      "status": "anchor",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n53": {
+      "label": "Lower housing prices",
+      "aggregate_confidence": 0.85,
+      "importance": 0.9,
+      "evidence": [
+        {
+          "qa_id": "qa8",
+          "confidence": 0.85,
+          "importance": 0.9
+        }
+      ],
+      "incoming_edges": [
+        "e8"
+      ],
+      "outgoing_edges": [],
+      "status": "anchor",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n54": {
+      "label": "Greater housing accessibility",
+      "aggregate_confidence": 0.8,
+      "importance": 0.85,
+      "evidence": [
+        {
+          "qa_id": "qa8",
+          "confidence": 0.8,
+          "importance": 0.85
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "candidate",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n56": {
+      "label": "Increased traffic",
+      "aggregate_confidence": 0.7,
+      "importance": 0.7,
+      "evidence": [
+        {
+          "qa_id": "qa8",
+          "confidence": 0.7,
+          "importance": 0.7
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "candidate",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n58": {
+      "label": "Good planning",
+      "aggregate_confidence": 0.9,
+      "importance": 0.9,
+      "evidence": [
+        {
+          "qa_id": "qa8",
+          "confidence": 0.9,
+          "importance": 0.9
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "candidate",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n60": {
+      "label": "Time delay in effect development",
+      "aggregate_confidence": 0.9,
+      "importance": 0.85,
+      "evidence": [
+        {
+          "qa_id": "qa9",
+          "confidence": 0.9,
+          "importance": 0.85
+        },
+        {
+          "qa_id": "qa17",
+          "confidence": 0.8,
+          "importance": 0.85
+        },
+        {
+          "qa_id": "qa19",
+          "confidence": 0.8,
+          "importance": 0.85
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "candidate",
+      "frequency": 3,
+      "is_stance": false
+    },
+    "n61": {
+      "label": "Increased support over time",
+      "aggregate_confidence": 0.8,
+      "importance": 0.8,
+      "evidence": [
+        {
+          "qa_id": "qa9",
+          "confidence": 0.8,
+          "importance": 0.8
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "candidate",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n63": {
+      "label": "Zoning as part of a larger system",
+      "aggregate_confidence": 0.8,
+      "importance": 0.875,
+      "evidence": [
+        {
+          "qa_id": "qa9",
+          "confidence": 0.8,
+          "importance": 0.9
+        },
+        {
+          "qa_id": "qa13",
+          "confidence": 0.8,
+          "importance": 0.85
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "candidate",
+      "frequency": 2,
+      "is_stance": false
+    },
+    "n67": {
+      "label": "Neighborhood livability",
+      "aggregate_confidence": 0.7833333333333333,
+      "importance": 0.823404255319149,
+      "evidence": [
+        {
+          "qa_id": "qa10",
+          "confidence": 0.8,
+          "importance": 0.85
+        },
+        {
+          "qa_id": "qa9",
+          "confidence": 0.7,
+          "importance": 0.7
+        },
+        {
+          "qa_id": "qa14",
+          "confidence": 0.85,
+          "importance": 0.9
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "candidate",
+      "frequency": 3,
+      "is_stance": false
+    },
+    "n71": {
+      "label": "Perceived pace of neighborhood change",
+      "aggregate_confidence": 0.7,
+      "importance": 0.8,
+      "evidence": [
+        {
+          "qa_id": "qa11",
+          "confidence": 0.7,
+          "importance": 0.8
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "candidate",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n72": {
+      "label": "Inclusion in decision-making processes",
+      "aggregate_confidence": 0.8,
+      "importance": 0.9,
+      "evidence": [
+        {
+          "qa_id": "qa11",
+          "confidence": 0.8,
+          "importance": 0.9
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "candidate",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n75": {
+      "label": "Urban needs",
+      "aggregate_confidence": 0.8,
+      "importance": 0.85,
+      "evidence": [
+        {
+          "qa_id": "qa12",
+          "confidence": 0.8,
+          "importance": 0.85
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "candidate",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n78": {
+      "label": "Neighborhood density",
+      "aggregate_confidence": 0.7,
+      "importance": 0.75,
+      "evidence": [
+        {
+          "qa_id": "qa12",
+          "confidence": 0.7,
+          "importance": 0.75
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "candidate",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n83": {
+      "label": "Rate of change (e.g., traffic, density)",
+      "aggregate_confidence": 0.85,
+      "importance": 0.8749999999999999,
+      "evidence": [
+        {
+          "qa_id": "qa13",
+          "confidence": 0.85,
+          "importance": 0.9
+        },
+        {
+          "qa_id": "qa17",
+          "confidence": 0.85,
+          "importance": 0.85
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "candidate",
+      "frequency": 2,
+      "is_stance": false
+    },
+    "n84": {
+      "label": "Resident preferences",
+      "aggregate_confidence": 0.9,
+      "importance": 0.95,
+      "evidence": [
+        {
+          "qa_id": "qa13",
+          "confidence": 0.9,
+          "importance": 0.95
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "candidate",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n85": {
+      "label": "Gradual vs. sudden changes",
+      "aggregate_confidence": 0.8,
+      "importance": 0.85,
+      "evidence": [
+        {
+          "qa_id": "qa13",
+          "confidence": 0.8,
+          "importance": 0.85
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "candidate",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n88": {
+      "label": "Zoning that allows higher density",
+      "aggregate_confidence": 0.7,
+      "importance": 0.7,
+      "evidence": [
+        {
+          "qa_id": "qa14",
+          "confidence": 0.7,
+          "importance": 0.7
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "candidate",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n90": {
+      "label": "Traffic and overcrowding",
+      "aggregate_confidence": 0.8,
+      "importance": 0.85,
+      "evidence": [
+        {
+          "qa_id": "qa14",
+          "confidence": 0.8,
+          "importance": 0.85
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "candidate",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n92": {
+      "label": "Walkability",
+      "aggregate_confidence": 0.9,
+      "importance": 0.8,
+      "evidence": [
+        {
+          "qa_id": "qa15",
+          "confidence": 0.9,
+          "importance": 0.8
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "candidate",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n96": {
+      "label": "Positive effect on zoning support",
+      "aggregate_confidence": 0.7916666666666666,
+      "importance": 0.8405263157894737,
+      "evidence": [
+        {
+          "qa_id": "qa15",
+          "confidence": 0.85,
+          "importance": 0.85
+        },
+        {
+          "qa_id": "qa11",
+          "confidence": 0.6,
+          "importance": 0.75
+        },
+        {
+          "qa_id": "qa16",
+          "confidence": 0.9,
+          "importance": 0.9
+        },
+        {
+          "qa_id": "qa17",
+          "confidence": 0.8,
+          "importance": 0.9
+        },
+        {
+          "qa_id": "qa18",
+          "confidence": 0.75,
+          "importance": 0.7
+        },
+        {
+          "qa_id": "qa19",
+          "confidence": 0.85,
+          "importance": 0.9
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "candidate",
+      "frequency": 6,
+      "is_stance": false
+    },
+    "n97": {
+      "label": "Incremental improvements",
+      "aggregate_confidence": 0.9,
+      "importance": 0.8,
+      "evidence": [
+        {
+          "qa_id": "qa15",
+          "confidence": 0.9,
+          "importance": 0.8
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "candidate",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n100": {
+      "label": "Neighborhood needs in planning",
+      "aggregate_confidence": 0.7833333333333333,
+      "importance": 0.8000000000000002,
+      "evidence": [
+        {
+          "qa_id": "qa16",
+          "confidence": 0.85,
+          "importance": 0.8
+        },
+        {
+          "qa_id": "qa10",
+          "confidence": 0.75,
+          "importance": 0.8
+        },
+        {
+          "qa_id": "qa11",
+          "confidence": 0.75,
+          "importance": 0.8
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "candidate",
+      "frequency": 4,
+      "is_stance": false
+    },
+    "n103": {
+      "label": "Community involvement/feeling heard",
+      "aggregate_confidence": 0.9,
+      "importance": 0.85,
+      "evidence": [
+        {
+          "qa_id": "qa16",
+          "confidence": 0.9,
+          "importance": 0.85
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "candidate",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n106": {
+      "label": "Negative initial reaction to growth",
+      "aggregate_confidence": 0.75,
+      "importance": 0.8,
+      "evidence": [
+        {
+          "qa_id": "qa17",
+          "confidence": 0.75,
+          "importance": 0.8
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "candidate",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n108": {
+      "label": "Local neighborhood concerns",
+      "aggregate_confidence": 0.9,
+      "importance": 0.95,
+      "evidence": [
+        {
+          "qa_id": "qa18",
+          "confidence": 0.9,
+          "importance": 0.95
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "candidate",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n113": {
+      "label": "Neighborhood influence",
+      "aggregate_confidence": 0.7,
+      "importance": 0.775,
+      "evidence": [
+        {
+          "qa_id": "qa19",
+          "confidence": 0.7,
+          "importance": 0.8
+        },
+        {
+          "qa_id": "qa2",
+          "confidence": 0.7,
+          "importance": 0.75
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "candidate",
+      "frequency": 2,
+      "is_stance": false
+    },
+    "n115": {
+      "label": "Zoning density",
+      "aggregate_confidence": 0.7,
+      "importance": 0.7,
+      "evidence": [
+        {
+          "qa_id": "qa19",
+          "confidence": 0.7,
+          "importance": 0.7
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "candidate",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n118": {
+      "label": "Development pressure",
+      "aggregate_confidence": 0.75,
+      "importance": 0.8,
+      "evidence": [
+        {
+          "qa_id": "qa20",
+          "confidence": 0.75,
+          "importance": 0.8
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "candidate",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n119": {
+      "label": "Infrastructure management",
+      "aggregate_confidence": 0.8,
+      "importance": 0.9,
+      "evidence": [
+        {
+          "qa_id": "qa20",
+          "confidence": 0.8,
+          "importance": 0.9
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "candidate",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n120": {
+      "label": "Zoning effectiveness in balancing density and infrastructure",
+      "aggregate_confidence": 0.85,
+      "importance": 0.95,
+      "evidence": [
+        {
+          "qa_id": "qa20",
+          "confidence": 0.85,
+          "importance": 0.95
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "candidate",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n121": {
+      "label": "Moderate effect size",
+      "aggregate_confidence": 0.8,
+      "importance": 0.7,
+      "evidence": [
+        {
+          "qa_id": "qa20",
+          "confidence": 0.8,
+          "importance": 0.7
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "candidate",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n122": {
+      "label": "Slight negative effect when traffic is poorly managed",
+      "aggregate_confidence": 0.8,
+      "importance": 0.85,
+      "evidence": [
+        {
+          "qa_id": "qa20",
+          "confidence": 0.8,
+          "importance": 0.85
         }
       ],
       "incoming_edges": [],
@@ -360,72 +1487,500 @@
   },
   "edges": {
     "e1": {
-      "source": "n1",
+      "source": "n2",
       "target": "n3",
-      "aggregate_confidence": 0.95,
+      "aggregate_confidence": 0.85,
       "evidence": [
         {
           "qa_id": "qa1",
-          "confidence": 0.95,
-          "original_modifier": 0.9
+          "confidence": 0.85,
+          "original_modifier": -0.9
         }
       ],
-      "modifier": 0.855,
-      "source_label": "Support for upzoning",
-      "target_label": "Meeting housing needs",
-      "explanation": "Support for upzoning is directly linked to meeting housing needs because upzoning allows for higher density housing, which can increase the supply of homes.",
-      "direction": "positive",
+      "modifier": -0.765,
+      "source_label": "Upzoning policies",
+      "target_label": "Housing shortages",
+      "explanation": "Upzoning policies allow for higher density housing, which increases housing supply and helps alleviate housing shortages by enabling more units to be built in traditionally single-family neighborhoods.",
+      "direction": "negative",
       "strength": 0.9
     },
     "e2": {
-      "source": "n17",
-      "target": "n3",
-      "aggregate_confidence": 0.95,
+      "source": "n11",
+      "target": "n12",
+      "aggregate_confidence": 0.8,
+      "evidence": [
+        {
+          "qa_id": "qa2",
+          "confidence": 0.8,
+          "original_modifier": 0.7
+        }
+      ],
+      "modifier": 0.5599999999999999,
+      "source_label": "Housing density",
+      "target_label": "Community and diversity",
+      "explanation": "Increased housing density typically brings more residents from diverse backgrounds, fostering greater community interaction and cultural variety in neighborhoods.",
+      "direction": "positive",
+      "strength": 0.7
+    },
+    "e3": {
+      "source": "n2",
+      "target": "n19",
+      "aggregate_confidence": 0.85,
       "evidence": [
         {
           "qa_id": "qa3",
-          "confidence": 0.95,
+          "confidence": 0.85,
           "original_modifier": 0.9
         }
       ],
-      "modifier": 0.855,
+      "modifier": 0.765,
       "source_label": "Upzoning",
       "target_label": "Housing supply",
-      "explanation": "Upzoning allows for more density, which enables the construction of more homes, thereby increasing housing supply.",
+      "explanation": "Upzoning allows for higher density development, which directly increases the number of housing units available, thus boosting housing supply.",
       "direction": "positive",
       "strength": 0.9
+    },
+    "e4": {
+      "source": "n11",
+      "target": "n5",
+      "aggregate_confidence": 0.8,
+      "evidence": [
+        {
+          "qa_id": "qa4",
+          "confidence": 0.8,
+          "original_modifier": 0.7
+        }
+      ],
+      "modifier": 0.5599999999999999,
+      "source_label": "Increased housing density",
+      "target_label": "Neighborhood character",
+      "explanation": "When increased housing density is implemented with thoughtful planning, it can enhance neighborhood character by introducing more energy and diversity, which enriches the community and contributes to a vibrant local identity.",
+      "direction": "positive",
+      "strength": 0.7
+    },
+    "e5": {
+      "source": "n2",
+      "target": "n22",
+      "aggregate_confidence": 0.8,
+      "evidence": [
+        {
+          "qa_id": "qa5",
+          "confidence": 0.8,
+          "original_modifier": -0.7
+        }
+      ],
+      "modifier": -0.5599999999999999,
+      "source_label": "Upzoning",
+      "target_label": "Traffic congestion",
+      "explanation": "Upzoning can reduce traffic congestion when it increases density in urban areas, enabling people to live closer to where they work, thus reducing commutes and reliance on cars.",
+      "direction": "negative",
+      "strength": 0.7
+    },
+    "e6": {
+      "source": "n38",
+      "target": "n3",
+      "aggregate_confidence": 0.85,
+      "evidence": [
+        {
+          "qa_id": "qa6",
+          "confidence": 0.85,
+          "original_modifier": 0.9
+        }
+      ],
+      "modifier": 0.765,
+      "source_label": "Local government regulation",
+      "target_label": "Housing development",
+      "explanation": "Local government regulation directly influences the pace, scale, and location of housing development by setting rules and approvals, enabling or constraining new projects.",
+      "direction": "positive",
+      "strength": 0.9
+    },
+    "e7": {
+      "source": "n36",
+      "target": "n13",
+      "aggregate_confidence": 0.8,
+      "evidence": [
+        {
+          "qa_id": "qa7",
+          "confidence": 0.8,
+          "original_modifier": 0.7
+        }
+      ],
+      "modifier": 0.5599999999999999,
+      "source_label": "Urban density",
+      "target_label": "Traffic impact",
+      "explanation": "Higher urban density can lead to increased traffic congestion, especially if infrastructure like public transportation is not adequately developed.",
+      "direction": "positive",
+      "strength": 0.7
+    },
+    "e8": {
+      "source": "n52",
+      "target": "n53",
+      "aggregate_confidence": 0.85,
+      "evidence": [
+        {
+          "qa_id": "qa8",
+          "confidence": 0.85,
+          "original_modifier": -0.9
+        }
+      ],
+      "modifier": -0.765,
+      "source_label": "Increased housing supply",
+      "target_label": "Lower housing prices",
+      "explanation": "An increase in housing supply typically reduces scarcity, leading to downward pressure on prices as competition among suppliers increases.",
+      "direction": "negative",
+      "strength": 0.9
+    },
+    "e9": {
+      "source": "n3",
+      "target": "n1",
+      "aggregate_confidence": 0.8,
+      "evidence": [
+        {
+          "qa_id": "qa9",
+          "confidence": 0.8,
+          "original_modifier": 0.5
+        }
+      ],
+      "modifier": 0.4,
+      "source_label": "Housing shortages",
+      "target_label": "Support for zoning",
+      "explanation": "Housing shortages create pressure on communities, leading people to recognize the need for more housing, which increases support for zoning reforms over time as they see the benefits of higher density.",
+      "direction": "positive",
+      "strength": 0.5
+    },
+    "e10": {
+      "source": "n10",
+      "target": "n1",
+      "aggregate_confidence": 0.8,
+      "evidence": [
+        {
+          "qa_id": "qa10",
+          "confidence": 0.8,
+          "original_modifier": 0.7
+        }
+      ],
+      "modifier": 0.5599999999999999,
+      "source_label": "Access to services",
+      "target_label": "Support for zoning",
+      "explanation": "When access to services is good, neighborhoods become more livable, which increases residents' satisfaction with community planning and strengthens their support for zoning regulations that maintain order and organization.",
+      "direction": "positive",
+      "strength": 0.7
+    },
+    "e11": {
+      "source": "n12",
+      "target": "n1",
+      "aggregate_confidence": 0.6,
+      "evidence": [
+        {
+          "qa_id": "qa11",
+          "confidence": 0.6,
+          "original_modifier": 0.5
+        }
+      ],
+      "modifier": 0.3,
+      "source_label": "Community diversity",
+      "target_label": "Support for zoning",
+      "explanation": "More diverse communities often increase housing demand, which can lead to greater support for zoning changes to accommodate new housing. This creates a moderate positive effect on support for zoning.",
+      "direction": "positive",
+      "strength": 0.5
+    },
+    "e13": {
+      "source": "n5",
+      "target": "n1",
+      "aggregate_confidence": 0.8,
+      "evidence": [
+        {
+          "qa_id": "qa13",
+          "confidence": 0.8,
+          "original_modifier": 0.5
+        }
+      ],
+      "modifier": 0.4,
+      "source_label": "Neighborhood character",
+      "target_label": "Support for zoning",
+      "explanation": "The answer states that stable and well-kept neighborhoods build support for zoning, indicating a positive relationship between neighborhood character and support for zoning, though the effect is described as moderate in strength.",
+      "direction": "positive",
+      "strength": 0.5
+    },
+    "e14": {
+      "source": "n19",
+      "target": "n1",
+      "aggregate_confidence": 0.7,
+      "evidence": [
+        {
+          "qa_id": "qa14",
+          "confidence": 0.7,
+          "original_modifier": 0.5
+        }
+      ],
+      "modifier": 0.35,
+      "source_label": "Housing affordability",
+      "target_label": "Support for zoning",
+      "explanation": "When housing is affordable, people are more likely to support zoning changes that allow higher density, as affordability increases access to housing and reduces resistance to denser development.",
+      "direction": "positive",
+      "strength": 0.5
+    },
+    "e15": {
+      "source": "n36",
+      "target": "n1",
+      "aggregate_confidence": 0.8,
+      "evidence": [
+        {
+          "qa_id": "qa15",
+          "confidence": 0.8,
+          "original_modifier": 0.6
+        }
+      ],
+      "modifier": 0.48,
+      "source_label": "Small changes in urban planning",
+      "target_label": "Support for zoning",
+      "explanation": "Small changes like improving walkability or adding green spaces make neighborhoods more livable, which increases residents' support for zoning regulations that maintain these improvements.",
+      "direction": "positive",
+      "strength": 0.6
+    },
+    "e16": {
+      "source": "n6",
+      "target": "n1",
+      "aggregate_confidence": 0.8,
+      "evidence": [
+        {
+          "qa_id": "qa16",
+          "confidence": 0.8,
+          "original_modifier": 0.7
+        }
+      ],
+      "modifier": 0.5599999999999999,
+      "source_label": "Thoughtful planning",
+      "target_label": "Support for zoning",
+      "explanation": "When planning is thoughtful and includes considerations like traffic, neighborhood needs, and urban growth, it builds community trust and makes residents feel heard, increasing their support for zoning changes.",
+      "direction": "positive",
+      "strength": 0.7
+    },
+    "e17": {
+      "source": "n7",
+      "target": "n1",
+      "aggregate_confidence": 0.8,
+      "evidence": [
+        {
+          "qa_id": "qa17",
+          "confidence": 0.8,
+          "original_modifier": 0.6
+        }
+      ],
+      "modifier": 0.48,
+      "source_label": "Urban growth",
+      "target_label": "Support for zoning",
+      "explanation": "Over time, as people observe the perceived benefits of urban growth such as improved services and job opportunities, their support for zoning increases, especially when growth is managed well.",
+      "direction": "positive",
+      "strength": 0.6
+    },
+    "e18": {
+      "source": "n13",
+      "target": "n1",
+      "aggregate_confidence": 0.7,
+      "evidence": [
+        {
+          "qa_id": "qa18",
+          "confidence": 0.7,
+          "original_modifier": 0.5
+        }
+      ],
+      "modifier": 0.35,
+      "source_label": "Traffic reduction",
+      "target_label": "Support for zoning",
+      "explanation": "Improved traffic makes dense urban living more attractive, which can increase public support for zoning policies that enable such development.",
+      "direction": "positive",
+      "strength": 0.5
+    },
+    "e19": {
+      "source": "n26",
+      "target": "n1",
+      "aggregate_confidence": 0.8,
+      "evidence": [
+        {
+          "qa_id": "qa19",
+          "confidence": 0.8,
+          "original_modifier": 0.6
+        }
+      ],
+      "modifier": 0.48,
+      "source_label": "Quality of life",
+      "target_label": "Support for zoning",
+      "explanation": "Better quality of life leads to increased support for zoning, as people associate zoning with positive outcomes like reduced traffic, improved neighborhood vibe, and controlled urban development.",
+      "direction": "positive",
+      "strength": 0.6
+    },
+    "e20": {
+      "source": "n22",
+      "target": "n1",
+      "aggregate_confidence": 0.7,
+      "evidence": [
+        {
+          "qa_id": "qa20",
+          "confidence": 0.7,
+          "original_modifier": -0.5
+        }
+      ],
+      "modifier": -0.35,
+      "source_label": "Traffic congestion",
+      "target_label": "Support for zoning",
+      "explanation": "When traffic congestion is poorly managed, it increases public dissatisfaction with development, leading to reduced support for zoning policies that enable growth, resulting in a slight negative effect on support for zoning.",
+      "direction": "negative",
+      "strength": 0.5
     }
   },
   "qa_history": {
     "qa1": {
       "question": "To what extent do you support or oppose upzoning policies that allow for higher density housing in traditionally single-family neighborhoods? Please explain your reasoning.",
-      "answer": "I support upzoning because it can help meet housing needs and make communities more inclusive. More density often means more options for people of different incomes. I think it's important to balance that with keeping the character of neighborhoods. If done right, higher density can reduce traffic by making it easier to live without a car. It’s about smart growth that respects both urban development and local residents. I believe zoning should support thoughtful density, not just single-family homes.",
+      "answer": "I support upzoning because it helps address housing shortages. More density can make neighborhoods more vibrant and accessible. I think it's important to balance new development with the existing community. If done right, higher density can improve traffic flow and bring more services. But I also care about preserving the character of neighborhoods. So, I’d want thoughtful planning that considers both urban growth and local needs. Overall, I’m in favor if it’s done responsibly.",
       "shortText": "Stance on upzoning",
-      "timestamp": 1758707821
+      "timestamp": 1758719781
     },
     "qa2": {
       "question": "What do you think are the most significant impacts, positive or negative, of increasing housing density in residential neighborhoods?",
-      "answer": "Increasing housing density can have both pros and cons. I think it can help meet housing needs and make neighborhoods more vibrant. But I also worry about traffic getting worse and the character of the neighborhood changing. If done right, denser areas can be good for communities, but they need to balance growth with the needs of existing residents. Zoning plays a big role in how that balance is achieved. It's important to consider how density affects traffic and the local environment. I support more housing, but it should be done thoughtfully.",
+      "answer": "Increasing housing density can have both positive and negative impacts, but I think the positives outweigh the negatives. More density can bring more community and diversity, which is good for neighborhoods. It can also reduce traffic by making it easier for people to live closer to where they work or shop. However, I do worry about overcrowding and strain on local resources. Still, with good zoning policies, we can manage these issues. I believe zoning should support thoughtful density that benefits everyone without harming the neighborhood vibe.",
       "shortText": "Upzoning impacts",
-      "timestamp": 1758707840
+      "timestamp": 1758719792
     },
     "qa3": {
       "question": "How do you think upzoning policies might affect housing affordability in urban areas?",
-      "answer": "Upzoning can help increase housing supply, which should make housing more affordable. If we allow more density in urban areas, we can build more homes, which eases pressure on prices. But I also worry about traffic and neighborhood changes. More people mean more cars, and that could hurt the quality of life. Still, I think the benefits of more housing outweigh the downsides. As long as we plan carefully, upzoning can support both affordability and livability. It’s all about balance.",
+      "answer": "Upzoning can help increase housing supply, which should make housing more affordable. More density means more homes, and that usually brings down prices. But I also worry about traffic and how it might affect the neighborhood. If we don’t plan carefully, more buildings could mean more congestion and less community feel. Still, I think the benefits of more housing outweigh the risks. As long as there’s good planning, upzoning can support both affordability and a livable environment. It’s all about balance.",
       "shortText": "Housing affordability",
-      "timestamp": 1758707860
+      "timestamp": 1758719801
+    },
+    "qa4": {
+      "question": "What impact do you believe increased housing density might have on neighborhood character and quality of life?",
+      "answer": "Increased housing density can have a positive impact on neighborhood character if done right. More people can bring more energy and diversity, which enriches the community. But it's important to balance that with maintaining the neighborhood's unique feel. I think zoning plays a big role in how density affects traffic and local businesses. If managed well, higher density can lead to better services and a more vibrant area without sacrificing quality of life. It’s all about thoughtful planning and considering both urban growth and the needs of residents.",
+      "shortText": "Neighborhood character",
+      "timestamp": 1758719816
+    },
+    "qa5": {
+      "question": "How do you think upzoning might affect transportation systems and traffic congestion in cities?",
+      "answer": "Upzoning can definitely impact traffic, but I think it's about how it's done. If we allow more density in urban areas, people might live closer to where they work, which could reduce commutes. But if it's not planned well, more people could mean more cars and worse congestion. I believe zoning should support smart growth, balancing density with good public transit options. The key is making sure that upzoning doesn't just add more cars to the road—it should encourage walking, biking, and using public transport. It’s all about how zoning shapes the neighborhood and traffic patterns together.",
+      "shortText": "Transportation impacts",
+      "timestamp": 1758719828
+    },
+    "qa6": {
+      "question": "What role do you believe local government should play in regulating housing development and density?",
+      "answer": "I think local governments should play a key role in regulating housing development and density. They need to balance growth with the needs of existing residents. More density can help meet housing demands, but it shouldn't overwhelm the neighborhood. I believe zoning rules should support higher density where it makes sense, especially in urban areas. But they also need to consider traffic and how new developments affect the local community. The goal should be smart growth that supports both people and the environment.",
+      "shortText": "Government role",
+      "timestamp": 1758719842
+    },
+    "qa7": {
+      "question": "How might environmental concerns factor into decisions about urban density and zoning?",
+      "answer": "Environmental concerns are definitely part of the conversation, but I think they're often overshadowed by other factors. More density can mean more traffic, which affects the neighborhood. But if we plan right, like with better public transport and green spaces, it can work. Zoning should support smart growth that balances development with community needs. I believe zoning has a big role in shaping how cities grow, and it needs to consider both urban and local impacts. It's about finding that sweet spot where people can live well without harming the environment or their communities.",
+      "shortText": "Environmental factors",
+      "timestamp": 1758719854
+    },
+    "qa8": {
+      "question": "What economic effects, both positive and negative, might result from changing zoning laws to allow more multi-family housing?",
+      "answer": "Changing zoning laws to allow more multi-family housing could have both positive and negative economic effects. On the positive side, it might increase housing supply, which could lower prices and make housing more accessible for residents. More density can also boost local businesses by bringing more people into the area. However, there could be some challenges, like increased traffic or pressure on local services. I think with good planning, the benefits outweigh the risks. It's about balancing growth with community needs.",
+      "shortText": "Economic effects",
+      "timestamp": 1758719870
+    },
+    "qa9": {
+      "question": "Is the effect of Housing shortages on Support for zoning immediate, or does it take time to develop? Does it have a positive effect (increasing it) or a negative effect (decreasing it)? How strong is this effect?",
+      "answer": "I think the effect of housing shortages on support for zoning isn't immediate. It takes time for people to feel the pressure and realize the need for change. Over time, it probably increases support because people see the need for more density. But it's not super strong—maybe moderate. I believe zoning has a role, but it's part of a bigger picture involving traffic, neighborhoods, and urban growth. People might not jump on board right away, but eventually, they see the benefits.",
+      "shortText": "Relationship: Housing shortages → Support for zoning",
+      "timestamp": 1758719889
+    },
+    "qa10": {
+      "question": "How would you describe the relationship between Access to services and Support for zoning? Is it a strong or weak connection? Does it have a positive effect (increasing it) or a negative effect (decreasing it)? How strong is this effect?",
+      "answer": "I think access to services and support for zoning are pretty connected. If a neighborhood has good services, people are more likely to support zoning that keeps things organized. I’d say it's a strong positive connection. When services are easy to reach, it makes the area more livable, which supports better zoning. I don’t think it’s super strong, but it definitely helps. It’s one of those factors that makes people feel good about how their community is planned.",
+      "shortText": "Relationship: Access to services → Support for zoning",
+      "timestamp": 1758719911
+    },
+    "qa11": {
+      "question": "How confident are you that changes in Community and diversity lead to changes in Support for zoning? Does it have a positive effect (increasing it) or a negative effect (decreasing it)? How strong is this effect?",
+      "answer": "I think changes in community and diversity definitely affect support for zoning, but I'm not super confident. From what I've seen, more diverse communities often push for more housing, which can increase support for zoning changes. But it's not always straightforward—some people might resist if they feel their neighborhood is changing too fast. I’d say the effect is moderate, maybe a slight positive. It depends a lot on how the changes are managed and whether people feel included in the process.",
+      "shortText": "Relationship: Community and diversity → Support for zoning",
+      "timestamp": 1758719943
+    },
+    "qa12": {
+      "question": "How would you describe the relationship between Zoning policies and Support for zoning? Is it a strong or weak connection? Does it have a positive effect (increasing it) or a negative effect (decreasing it)? How strong is this effect?",
+      "answer": "I think zoning policies and support for zoning are pretty connected. If zoning is done well, it can really support the community. I believe that good zoning helps manage traffic and keeps neighborhoods from getting too dense. But if it's not done right, people might not support it. So I see a strong positive effect—zoning that considers urban needs and neighborhood input can boost support a lot. It's not just about rules; it's about balance.",
+      "shortText": "Relationship: Zoning policies → Support for zoning",
+      "timestamp": 1758719975
+    },
+    "qa13": {
+      "question": "Is the effect of Neighborhood character on Support for zoning immediate, or does it take time to develop? Does it have a positive effect (increasing it) or a negative effect (decreasing it)? How strong is this effect?",
+      "answer": "I think the neighborhood character affects support for zoning over time. It starts with how people feel about their community. If the neighborhood is stable and well-kept, it builds support. But if it changes too fast, like with more traffic or density, people might resist. I believe it has a positive effect, but it's not super strong. It depends on how zoning decisions align with what residents want. Slow, steady changes are better than sudden ones.",
+      "shortText": "Relationship: Neighborhood character → Support for zoning",
+      "timestamp": 1758720021
+    },
+    "qa14": {
+      "question": "Does Housing affordability have a positive or negative effect on Support for zoning, and how significant is this effect? Does it have a positive effect (increasing it) or a negative effect (decreasing it)? How strong is this effect?",
+      "answer": "I think housing affordability definitely affects support for zoning, but it's not the only factor. When housing is affordable, more people can live in an area, which might lead to more support for zoning that allows higher density. But I also think neighborhood concerns matter a lot. If people feel traffic or overcrowding is a problem, they might oppose zoning changes even if housing is affordable. So, I’d say it has a positive effect, but it's moderate — not the strongest influence. The real impact depends on how zoning balances density with community needs.",
+      "shortText": "Relationship: Housing affordability → Support for zoning",
+      "timestamp": 1758720064
+    },
+    "qa15": {
+      "question": "Would small changes in Urban planning lead to noticeable changes in Support for zoning, or would it take larger shifts? Does it have a positive effect (increasing it) or a negative effect (decreasing it)? How strong is this effect?",
+      "answer": "I think small changes in urban planning can definitely make a difference. If you improve walkability or add green spaces, people might support zoning more because it makes the neighborhood better. But it’s not a huge shift—just enough to notice. I don’t think it’s a big negative effect, though. As long as the changes respect the community, they probably help. The effect isn’t super strong, but it’s positive. Small steps matter, especially if they make life easier for residents.",
+      "shortText": "Relationship: Urban planning → Support for zoning",
+      "timestamp": 1758720113
+    },
+    "qa16": {
+      "question": "How confident are you that changes in Thoughtful planning lead to changes in Support for zoning? Does it have a positive effect (increasing it) or a negative effect (decreasing it)? How strong is this effect?",
+      "answer": "I think thoughtful planning definitely boosts support for zoning. If people see that plans are well thought out, they’re more likely to back them. It has a positive effect, maybe moderate to strong. When planning considers traffic, neighborhood needs, and urban growth, it builds trust. I’ve noticed that when communities feel heard, they’re more supportive. So, yes, good planning makes people more on board with zoning changes.",
+      "shortText": "Relationship: Thoughtful planning → Support for zoning",
+      "timestamp": 1758720162
+    },
+    "qa17": {
+      "question": "Is the effect of Urban growth on Support for zoning immediate, or does it take time to develop? Does it have a positive effect (increasing it) or a negative effect (decreasing it)? How strong is this effect?",
+      "answer": "I think the effect of urban growth on support for zoning isn't immediate. It takes time as people see how it affects their neighborhoods. At first, there might be resistance, but over time, if the growth brings benefits like more services or jobs, support could increase. I believe it has a positive effect, especially if managed well. The strength depends on how well the community feels involved and how the changes impact their daily lives.",
+      "shortText": "Relationship: Urban growth → Support for zoning",
+      "timestamp": 1758720211
+    },
+    "qa18": {
+      "question": "How confident are you that changes in Traffic reduction lead to changes in Support for zoning? Does it have a positive effect (increasing it) or a negative effect (decreasing it)? How strong is this effect?",
+      "answer": "I think traffic reduction definitely affects support for zoning, but it's not the main factor. If traffic gets better, people might be more supportive because it makes living in dense areas more attractive. But I'm not super confident—local neighborhood concerns and urban development have a bigger impact. It's a moderate positive effect, maybe medium strength. I lean towards supporting zoning if it helps with traffic, but it's not the only thing that matters.",
+      "shortText": "Relationship: Traffic reduction → Support for zoning",
+      "timestamp": 1758720247
+    },
+    "qa19": {
+      "question": "Is the effect of Quality of life on Support for zoning immediate, or does it take time to develop? Does it have a positive effect (increasing it) or a negative effect (decreasing it)? How strong is this effect?",
+      "answer": "I think the effect of quality of life on support for zoning isn't immediate. It takes time as people see how zoning affects their daily lives—like traffic, neighborhood vibe, and urban development. I believe it has a positive effect because better quality of life usually means more support. But it's not super strong on its own; it depends on other factors like traffic impact and neighborhood influence. Zoning shapes density, which in turn affects quality of life, so it's all connected.",
+      "shortText": "Relationship: Quality of life → Support for zoning",
+      "timestamp": 1758720284
+    },
+    "qa20": {
+      "question": "How confident are you that changes in Traffic congestion lead to changes in Support for zoning? Does it have a positive effect (increasing it) or a negative effect (decreasing it)? How strong is this effect?",
+      "answer": "I think traffic congestion definitely affects support for zoning, but it's not the only factor. If traffic gets worse, people might push back against more development, which could lower support. But if zoning helps manage growth and traffic, it could actually boost support. I’m pretty confident it has a moderate effect—neither super strong nor weak. It depends on how well the zoning balances density with infrastructure. Overall, I lean toward it having a slight negative effect if traffic isn’t managed well.",
+      "shortText": "Relationship: Traffic congestion → Support for zoning",
+      "timestamp": 1758720317
     }
   },
   "stance_node_id": "n1",
   "step": "node_discovery",
   "anchor_queue": [
     "n1",
+    "n2",
     "n3",
+    "n10",
+    "n11",
+    "n12",
+    "n16",
     "n5",
-    "n17",
-    "n19"
+    "n19",
+    "n23",
+    "n6",
+    "n7",
+    "n13",
+    "n26",
+    "n22",
+    "n34",
+    "n36",
+    "n24",
+    "n33",
+    "n38",
+    "n40",
+    "n45",
+    "n15",
+    "n52",
+    "n53"
   ],
-  "node_counter": 25,
-  "edge_counter": 2,
-  "qa_counter": 3
+  "node_counter": 122,
+  "edge_counter": 20,
+  "qa_counter": 20
 }

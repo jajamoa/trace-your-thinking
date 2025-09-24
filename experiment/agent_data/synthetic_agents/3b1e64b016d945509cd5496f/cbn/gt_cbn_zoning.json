@@ -1,0 +1,392 @@
+{
+  "agent_id": "3b1e64b016d945509cd5496f",
+  "timestamp": 1758720397310,
+  "nodes": {
+    "n1": {
+      "label": "Support for housing",
+      "aggregate_confidence": 0.793565078575332,
+      "evidence": [
+        {
+          "qa_id": "system",
+          "confidence": 1.0,
+          "importance": 1.0
+        }
+      ],
+      "importance": 1.0,
+      "incoming_edges": [
+        "e1",
+        "e2",
+        "e3",
+        "e4",
+        "e13"
+      ],
+      "outgoing_edges": [
+        "e6"
+      ],
+      "status": "anchor",
+      "frequency": 1,
+      "is_stance": true
+    },
+    "n2": {
+      "label": "Increased development",
+      "aggregate_confidence": 0.9866651189465458,
+      "evidence": [
+        {
+          "qa_id": "qa4",
+          "confidence": 0.9866651189465458,
+          "importance": 0.755966134432149
+        }
+      ],
+      "importance": 0.755966134432149,
+      "incoming_edges": [
+        "e8",
+        "e9"
+      ],
+      "outgoing_edges": [
+        "e10"
+      ],
+      "status": "candidate",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n3": {
+      "label": "Effect of housing",
+      "aggregate_confidence": 0.755281491281074,
+      "evidence": [
+        {
+          "qa_id": "qa12",
+          "confidence": 0.8252556802376018,
+          "importance": 0.6299600257418755
+        },
+        {
+          "qa_id": "qa7",
+          "confidence": 0.5513902871159211,
+          "importance": 0.7430798564680097
+        },
+        {
+          "qa_id": "qa13",
+          "confidence": 0.7615309651092071,
+          "importance": 0.3190416713877794
+        },
+        {
+          "qa_id": "qa9",
+          "confidence": 0.8942970101434874,
+          "importance": 0.758423686342081
+        }
+      ],
+      "importance": 0.6126263099849364,
+      "incoming_edges": [
+        "e14"
+      ],
+      "outgoing_edges": [
+        "e2",
+        "e5"
+      ],
+      "status": "anchor",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n4": {
+      "label": "Development",
+      "aggregate_confidence": 0.6514129702630934,
+      "evidence": [
+        {
+          "qa_id": "qa7",
+          "confidence": 0.6076905992490023,
+          "importance": 0.763609704972439
+        },
+        {
+          "qa_id": "qa14",
+          "confidence": 0.6966025575485191,
+          "importance": 0.7388168123751235
+        }
+      ],
+      "importance": 0.7512132586737812,
+      "incoming_edges": [],
+      "outgoing_edges": [
+        "e7",
+        "e9",
+        "e11"
+      ],
+      "status": "anchor",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n5": {
+      "label": "Opposition to housing",
+      "aggregate_confidence": 0.8292885830608039,
+      "evidence": [
+        {
+          "qa_id": "qa14",
+          "confidence": 0.9343688126188305,
+          "importance": 0.6103370463275779
+        },
+        {
+          "qa_id": "qa5",
+          "confidence": 0.7727911781387606,
+          "importance": 0.730573486929039
+        },
+        {
+          "qa_id": "qa14",
+          "confidence": 0.773619975146835,
+          "importance": 0.6974616943743509
+        },
+        {
+          "qa_id": "qa2",
+          "confidence": 0.8533983897539219,
+          "importance": 0.6622977522323009
+        }
+      ],
+      "importance": 0.6751674949658172,
+      "incoming_edges": [
+        "e5"
+      ],
+      "outgoing_edges": [
+        "e8",
+        "e12",
+        "e13"
+      ],
+      "status": "anchor",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n6": {
+      "label": "Affordability",
+      "aggregate_confidence": 0.8781264983931286,
+      "evidence": [
+        {
+          "qa_id": "qa13",
+          "confidence": 0.8404682334756873,
+          "importance": 0.6154479447194352
+        },
+        {
+          "qa_id": "qa10",
+          "confidence": 0.9085128706068508,
+          "importance": 0.7627334247775971
+        }
+      ],
+      "importance": 0.6890906847485161,
+      "incoming_edges": [
+        "e6"
+      ],
+      "outgoing_edges": [],
+      "status": "candidate",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n7": {
+      "label": "Effect of zoning",
+      "aggregate_confidence": 0.5125428999363615,
+      "evidence": [
+        {
+          "qa_id": "qa12",
+          "confidence": 0.5125428999363615,
+          "importance": 0.7250132682308824
+        }
+      ],
+      "importance": 0.7250132682308824,
+      "incoming_edges": [
+        "e7"
+      ],
+      "outgoing_edges": [
+        "e1",
+        "e14"
+      ],
+      "status": "candidate",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n8": {
+      "label": "Residents influence",
+      "aggregate_confidence": 0.8245239545970053,
+      "evidence": [
+        {
+          "qa_id": "qa1",
+          "confidence": 0.7786174431704169,
+          "importance": 0.6455047663208686
+        },
+        {
+          "qa_id": "qa11",
+          "confidence": 0.8602165986151203,
+          "importance": 0.8302235025230027
+        }
+      ],
+      "importance": 0.7378641344219357,
+      "incoming_edges": [
+        "e10"
+      ],
+      "outgoing_edges": [
+        "e4"
+      ],
+      "status": "anchor",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n9": {
+      "label": "Higher neighborhood",
+      "aggregate_confidence": 0.8287875887401542,
+      "evidence": [
+        {
+          "qa_id": "qa4",
+          "confidence": 0.8287875887401542,
+          "importance": 0.7765366248820592
+        }
+      ],
+      "importance": 0.7765366248820592,
+      "incoming_edges": [
+        "e11",
+        "e12"
+      ],
+      "outgoing_edges": [],
+      "status": "candidate",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n10": {
+      "label": "Policies on housing",
+      "aggregate_confidence": 0.754137646559962,
+      "evidence": [
+        {
+          "qa_id": "qa3",
+          "confidence": 0.754137646559962,
+          "importance": 0.6133307375072475
+        }
+      ],
+      "importance": 0.6133307375072475,
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "candidate",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n11": {
+      "label": "Increased development",
+      "aggregate_confidence": 0.750320215887272,
+      "evidence": [
+        {
+          "qa_id": "qa6",
+          "confidence": 0.775704598300015,
+          "importance": 0.6376413481414753
+        },
+        {
+          "qa_id": "qa11",
+          "confidence": 0.8427166886589105,
+          "importance": 0.7613738990133471
+        },
+        {
+          "qa_id": "qa11",
+          "confidence": 0.6180667028381202,
+          "importance": 0.6543069636302419
+        }
+      ],
+      "importance": 0.6844407369283547,
+      "incoming_edges": [],
+      "outgoing_edges": [
+        "e3"
+      ],
+      "status": "anchor",
+      "frequency": 1,
+      "is_stance": false
+    }
+  },
+  "edges": {
+    "e1": {
+      "source": "n7",
+      "target": "n1",
+      "weight": 0.5,
+      "correlation": 0.5
+    },
+    "e2": {
+      "source": "n3",
+      "target": "n1",
+      "weight": 0.5,
+      "correlation": 0.5
+    },
+    "e3": {
+      "source": "n11",
+      "target": "n1",
+      "weight": 0.5,
+      "correlation": 0.5
+    },
+    "e4": {
+      "source": "n8",
+      "target": "n1",
+      "weight": 0.5,
+      "correlation": 0.5
+    },
+    "e5": {
+      "source": "n3",
+      "target": "n5",
+      "weight": 0.5,
+      "correlation": 0.5
+    },
+    "e6": {
+      "source": "n1",
+      "target": "n6",
+      "weight": 0.5,
+      "correlation": 0.5
+    },
+    "e7": {
+      "source": "n4",
+      "target": "n7",
+      "weight": 0.5,
+      "correlation": 0.5
+    },
+    "e8": {
+      "source": "n5",
+      "target": "n2",
+      "weight": 0.5,
+      "correlation": 0.5
+    },
+    "e9": {
+      "source": "n4",
+      "target": "n2",
+      "weight": 0.5,
+      "correlation": 0.5
+    },
+    "e10": {
+      "source": "n2",
+      "target": "n8",
+      "weight": 0.5,
+      "correlation": 0.5
+    },
+    "e11": {
+      "source": "n4",
+      "target": "n9",
+      "weight": 0.5,
+      "correlation": 0.5
+    },
+    "e12": {
+      "source": "n5",
+      "target": "n9",
+      "weight": 0.5,
+      "correlation": 0.5
+    },
+    "e13": {
+      "source": "n5",
+      "target": "n1",
+      "weight": 0.5,
+      "correlation": 0.5
+    },
+    "e14": {
+      "source": "n7",
+      "target": "n3",
+      "weight": 0.5,
+      "correlation": 0.5
+    }
+  },
+  "qa_history": {},
+  "stance_node_id": "n1",
+  "step": "completed",
+  "anchor_queue": [
+    "n1",
+    "n3",
+    "n4",
+    "n5",
+    "n8",
+    "n11"
+  ],
+  "node_counter": 11,
+  "edge_counter": 14,
+  "qa_counter": 8
+}

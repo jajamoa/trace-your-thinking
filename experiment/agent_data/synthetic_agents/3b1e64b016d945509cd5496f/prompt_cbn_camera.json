@@ -1,0 +1,82 @@
+{
+  "stance_node": "n1",
+  "nodes": {
+    "n19": {
+      "label": "Increased systems",
+      "is_stance": false
+    },
+    "n16": {
+      "label": "Negative on monitoring",
+      "is_stance": false
+    },
+    "n1": {
+      "label": "Opposition to camera",
+      "is_stance": true
+    },
+    "n15": {
+      "label": "Invasion impact",
+      "is_stance": false
+    },
+    "n20": {
+      "label": "Increased accuracy",
+      "is_stance": false
+    },
+    "n3": {
+      "label": "Systems effect",
+      "is_stance": false
+    },
+    "n24": {
+      "label": "Infrastructure influence",
+      "is_stance": false
+    },
+    "n23": {
+      "label": "Technology",
+      "is_stance": false
+    },
+    "n18": {
+      "label": "Positive infrastructure",
+      "is_stance": false
+    },
+    "n7": {
+      "label": "Data",
+      "is_stance": false
+    },
+    "n5": {
+      "label": "Surveillance influence",
+      "is_stance": false
+    },
+    "n21": {
+      "label": "Reliability negative",
+      "is_stance": false
+    },
+    "n22": {
+      "label": "Reduced confidence",
+      "is_stance": false
+    },
+    "n11": {
+      "label": "Positive in surveillance",
+      "is_stance": false
+    },
+    "n4": {
+      "label": "effect for camera",
+      "is_stance": false
+    }
+  },
+  "edges": [
+    {
+      "source": "n23",
+      "target": "n1",
+      "direction": "positive"
+    },
+    {
+      "source": "n1",
+      "target": "n7",
+      "direction": "positive"
+    },
+    {
+      "source": "n15",
+      "target": "n11",
+      "direction": "positive"
+    }
+  ]
+}

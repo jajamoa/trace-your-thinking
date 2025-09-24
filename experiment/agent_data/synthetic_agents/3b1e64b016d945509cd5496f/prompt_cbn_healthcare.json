@@ -1,0 +1,92 @@
+{
+  "stance_node": "n1",
+  "nodes": {
+    "n48": {
+      "label": "Emergency doctor",
+      "is_stance": false
+    },
+    "n27": {
+      "label": "Patient and doctor",
+      "is_stance": false
+    },
+    "n43": {
+      "label": "Coverage",
+      "is_stance": false
+    },
+    "n1": {
+      "label": "Opposition to medical",
+      "is_stance": true
+    },
+    "n5": {
+      "label": "Care and patient",
+      "is_stance": false
+    },
+    "n3": {
+      "label": "Private hospital",
+      "is_stance": false
+    },
+    "n24": {
+      "label": "Public medicine",
+      "is_stance": false
+    },
+    "n39": {
+      "label": "Doctor availability",
+      "is_stance": false
+    },
+    "n18": {
+      "label": "Hospital",
+      "is_stance": false
+    },
+    "n23": {
+      "label": "Universal hospital",
+      "is_stance": false
+    },
+    "n50": {
+      "label": "Access of healthcare",
+      "is_stance": false
+    },
+    "n6": {
+      "label": "Hospital cost",
+      "is_stance": false
+    },
+    "n67": {
+      "label": "Hospital effectiveness",
+      "is_stance": false
+    },
+    "n11": {
+      "label": "Patient quality",
+      "is_stance": false
+    },
+    "n46": {
+      "label": "Access to medical",
+      "is_stance": false
+    }
+  },
+  "edges": [
+    {
+      "source": "n1",
+      "target": "n3",
+      "direction": "positive"
+    },
+    {
+      "source": "n39",
+      "target": "n46",
+      "direction": "positive"
+    },
+    {
+      "source": "n1",
+      "target": "n11",
+      "direction": "positive"
+    },
+    {
+      "source": "n1",
+      "target": "n5",
+      "direction": "positive"
+    },
+    {
+      "source": "n67",
+      "target": "n1",
+      "direction": "positive"
+    }
+  ]
+}

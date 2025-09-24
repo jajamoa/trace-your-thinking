@@ -1,11 +1,24 @@
 {
   "statistics": {
-    "total_experiments": 6,
-    "successful": 0,
+    "total_experiments": 15,
+    "successful": 8,
     "failed": 0,
-    "skipped": 6,
-    "by_topic": {},
-    "timestamp": "2025-09-24T06:05:48.148294"
+    "skipped": 7,
+    "by_topic": {
+      "zoning": {
+        "count": 1,
+        "avg_qa_count": 20.0
+      },
+      "healthcare": {
+        "count": 2,
+        "avg_qa_count": 20.0
+      },
+      "surveillance": {
+        "count": 5,
+        "avg_qa_count": 20.0
+      }
+    },
+    "timestamp": "2025-09-24T09:25:19.967055"
   },
   "results": [
     {
@@ -13,42 +26,129 @@
       "topic": "zoning",
       "status": "skipped",
       "message": "Already processed",
-      "timestamp": "2025-09-24T06:05:47.966992"
+      "timestamp": "2025-09-24T09:16:08.701286"
+    },
+    {
+      "agent_id": "1990ff5494ab4008b3979aac",
+      "topic": "healthcare",
+      "status": "skipped",
+      "message": "Already processed",
+      "timestamp": "2025-09-24T09:16:08.701350"
     },
     {
       "agent_id": "857667b4850044b69702d7bb",
       "topic": "zoning",
       "status": "skipped",
       "message": "Already processed",
-      "timestamp": "2025-09-24T06:05:47.967067"
+      "timestamp": "2025-09-24T09:16:08.780525"
+    },
+    {
+      "agent_id": "857667b4850044b69702d7bb",
+      "topic": "healthcare",
+      "status": "skipped",
+      "message": "Already processed",
+      "timestamp": "2025-09-24T09:16:08.780765"
     },
     {
       "agent_id": "eb07fffc610d4786b2d5bad0",
       "topic": "zoning",
       "status": "skipped",
       "message": "Already processed",
-      "timestamp": "2025-09-24T06:05:47.967100"
-    },
-    {
-      "agent_id": "acd3e8aa5b5742d7b8b4b958",
-      "topic": "zoning",
-      "status": "skipped",
-      "message": "Already processed",
-      "timestamp": "2025-09-24T06:05:47.969012"
+      "timestamp": "2025-09-24T09:16:08.844328"
     },
     {
       "agent_id": "e90bc37b80d9456592e36f1a",
       "topic": "zoning",
       "status": "skipped",
       "message": "Already processed",
-      "timestamp": "2025-09-24T06:05:47.969103"
+      "timestamp": "2025-09-24T09:16:08.916865"
+    },
+    {
+      "agent_id": "e90bc37b80d9456592e36f1a",
+      "topic": "healthcare",
+      "status": "skipped",
+      "message": "Already processed",
+      "timestamp": "2025-09-24T09:16:08.916940"
+    },
+    {
+      "agent_id": "3eb1373206ce4bbf8b93cc8e",
+      "topic": "surveillance",
+      "qa_count": 20,
+      "transcript_file": "agent_data/synthetic_agents/3eb1373206ce4bbf8b93cc8e/transcript/raw/camera.csv",
+      "cbn_file": "agent_data/synthetic_agents/3eb1373206ce4bbf8b93cc8e/cbn_capture/captured_cbn_camera.json",
+      "survey_file": "agent_data/synthetic_agents/3eb1373206ce4bbf8b93cc8e/survey/camera_reaction.json",
+      "status": "success",
+      "timestamp": "2025-09-24T09:23:12.845535"
+    },
+    {
+      "agent_id": "eb07fffc610d4786b2d5bad0",
+      "topic": "healthcare",
+      "qa_count": 20,
+      "transcript_file": "agent_data/synthetic_agents/eb07fffc610d4786b2d5bad0/transcript/raw/healthcare.csv",
+      "cbn_file": "agent_data/synthetic_agents/eb07fffc610d4786b2d5bad0/cbn_capture/captured_cbn_healthcare.json",
+      "survey_file": "agent_data/synthetic_agents/eb07fffc610d4786b2d5bad0/survey/healthcare_reaction.json",
+      "status": "success",
+      "timestamp": "2025-09-24T09:23:34.138607"
+    },
+    {
+      "agent_id": "3eb1373206ce4bbf8b93cc8e",
+      "topic": "healthcare",
+      "qa_count": 20,
+      "transcript_file": "agent_data/synthetic_agents/3eb1373206ce4bbf8b93cc8e/transcript/raw/healthcare.csv",
+      "cbn_file": "agent_data/synthetic_agents/3eb1373206ce4bbf8b93cc8e/cbn_capture/captured_cbn_healthcare.json",
+      "survey_file": "agent_data/synthetic_agents/3eb1373206ce4bbf8b93cc8e/survey/healthcare_reaction.json",
+      "status": "success",
+      "timestamp": "2025-09-24T09:23:40.538022"
+    },
+    {
+      "agent_id": "eb07fffc610d4786b2d5bad0",
+      "topic": "surveillance",
+      "qa_count": 20,
+      "transcript_file": "agent_data/synthetic_agents/eb07fffc610d4786b2d5bad0/transcript/raw/camera.csv",
+      "cbn_file": "agent_data/synthetic_agents/eb07fffc610d4786b2d5bad0/cbn_capture/captured_cbn_camera.json",
+      "survey_file": "agent_data/synthetic_agents/eb07fffc610d4786b2d5bad0/survey/camera_reaction.json",
+      "status": "success",
+      "timestamp": "2025-09-24T09:23:44.446806"
+    },
+    {
+      "agent_id": "857667b4850044b69702d7bb",
+      "topic": "surveillance",
+      "qa_count": 20,
+      "transcript_file": "agent_data/synthetic_agents/857667b4850044b69702d7bb/transcript/raw/camera.csv",
+      "cbn_file": "agent_data/synthetic_agents/857667b4850044b69702d7bb/cbn_capture/captured_cbn_camera.json",
+      "survey_file": "agent_data/synthetic_agents/857667b4850044b69702d7bb/survey/camera_reaction.json",
+      "status": "success",
+      "timestamp": "2025-09-24T09:24:05.981996"
+    },
+    {
+      "agent_id": "e90bc37b80d9456592e36f1a",
+      "topic": "surveillance",
+      "qa_count": 20,
+      "transcript_file": "agent_data/synthetic_agents/e90bc37b80d9456592e36f1a/transcript/raw/camera.csv",
+      "cbn_file": "agent_data/synthetic_agents/e90bc37b80d9456592e36f1a/cbn_capture/captured_cbn_camera.json",
+      "survey_file": "agent_data/synthetic_agents/e90bc37b80d9456592e36f1a/survey/camera_reaction.json",
+      "status": "success",
+      "timestamp": "2025-09-24T09:24:15.438294"
+    },
+    {
+      "agent_id": "1990ff5494ab4008b3979aac",
+      "topic": "surveillance",
+      "qa_count": 20,
+      "transcript_file": "agent_data/synthetic_agents/1990ff5494ab4008b3979aac/transcript/raw/camera.csv",
+      "cbn_file": "agent_data/synthetic_agents/1990ff5494ab4008b3979aac/cbn_capture/captured_cbn_camera.json",
+      "survey_file": "agent_data/synthetic_agents/1990ff5494ab4008b3979aac/survey/camera_reaction.json",
+      "status": "success",
+      "timestamp": "2025-09-24T09:24:20.859671"
     },
     {
       "agent_id": "3eb1373206ce4bbf8b93cc8e",
       "topic": "zoning",
-      "status": "skipped",
-      "message": "Already processed",
-      "timestamp": "2025-09-24T06:05:47.969173"
+      "qa_count": 20,
+      "transcript_file": "agent_data/synthetic_agents/3eb1373206ce4bbf8b93cc8e/transcript/raw/zoning.csv",
+      "cbn_file": "agent_data/synthetic_agents/3eb1373206ce4bbf8b93cc8e/cbn_capture/captured_cbn_zoning.json",
+      "survey_file": "agent_data/synthetic_agents/3eb1373206ce4bbf8b93cc8e/survey/zoning_reaction.json",
+      "status": "success",
+      "timestamp": "2025-09-24T09:25:18.598330"
     }
   ]
 }

@@ -125,6 +125,11 @@ class ThreadSafeLLMAgent(BaseAgent):
         question_type = question_data.get("type", "opinion")
         options = question_data.get("options", [])
         scale = question_data.get("scale", None)
+        reasons = question_data.get("reasons", [])
+        
+        # Store reasons for reason_evaluation questions
+        if question_type == "reason_evaluation":
+            self._current_question_reasons = reasons
         
         if self.use_llm and self.api_key:
             return self._generate_survey_response(question_text, question_type, options, scale)
@@ -253,23 +258,90 @@ Based on these interconnected beliefs, respond naturally and authentically to qu
         
         return "\n".join(text_parts)
     
+    def _get_scale_values(self, scale):
+        """Extract min/max values from scale (list or dict)"""
+        if isinstance(scale, list) and len(scale) >= 2:
+            return scale[0], scale[1]
+        elif isinstance(scale, dict):
+            return scale.get('min', 1), scale.get('max', 10)
+        else:
+            return 1, 10
+    
+    def _get_scale_label(self, scale, key, default):
+        """Get scale label safely"""
+        if isinstance(scale, dict):
+            return scale.get(key, default)
+        else:
+            return default
+    
+    def _extract_score_from_text(self, text, scale):
+        """Extract score from text response using keyword analysis"""
+        text_lower = text.lower()
+        min_val, max_val = self._get_scale_values(scale)
+        
+        # Strong positive indicators
+        if any(word in text_lower for word in ['strongly support', 'very supportive', 'much more supportive', 'significantly more']):
+            return max_val
+        
+        # Moderate positive indicators  
+        if any(word in text_lower for word in ['more supportive', 'support', 'positive', 'strengthens my support', 'makes me more']):
+            return int(max_val * 0.7)
+        
+        # Neutral/mixed indicators
+        if any(word in text_lower for word in ['neutral', 'same', 'not change', 'stays mostly', 'balance']):
+            return int((max_val + min_val) / 2)
+        
+        # Moderate negative indicators
+        if any(word in text_lower for word in ['less supportive', 'concerned', 'worried', 'still prefer']):
+            return int(max_val * 0.3)
+        
+        # Strong negative indicators
+        if any(word in text_lower for word in ['strongly oppose', 'very opposed', 'much less supportive']):
+            return min_val
+            
+        # Default to neutral if no clear indicators
+        return int((max_val + min_val) / 2)
+    
+    def _generate_reason_evaluation_response(self, question_data):
+        """Generate response for reason_evaluation type questions"""
+        reasons = question_data.get("reasons", [])
+        scale = question_data.get("scale", [1, 5])
+        min_val, max_val = self._get_scale_values(scale)
+        
+        # Return a dictionary with scores for each reason
+        reason_scores = {}
+        for reason_code in reasons:
+            # For now, generate random scores within range
+            # In a more sophisticated implementation, this could be based on CBN data
+            import random
+            reason_scores[reason_code] = random.randint(min_val, max_val)
+        
+        return reason_scores
+
     def _generate_survey_response(self, question_text, question_type, options, scale):
         """Generate survey response using LLM with specific format"""
         try:
             # Build personality prompt
             personality_prompt = self._build_personality_prompt()
             
+            # Handle reason_evaluation separately
+            if question_type == "reason_evaluation":
+                # For reason_evaluation, we need to get reasons from the original question data
+                # This is typically handled by the survey processing script, but we can provide a fallback
+                reasons = getattr(self, '_current_question_reasons', options) if hasattr(self, '_current_question_reasons') else []
+                return self._generate_reason_evaluation_response({"reasons": reasons, "scale": scale, "text": question_text})
+            
             # Create survey-specific prompt
-            if question_type in ["stance", "opinion"] and scale:
+            if question_type in ["stance", "opinion", "scenario"] and scale:
                 system_prompt = f"""You are a research participant responding to a survey question. 
 
 {personality_prompt}
 
-For this question, you must respond with ONLY a number from {scale.get('min', 1)} to {scale.get('max', 10)} based on your beliefs.
-{scale.get('min', 1)} = {scale.get('min_label', 'Strongly disagree')}
-{scale.get('max', 10)} = {scale.get('max_label', 'Strongly agree')}
+For this question, you must respond with ONLY a number from {self._get_scale_values(scale)[0]} to {self._get_scale_values(scale)[1]} based on your beliefs.
+{self._get_scale_values(scale)[0]} = {self._get_scale_label(scale, 'min_label', 'Strongly disagree')}
+{self._get_scale_values(scale)[1]} = {self._get_scale_label(scale, 'max_label', 'Strongly agree')}
 
-Respond with ONLY the number, no explanation."""
+CRITICAL: Your response MUST be ONLY a single number ({self._get_scale_values(scale)[0]}-{self._get_scale_values(scale)[1]}). Do NOT provide any explanation, reasoning, or additional text. Just the number."""
                 
                 user_prompt = f"Question: {question_text}\n\nYour rating (number only):"
                 max_tokens = 10
@@ -306,16 +378,21 @@ Provide a brief, authentic response (under 100 words) based on your beliefs."""
             response_text = self._llm_request(messages, max_tokens=max_tokens, temperature=0.3)
             
             # Parse response based on type
-            if question_type in ["stance", "opinion"] and scale:
+            if question_type in ["stance", "opinion", "scenario", "reason_evaluation"] and scale:
                 # Extract number from response
                 import re
                 numbers = re.findall(r'\b(\d+)\b', response_text)
                 if numbers:
                     score = int(numbers[0])
-                    min_val = scale.get('min', 1)
-                    max_val = scale.get('max', 10)
+                    # Handle scale as list [min, max] or dict {"min": val, "max": val}
+                    min_val, max_val = self._get_scale_values(scale)
                     if min_val <= score <= max_val:
                         return {"score": score, "raw_response": response_text}
+                
+                # Try keyword-based fallback parsing if no valid number found
+                score = self._extract_score_from_text(response_text, scale)
+                if score is not None:
+                    return {"score": score, "raw_response": response_text}
                 
                 # Fallback to template
                 return self._generate_template_survey_response({"text": question_text, "type": question_type, "scale": scale})
@@ -345,24 +422,29 @@ Provide a brief, authentic response (under 100 words) based on your beliefs."""
         scale = question_data.get("scale")
         options = question_data.get("options", [])
         
-        if question_type in ["stance", "opinion"] and scale:
+        if question_type == "reason_evaluation":
+            return self._generate_reason_evaluation_response(question_data)
+        
+        elif question_type in ["stance", "opinion", "scenario"] and scale:
             # Use stance from CBN to determine score
             stance_node_id = self.current_cbn_prompt.get("stance_node") if self.current_cbn_prompt else None
             if stance_node_id and self.current_cbn_prompt:
                 nodes = self.current_cbn_prompt.get("nodes", {})
                 if stance_node_id in nodes:
                     label = nodes[stance_node_id].get("label", "").lower()
+                    min_val, max_val = self._get_scale_values(scale)
                     if "strongly support" in label:
-                        return {"score": scale.get('max', 10)}
+                        return {"score": max_val}
                     elif "support" in label:
-                        return {"score": int((scale.get('max', 10) + scale.get('min', 1)) * 0.75)}
+                        return {"score": int((max_val + min_val) * 0.75)}
                     elif "strongly oppose" in label:
-                        return {"score": scale.get('min', 1)}
+                        return {"score": min_val}
                     elif "oppose" in label:
-                        return {"score": int((scale.get('max', 10) + scale.get('min', 1)) * 0.25)}
+                        return {"score": int((max_val + min_val) * 0.25)}
             
             # Default to middle
-            return {"score": int((scale.get('max', 10) + scale.get('min', 1)) / 2)}
+            min_val, max_val = self._get_scale_values(scale)
+            return {"score": int((max_val + min_val) / 2)}
         
         elif question_type == "multiple_choice" and options:
             # Simple template choice

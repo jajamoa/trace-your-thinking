@@ -1,0 +1,1878 @@
+{
+  "agent_id": "experiment_agent",
+  "timestamp": 1758708222557,
+  "nodes": {
+    "n1": {
+      "label": "Support for healthcare",
+      "aggregate_confidence": 0.8861111111111111,
+      "evidence": [
+        {
+          "qa_id": "system",
+          "confidence": 1.0,
+          "importance": 1.0
+        },
+        {
+          "qa_id": "qa1",
+          "confidence": 0.8,
+          "importance": 0.85
+        },
+        {
+          "qa_id": "qa2",
+          "confidence": 0.85,
+          "importance": 0.9
+        },
+        {
+          "qa_id": "qa3",
+          "confidence": 0.9,
+          "importance": 0.9
+        },
+        {
+          "qa_id": "qa4",
+          "confidence": 0.9,
+          "importance": 0.95
+        },
+        {
+          "qa_id": "qa5",
+          "confidence": 0.9,
+          "importance": 0.95
+        },
+        {
+          "qa_id": "qa6",
+          "confidence": 0.95,
+          "importance": 0.9
+        },
+        {
+          "qa_id": "qa7",
+          "confidence": 0.85,
+          "importance": 0.9
+        },
+        {
+          "qa_id": "qa9",
+          "confidence": 0.85,
+          "importance": 0.9
+        },
+        {
+          "qa_id": "qa12",
+          "confidence": 0.9,
+          "importance": 0.9
+        },
+        {
+          "qa_id": "qa13",
+          "confidence": 0.9,
+          "importance": 0.9
+        },
+        {
+          "qa_id": "qa14",
+          "confidence": 0.85,
+          "importance": 0.9
+        },
+        {
+          "qa_id": "qa15",
+          "confidence": 0.9,
+          "importance": 0.9
+        },
+        {
+          "qa_id": "qa16",
+          "confidence": 0.85,
+          "importance": 0.95
+        },
+        {
+          "qa_id": "qa17",
+          "confidence": 0.85,
+          "importance": 0.85
+        },
+        {
+          "qa_id": "qa18",
+          "confidence": 0.9,
+          "importance": 0.9
+        },
+        {
+          "qa_id": "qa19",
+          "confidence": 0.95,
+          "importance": 0.95
+        },
+        {
+          "qa_id": "qa20",
+          "confidence": 0.85,
+          "importance": 0.9
+        }
+      ],
+      "importance": 0.912382445141066,
+      "incoming_edges": [
+        "e9",
+        "e12",
+        "e13",
+        "e14",
+        "e15",
+        "e16",
+        "e17",
+        "e18",
+        "e20"
+      ],
+      "outgoing_edges": [
+        "e2",
+        "e3",
+        "e5"
+      ],
+      "status": "anchor",
+      "frequency": 30,
+      "is_stance": true
+    },
+    "n2": {
+      "label": "Universal healthcare policies",
+      "aggregate_confidence": 0.825,
+      "importance": 0.8166666666666668,
+      "evidence": [
+        {
+          "qa_id": "qa1",
+          "confidence": 0.9,
+          "importance": 0.95
+        },
+        {
+          "qa_id": "qa3",
+          "confidence": 0.8,
+          "importance": 0.8
+        },
+        {
+          "qa_id": "qa11",
+          "confidence": 0.8,
+          "importance": 0.75
+        },
+        {
+          "qa_id": "qa15",
+          "confidence": 0.8,
+          "importance": 0.75
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [
+        "e1"
+      ],
+      "status": "anchor",
+      "frequency": 4,
+      "is_stance": false
+    },
+    "n3": {
+      "label": "Access to quality care",
+      "aggregate_confidence": 0.8625,
+      "importance": 0.8507246376811595,
+      "evidence": [
+        {
+          "qa_id": "qa1",
+          "confidence": 0.85,
+          "importance": 0.9
+        },
+        {
+          "qa_id": "qa9",
+          "confidence": 0.9,
+          "importance": 0.9
+        },
+        {
+          "qa_id": "qa10",
+          "confidence": 0.9,
+          "importance": 0.8
+        },
+        {
+          "qa_id": "qa17",
+          "confidence": 0.8,
+          "importance": 0.8
+        }
+      ],
+      "incoming_edges": [
+        "e1"
+      ],
+      "outgoing_edges": [
+        "e9",
+        "e10"
+      ],
+      "status": "anchor",
+      "frequency": 4,
+      "is_stance": false
+    },
+    "n6": {
+      "label": "Easing the burden on hospitals",
+      "aggregate_confidence": 0.7,
+      "importance": 0.65,
+      "evidence": [
+        {
+          "qa_id": "qa1",
+          "confidence": 0.7,
+          "importance": 0.65
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "candidate",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n9": {
+      "label": "Ensuring no one is left behind",
+      "aggregate_confidence": 0.8,
+      "importance": 0.8,
+      "evidence": [
+        {
+          "qa_id": "qa1",
+          "confidence": 0.8,
+          "importance": 0.8
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "candidate",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n11": {
+      "label": "Treatment reforms",
+      "aggregate_confidence": 0.7571428571428572,
+      "importance": 0.7266509433962265,
+      "evidence": [
+        {
+          "qa_id": "qa2",
+          "confidence": 0.8,
+          "importance": 0.85
+        },
+        {
+          "qa_id": "qa3",
+          "confidence": 0.8,
+          "importance": 0.8
+        },
+        {
+          "qa_id": "qa4",
+          "confidence": 0.75,
+          "importance": 0.75
+        },
+        {
+          "qa_id": "qa5",
+          "confidence": 0.7,
+          "importance": 0.65
+        },
+        {
+          "qa_id": "qa6",
+          "confidence": 0.85,
+          "importance": 0.85
+        },
+        {
+          "qa_id": "qa7",
+          "confidence": 0.75,
+          "importance": 0.8
+        },
+        {
+          "qa_id": "qa8",
+          "confidence": 0.7,
+          "importance": 0.5
+        },
+        {
+          "qa_id": "qa9",
+          "confidence": 0.7,
+          "importance": 0.65
+        },
+        {
+          "qa_id": "qa12",
+          "confidence": 0.7,
+          "importance": 0.6
+        },
+        {
+          "qa_id": "qa15",
+          "confidence": 0.85,
+          "importance": 0.75
+        },
+        {
+          "qa_id": "qa16",
+          "confidence": 0.75,
+          "importance": 0.7
+        },
+        {
+          "qa_id": "qa17",
+          "confidence": 0.75,
+          "importance": 0.7
+        },
+        {
+          "qa_id": "qa18",
+          "confidence": 0.7,
+          "importance": 0.7
+        },
+        {
+          "qa_id": "qa20",
+          "confidence": 0.8,
+          "importance": 0.8
+        }
+      ],
+      "incoming_edges": [
+        "e2",
+        "e6"
+      ],
+      "outgoing_edges": [],
+      "status": "anchor",
+      "frequency": 14,
+      "is_stance": false
+    },
+    "n12": {
+      "label": "Hospitals",
+      "aggregate_confidence": 0.8,
+      "importance": 0.80625,
+      "evidence": [
+        {
+          "qa_id": "qa2",
+          "confidence": 0.9,
+          "importance": 0.95
+        },
+        {
+          "qa_id": "qa3",
+          "confidence": 0.8,
+          "importance": 0.7
+        },
+        {
+          "qa_id": "qa4",
+          "confidence": 0.8,
+          "importance": 0.8
+        },
+        {
+          "qa_id": "qa5",
+          "confidence": 0.7,
+          "importance": 0.7
+        },
+        {
+          "qa_id": "qa7",
+          "confidence": 0.8,
+          "importance": 0.85
+        },
+        {
+          "qa_id": "qa9",
+          "confidence": 0.75,
+          "importance": 0.7
+        },
+        {
+          "qa_id": "qa12",
+          "confidence": 0.7,
+          "importance": 0.6
+        },
+        {
+          "qa_id": "qa18",
+          "confidence": 0.8,
+          "importance": 0.8
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "anchor",
+      "frequency": 8,
+      "is_stance": false
+    },
+    "n13": {
+      "label": "Efficiency in healthcare",
+      "aggregate_confidence": 0.7785714285714286,
+      "importance": 0.7788990825688074,
+      "evidence": [
+        {
+          "qa_id": "qa2",
+          "confidence": 0.75,
+          "importance": 0.8
+        },
+        {
+          "qa_id": "qa3",
+          "confidence": 0.7,
+          "importance": 0.6
+        },
+        {
+          "qa_id": "qa6",
+          "confidence": 0.9,
+          "importance": 0.95
+        },
+        {
+          "qa_id": "qa9",
+          "confidence": 0.8,
+          "importance": 0.85
+        },
+        {
+          "qa_id": "qa14",
+          "confidence": 0.75,
+          "importance": 0.7
+        },
+        {
+          "qa_id": "qa18",
+          "confidence": 0.8,
+          "importance": 0.8
+        },
+        {
+          "qa_id": "qa19",
+          "confidence": 0.75,
+          "importance": 0.7
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [
+        "e6"
+      ],
+      "status": "anchor",
+      "frequency": 8,
+      "is_stance": false
+    },
+    "n15": {
+      "label": "Implementation challenges",
+      "aggregate_confidence": 0.75,
+      "importance": 0.8,
+      "evidence": [
+        {
+          "qa_id": "qa2",
+          "confidence": 0.75,
+          "importance": 0.8
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "candidate",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n17": {
+      "label": "Tools and focus for hospitals",
+      "aggregate_confidence": 0.65,
+      "importance": 0.65,
+      "evidence": [
+        {
+          "qa_id": "qa2",
+          "confidence": 0.65,
+          "importance": 0.65
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "candidate",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n20": {
+      "label": "Healthcare accessibility",
+      "aggregate_confidence": 0.825,
+      "importance": 0.8090909090909091,
+      "evidence": [
+        {
+          "qa_id": "qa3",
+          "confidence": 0.9,
+          "importance": 0.9
+        },
+        {
+          "qa_id": "qa1",
+          "confidence": 0.75,
+          "importance": 0.7
+        },
+        {
+          "qa_id": "qa12",
+          "confidence": 0.9,
+          "importance": 0.9
+        }
+      ],
+      "incoming_edges": [
+        "e3"
+      ],
+      "outgoing_edges": [
+        "e12"
+      ],
+      "status": "anchor",
+      "frequency": 3,
+      "is_stance": false
+    },
+    "n24": {
+      "label": "Medical innovation",
+      "aggregate_confidence": 0.85,
+      "importance": 0.9,
+      "evidence": [
+        {
+          "qa_id": "qa4",
+          "confidence": 0.85,
+          "importance": 0.9
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "candidate",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n26": {
+      "label": "Data collection",
+      "aggregate_confidence": 0.8,
+      "importance": 0.8,
+      "evidence": [
+        {
+          "qa_id": "qa4",
+          "confidence": 0.8,
+          "importance": 0.8
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "candidate",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n27": {
+      "label": "Research investment",
+      "aggregate_confidence": 0.85,
+      "importance": 0.85,
+      "evidence": [
+        {
+          "qa_id": "qa4",
+          "confidence": 0.85,
+          "importance": 0.85
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "candidate",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n30": {
+      "label": "Healthcare effectiveness",
+      "aggregate_confidence": 0.8,
+      "importance": 0.8,
+      "evidence": [
+        {
+          "qa_id": "qa4",
+          "confidence": 0.8,
+          "importance": 0.8
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "candidate",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n33": {
+      "label": "Economic burden on families",
+      "aggregate_confidence": 0.85,
+      "importance": 0.9,
+      "evidence": [
+        {
+          "qa_id": "qa5",
+          "confidence": 0.85,
+          "importance": 0.9
+        },
+        {
+          "qa_id": "qa13",
+          "confidence": 0.95,
+          "importance": 0.95
+        }
+      ],
+      "incoming_edges": [
+        "e5"
+      ],
+      "outgoing_edges": [
+        "e13"
+      ],
+      "status": "anchor",
+      "frequency": 2,
+      "is_stance": false
+    },
+    "n34": {
+      "label": "High medical costs",
+      "aggregate_confidence": 0.8,
+      "importance": 0.85,
+      "evidence": [
+        {
+          "qa_id": "qa5",
+          "confidence": 0.8,
+          "importance": 0.85
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "candidate",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n36": {
+      "label": "Affordable care",
+      "aggregate_confidence": 0.8,
+      "importance": 0.8000000000000002,
+      "evidence": [
+        {
+          "qa_id": "qa5",
+          "confidence": 0.8,
+          "importance": 0.8
+        },
+        {
+          "qa_id": "qa4",
+          "confidence": 0.8,
+          "importance": 0.8
+        },
+        {
+          "qa_id": "qa14",
+          "confidence": 0.9,
+          "importance": 0.95
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [
+        "e14"
+      ],
+      "status": "anchor",
+      "frequency": 3,
+      "is_stance": false
+    },
+    "n38": {
+      "label": "Healthcare as a right",
+      "aggregate_confidence": 0.9,
+      "importance": 0.95,
+      "evidence": [
+        {
+          "qa_id": "qa5",
+          "confidence": 0.9,
+          "importance": 0.95
+        },
+        {
+          "qa_id": "qa15",
+          "confidence": 0.95,
+          "importance": 0.95
+        },
+        {
+          "qa_id": "qa20",
+          "confidence": 0.75,
+          "importance": 0.75
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [
+        "e15"
+      ],
+      "status": "anchor",
+      "frequency": 4,
+      "is_stance": false
+    },
+    "n44": {
+      "label": "Funding hospitals",
+      "aggregate_confidence": 0.7899999999999999,
+      "importance": 0.7481012658227849,
+      "evidence": [
+        {
+          "qa_id": "qa6",
+          "confidence": 0.8,
+          "importance": 0.8
+        },
+        {
+          "qa_id": "qa1",
+          "confidence": 0.75,
+          "importance": 0.7
+        },
+        {
+          "qa_id": "qa8",
+          "confidence": 0.7,
+          "importance": 0.6
+        },
+        {
+          "qa_id": "qa15",
+          "confidence": 0.8,
+          "importance": 0.7
+        },
+        {
+          "qa_id": "qa16",
+          "confidence": 0.9,
+          "importance": 0.9
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [
+        "e16"
+      ],
+      "status": "anchor",
+      "frequency": 6,
+      "is_stance": false
+    },
+    "n45": {
+      "label": "Effective and accessible treatments",
+      "aggregate_confidence": 0.7833333333333333,
+      "importance": 0.7840425531914894,
+      "evidence": [
+        {
+          "qa_id": "qa6",
+          "confidence": 0.8,
+          "importance": 0.75
+        },
+        {
+          "qa_id": "qa5",
+          "confidence": 0.75,
+          "importance": 0.75
+        },
+        {
+          "qa_id": "qa7",
+          "confidence": 0.8,
+          "importance": 0.85
+        },
+        {
+          "qa_id": "qa17",
+          "confidence": 0.9,
+          "importance": 0.9
+        }
+      ],
+      "incoming_edges": [
+        "e7"
+      ],
+      "outgoing_edges": [
+        "e17"
+      ],
+      "status": "anchor",
+      "frequency": 4,
+      "is_stance": false
+    },
+    "n48": {
+      "label": "Healthcare providers",
+      "aggregate_confidence": 0.9,
+      "importance": 0.95,
+      "evidence": [
+        {
+          "qa_id": "qa7",
+          "confidence": 0.9,
+          "importance": 0.95
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [
+        "e7"
+      ],
+      "status": "anchor",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n52": {
+      "label": "Patient care",
+      "aggregate_confidence": 0.8166666666666665,
+      "importance": 0.8397959183673471,
+      "evidence": [
+        {
+          "qa_id": "qa7",
+          "confidence": 0.85,
+          "importance": 0.85
+        },
+        {
+          "qa_id": "qa2",
+          "confidence": 0.7,
+          "importance": 0.75
+        },
+        {
+          "qa_id": "qa18",
+          "confidence": 0.9,
+          "importance": 0.9
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [
+        "e18"
+      ],
+      "status": "anchor",
+      "frequency": 3,
+      "is_stance": false
+    },
+    "n54": {
+      "label": "Provider input",
+      "aggregate_confidence": 0.85,
+      "importance": 0.85,
+      "evidence": [
+        {
+          "qa_id": "qa7",
+          "confidence": 0.85,
+          "importance": 0.85
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "candidate",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n55": {
+      "label": "Financial burden on individuals",
+      "aggregate_confidence": 0.9,
+      "importance": 0.8,
+      "evidence": [
+        {
+          "qa_id": "qa8",
+          "confidence": 0.9,
+          "importance": 0.8
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [
+        "e8"
+      ],
+      "status": "anchor",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n57": {
+      "label": "Short-term government costs",
+      "aggregate_confidence": 0.8,
+      "importance": 0.7,
+      "evidence": [
+        {
+          "qa_id": "qa8",
+          "confidence": 0.8,
+          "importance": 0.7
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "candidate",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n58": {
+      "label": "Taxpayer costs",
+      "aggregate_confidence": 0.7,
+      "importance": 0.6,
+      "evidence": [
+        {
+          "qa_id": "qa8",
+          "confidence": 0.7,
+          "importance": 0.6
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "candidate",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n60": {
+      "label": "Long-term benefits of universal care",
+      "aggregate_confidence": 0.9,
+      "importance": 0.9,
+      "evidence": [
+        {
+          "qa_id": "qa8",
+          "confidence": 0.9,
+          "importance": 0.9
+        },
+        {
+          "qa_id": "qa19",
+          "confidence": 0.9,
+          "importance": 0.9
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [
+        "e19"
+      ],
+      "status": "anchor",
+      "frequency": 2,
+      "is_stance": false
+    },
+    "n61": {
+      "label": "Healthier workforce",
+      "aggregate_confidence": 0.8,
+      "importance": 0.8,
+      "evidence": [
+        {
+          "qa_id": "qa8",
+          "confidence": 0.8,
+          "importance": 0.8
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "candidate",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n62": {
+      "label": "Reduced emergency care costs",
+      "aggregate_confidence": 0.7,
+      "importance": 0.7,
+      "evidence": [
+        {
+          "qa_id": "qa8",
+          "confidence": 0.7,
+          "importance": 0.7
+        },
+        {
+          "qa_id": "qa20",
+          "confidence": 0.9,
+          "importance": 0.85
+        }
+      ],
+      "incoming_edges": [
+        "e8"
+      ],
+      "outgoing_edges": [
+        "e20"
+      ],
+      "status": "anchor",
+      "frequency": 2,
+      "is_stance": false
+    },
+    "n63": {
+      "label": "Investing in people's health",
+      "aggregate_confidence": 0.8,
+      "importance": 0.8,
+      "evidence": [
+        {
+          "qa_id": "qa8",
+          "confidence": 0.8,
+          "importance": 0.8
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "candidate",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n67": {
+      "label": "Public confidence",
+      "aggregate_confidence": 0.775,
+      "importance": 0.7379032258064516,
+      "evidence": [
+        {
+          "qa_id": "qa9",
+          "confidence": 0.8,
+          "importance": 0.8
+        },
+        {
+          "qa_id": "qa12",
+          "confidence": 0.8,
+          "importance": 0.7
+        },
+        {
+          "qa_id": "qa5",
+          "confidence": 0.75,
+          "importance": 0.7
+        },
+        {
+          "qa_id": "qa18",
+          "confidence": 0.75,
+          "importance": 0.75
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "anchor",
+      "frequency": 4,
+      "is_stance": false
+    },
+    "n68": {
+      "label": "Effect strength",
+      "aggregate_confidence": 0.85,
+      "importance": 0.825,
+      "evidence": [
+        {
+          "qa_id": "qa9",
+          "confidence": 0.85,
+          "importance": 0.85
+        },
+        {
+          "qa_id": "qa6",
+          "confidence": 0.85,
+          "importance": 0.8
+        },
+        {
+          "qa_id": "qa12",
+          "confidence": 0.8,
+          "importance": 0.7
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "anchor",
+      "frequency": 3,
+      "is_stance": false
+    },
+    "n70": {
+      "label": "Public support for healthcare increases over time with effective reforms",
+      "aggregate_confidence": 0.85,
+      "importance": 0.9,
+      "evidence": [
+        {
+          "qa_id": "qa10",
+          "confidence": 0.85,
+          "importance": 0.9
+        }
+      ],
+      "incoming_edges": [
+        "e10"
+      ],
+      "outgoing_edges": [],
+      "status": "anchor",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n71": {
+      "label": "Hospitals play a key role in successful treatment reforms",
+      "aggregate_confidence": 0.8666666666666667,
+      "importance": 0.8711538461538462,
+      "evidence": [
+        {
+          "qa_id": "qa10",
+          "confidence": 0.9,
+          "importance": 0.95
+        },
+        {
+          "qa_id": "qa11",
+          "confidence": 0.9,
+          "importance": 0.9
+        },
+        {
+          "qa_id": "qa13",
+          "confidence": 0.8,
+          "importance": 0.75
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [
+        "e11"
+      ],
+      "status": "anchor",
+      "frequency": 3,
+      "is_stance": false
+    },
+    "n72": {
+      "label": "Hospital support strengthens public confidence",
+      "aggregate_confidence": 0.85,
+      "importance": 0.85,
+      "evidence": [
+        {
+          "qa_id": "qa10",
+          "confidence": 0.85,
+          "importance": 0.85
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "candidate",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n74": {
+      "label": "Effect of reforms is not immediate",
+      "aggregate_confidence": 0.85,
+      "importance": 0.75,
+      "evidence": [
+        {
+          "qa_id": "qa10",
+          "confidence": 0.85,
+          "importance": 0.75
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "candidate",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n76": {
+      "label": "Time required for changes to take root",
+      "aggregate_confidence": 0.85,
+      "importance": 0.8,
+      "evidence": [
+        {
+          "qa_id": "qa11",
+          "confidence": 0.85,
+          "importance": 0.8
+        },
+        {
+          "qa_id": "qa19",
+          "confidence": 0.85,
+          "importance": 0.8
+        }
+      ],
+      "incoming_edges": [
+        "e11",
+        "e19"
+      ],
+      "outgoing_edges": [],
+      "status": "anchor",
+      "frequency": 2,
+      "is_stance": false
+    },
+    "n78": {
+      "label": "Hospital willingness to change",
+      "aggregate_confidence": 0.85,
+      "importance": 0.85,
+      "evidence": [
+        {
+          "qa_id": "qa11",
+          "confidence": 0.85,
+          "importance": 0.85
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "candidate",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n79": {
+      "label": "Effectiveness of hospital reforms",
+      "aggregate_confidence": 0.8,
+      "importance": 0.8,
+      "evidence": [
+        {
+          "qa_id": "qa11",
+          "confidence": 0.8,
+          "importance": 0.8
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "candidate",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n80": {
+      "label": "Positive effect on public support",
+      "aggregate_confidence": 0.8500000000000001,
+      "importance": 0.8764705882352941,
+      "evidence": [
+        {
+          "qa_id": "qa11",
+          "confidence": 0.9,
+          "importance": 0.9
+        },
+        {
+          "qa_id": "qa10",
+          "confidence": 0.8,
+          "importance": 0.85
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "anchor",
+      "frequency": 2,
+      "is_stance": false
+    },
+    "n81": {
+      "label": "Institutional resistance to reform",
+      "aggregate_confidence": 0.75,
+      "importance": 0.7,
+      "evidence": [
+        {
+          "qa_id": "qa11",
+          "confidence": 0.75,
+          "importance": 0.7
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "candidate",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n85": {
+      "label": "Negative effect",
+      "aggregate_confidence": 0.8699999999999999,
+      "importance": 0.8511494252873565,
+      "evidence": [
+        {
+          "qa_id": "qa13",
+          "confidence": 0.95,
+          "importance": 0.9
+        },
+        {
+          "qa_id": "qa12",
+          "confidence": 0.85,
+          "importance": 0.8
+        },
+        {
+          "qa_id": "qa16",
+          "confidence": 0.8,
+          "importance": 0.85
+        },
+        {
+          "qa_id": "qa17",
+          "confidence": 0.9,
+          "importance": 0.85
+        },
+        {
+          "qa_id": "qa18",
+          "confidence": 0.85,
+          "importance": 0.85
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "anchor",
+      "frequency": 5,
+      "is_stance": false
+    },
+    "n88": {
+      "label": "System brokenness",
+      "aggregate_confidence": 0.85,
+      "importance": 0.85,
+      "evidence": [
+        {
+          "qa_id": "qa13",
+          "confidence": 0.85,
+          "importance": 0.85
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "candidate",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n90": {
+      "label": "Push for change",
+      "aggregate_confidence": 0.85,
+      "importance": 0.85,
+      "evidence": [
+        {
+          "qa_id": "qa13",
+          "confidence": 0.85,
+          "importance": 0.85
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "candidate",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n93": {
+      "label": "Financial Barriers",
+      "aggregate_confidence": 0.8,
+      "importance": 0.8,
+      "evidence": [
+        {
+          "qa_id": "qa14",
+          "confidence": 0.8,
+          "importance": 0.8
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "candidate",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n102": {
+      "label": "Trust in the system",
+      "aggregate_confidence": 0.8,
+      "importance": 0.8,
+      "evidence": [
+        {
+          "qa_id": "qa16",
+          "confidence": 0.8,
+          "importance": 0.8
+        },
+        {
+          "qa_id": "qa17",
+          "confidence": 0.8,
+          "importance": 0.75
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "anchor",
+      "frequency": 2,
+      "is_stance": false
+    },
+    "n103": {
+      "label": "Strong effect",
+      "aggregate_confidence": 0.85,
+      "importance": 0.85,
+      "evidence": [
+        {
+          "qa_id": "qa16",
+          "confidence": 0.85,
+          "importance": 0.85
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "candidate",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n105": {
+      "label": "Frustration",
+      "aggregate_confidence": 0.7,
+      "importance": 0.65,
+      "evidence": [
+        {
+          "qa_id": "qa16",
+          "confidence": 0.7,
+          "importance": 0.65
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "candidate",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n106": {
+      "label": "Strong connection",
+      "aggregate_confidence": 0.875,
+      "importance": 0.8542857142857143,
+      "evidence": [
+        {
+          "qa_id": "qa17",
+          "confidence": 0.95,
+          "importance": 0.9
+        },
+        {
+          "qa_id": "qa8",
+          "confidence": 0.8,
+          "importance": 0.8
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "candidate",
+      "frequency": 2,
+      "is_stance": false
+    },
+    "n114": {
+      "label": "Positive cycle",
+      "aggregate_confidence": 0.7,
+      "importance": 0.7,
+      "evidence": [
+        {
+          "qa_id": "qa18",
+          "confidence": 0.7,
+          "importance": 0.7
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "candidate",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n117": {
+      "label": "Slow build of impact",
+      "aggregate_confidence": 0.8,
+      "importance": 0.75,
+      "evidence": [
+        {
+          "qa_id": "qa19",
+          "confidence": 0.8,
+          "importance": 0.75
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "candidate",
+      "frequency": 1,
+      "is_stance": false
+    },
+    "n122": {
+      "label": "Hospitals benefiting from accessible care",
+      "aggregate_confidence": 0.7,
+      "importance": 0.6,
+      "evidence": [
+        {
+          "qa_id": "qa20",
+          "confidence": 0.7,
+          "importance": 0.6
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "status": "candidate",
+      "frequency": 1,
+      "is_stance": false
+    }
+  },
+  "edges": {
+    "e1": {
+      "source": "n2",
+      "target": "n3",
+      "aggregate_confidence": 0.85,
+      "evidence": [
+        {
+          "qa_id": "qa1",
+          "confidence": 0.85,
+          "original_modifier": 0.9
+        }
+      ],
+      "modifier": 0.765,
+      "source_label": "Universal healthcare policies",
+      "target_label": "Access to quality care",
+      "explanation": "Universal healthcare policies aim to provide healthcare coverage for all, which directly increases access to quality care by removing financial barriers.",
+      "direction": "positive",
+      "strength": 0.9
+    },
+    "e2": {
+      "source": "n1",
+      "target": "n11",
+      "aggregate_confidence": 0.8,
+      "evidence": [
+        {
+          "qa_id": "qa2",
+          "confidence": 0.8,
+          "original_modifier": 0.7
+        }
+      ],
+      "modifier": 0.5599999999999999,
+      "source_label": "Universal healthcare system",
+      "target_label": "Treatment reforms",
+      "explanation": "A universal healthcare system could drive treatment reforms by creating a framework that prioritizes systemic changes in how care is delivered.",
+      "direction": "positive",
+      "strength": 0.7
+    },
+    "e3": {
+      "source": "n1",
+      "target": "n20",
+      "aggregate_confidence": 0.85,
+      "evidence": [
+        {
+          "qa_id": "qa3",
+          "confidence": 0.85,
+          "original_modifier": 0.9
+        }
+      ],
+      "modifier": 0.765,
+      "source_label": "Universal healthcare",
+      "target_label": "Healthcare accessibility",
+      "explanation": "Universal healthcare ensures that everyone, regardless of ability to pay, can access necessary medical treatment, thereby improving healthcare accessibility.",
+      "direction": "positive",
+      "strength": 0.9
+    },
+    "e5": {
+      "source": "n1",
+      "target": "n33",
+      "aggregate_confidence": 0.95,
+      "evidence": [
+        {
+          "qa_id": "qa5",
+          "confidence": 0.95,
+          "original_modifier": -0.9
+        }
+      ],
+      "modifier": -0.855,
+      "source_label": "Universal healthcare",
+      "target_label": "Economic burden on families",
+      "explanation": "Universal healthcare reduces the economic burden on families by providing access to care without high costs, which prevents devastating medical bills.",
+      "direction": "negative",
+      "strength": 0.9
+    },
+    "e6": {
+      "source": "n13",
+      "target": "n11",
+      "aggregate_confidence": 0.9,
+      "evidence": [
+        {
+          "qa_id": "qa6",
+          "confidence": 0.9,
+          "original_modifier": 0.8
+        }
+      ],
+      "modifier": 0.7200000000000001,
+      "source_label": "Government role in healthcare",
+      "target_label": "Treatment reform",
+      "explanation": "The answer suggests that the government's role in healthcare includes pushing for treatment reform, implying that a stronger government role leads to more effective and accessible treatments.",
+      "direction": "positive",
+      "strength": 0.8
+    },
+    "e7": {
+      "source": "n48",
+      "target": "n45",
+      "aggregate_confidence": 0.75,
+      "evidence": [
+        {
+          "qa_id": "qa7",
+          "confidence": 0.75,
+          "original_modifier": 0.8
+        }
+      ],
+      "modifier": 0.6000000000000001,
+      "source_label": "Healthcare providers",
+      "target_label": "Effective and fair healthcare system",
+      "explanation": "Healthcare providers have direct experience with patient care and can provide insights that help shape a more effective and fair healthcare system.",
+      "direction": "positive",
+      "strength": 0.8
+    },
+    "e8": {
+      "source": "n55",
+      "target": "n62",
+      "aggregate_confidence": 0.8,
+      "evidence": [
+        {
+          "qa_id": "qa8",
+          "confidence": 0.8,
+          "original_modifier": -0.7
+        }
+      ],
+      "modifier": -0.5599999999999999,
+      "source_label": "Financial burden on individuals",
+      "target_label": "Reduced emergency care costs",
+      "explanation": "Reducing the financial burden on individuals can lead to better access to preventive care, which in turn reduces the need for expensive emergency care.",
+      "direction": "negative",
+      "strength": 0.7
+    },
+    "e9": {
+      "source": "n3",
+      "target": "n1",
+      "aggregate_confidence": 0.9,
+      "evidence": [
+        {
+          "qa_id": "qa9",
+          "confidence": 0.9,
+          "original_modifier": 0.8
+        }
+      ],
+      "modifier": 0.7200000000000001,
+      "source_label": "Access to quality care",
+      "target_label": "Support for healthcare",
+      "explanation": "Access to quality care increases support for healthcare because people who receive good treatment are more likely to trust and support the system.",
+      "direction": "positive",
+      "strength": 0.8
+    },
+    "e10": {
+      "source": "n3",
+      "target": "n70",
+      "aggregate_confidence": 0.8,
+      "evidence": [
+        {
+          "qa_id": "qa10",
+          "confidence": 0.8,
+          "original_modifier": 0.7
+        }
+      ],
+      "modifier": 0.5599999999999999,
+      "source_label": "Treatment reforms take time to show effects",
+      "target_label": "Public support for healthcare increases over time with effective reforms",
+      "explanation": "The answer suggests that while treatment reforms do not have an immediate effect, they can lead to increased public support over time if the reforms are effective.",
+      "direction": "positive",
+      "strength": 0.7
+    },
+    "e11": {
+      "source": "n71",
+      "target": "n76",
+      "aggregate_confidence": 0.8,
+      "evidence": [
+        {
+          "qa_id": "qa11",
+          "confidence": 0.8,
+          "original_modifier": -0.7
+        }
+      ],
+      "modifier": -0.5599999999999999,
+      "source_label": "Hospitals' role in treatment reform",
+      "target_label": "Time required for changes to take root",
+      "explanation": "The text suggests that hospitals play a role in treatment reform, but it takes time for changes to take root, implying that the process is not immediate.",
+      "direction": "negative",
+      "strength": 0.7
+    },
+    "e12": {
+      "source": "n20",
+      "target": "n1",
+      "aggregate_confidence": 0.85,
+      "evidence": [
+        {
+          "qa_id": "qa12",
+          "confidence": 0.85,
+          "original_modifier": 0.9
+        }
+      ],
+      "modifier": 0.765,
+      "source_label": "Healthcare accessibility",
+      "target_label": "Support for healthcare",
+      "explanation": "Increased healthcare accessibility leads to higher support because people who can access care are more likely to trust and support the system.",
+      "direction": "positive",
+      "strength": 0.9
+    },
+    "e13": {
+      "source": "n33",
+      "target": "n1",
+      "aggregate_confidence": 0.9,
+      "evidence": [
+        {
+          "qa_id": "qa13",
+          "confidence": 0.9,
+          "original_modifier": -0.8
+        }
+      ],
+      "modifier": -0.7200000000000001,
+      "source_label": "Economic burden on families",
+      "target_label": "Support for healthcare",
+      "explanation": "When families face economic burdens, they struggle to afford care, which reduces their support for the current healthcare system and increases their support for reform.",
+      "direction": "negative",
+      "strength": 0.8
+    },
+    "e14": {
+      "source": "n36",
+      "target": "n1",
+      "aggregate_confidence": 0.85,
+      "evidence": [
+        {
+          "qa_id": "qa14",
+          "confidence": 0.85,
+          "original_modifier": 0.9
+        }
+      ],
+      "modifier": 0.765,
+      "source_label": "Affordable Care",
+      "target_label": "Support for Healthcare",
+      "explanation": "When care is affordable, more people can access it, which increases support for the healthcare system.",
+      "direction": "positive",
+      "strength": 0.9
+    },
+    "e15": {
+      "source": "n38",
+      "target": "n1",
+      "aggregate_confidence": 0.85,
+      "evidence": [
+        {
+          "qa_id": "qa15",
+          "confidence": 0.85,
+          "original_modifier": 0.9
+        }
+      ],
+      "modifier": 0.765,
+      "source_label": "Healthcare as a right",
+      "target_label": "Support for healthcare systems",
+      "explanation": "When people believe healthcare is a right, they are more likely to support better healthcare systems, including well-funded hospitals and treatment reforms.",
+      "direction": "positive",
+      "strength": 0.9
+    },
+    "e16": {
+      "source": "n44",
+      "target": "n1",
+      "aggregate_confidence": 0.85,
+      "evidence": [
+        {
+          "qa_id": "qa16",
+          "confidence": 0.85,
+          "original_modifier": 0.9
+        }
+      ],
+      "modifier": 0.765,
+      "source_label": "Funding hospitals",
+      "target_label": "Support for healthcare",
+      "explanation": "Increased funding allows hospitals to provide better treatment, which increases public trust and therefore support for healthcare.",
+      "direction": "positive",
+      "strength": 0.9
+    },
+    "e17": {
+      "source": "n45",
+      "target": "n1",
+      "aggregate_confidence": 0.85,
+      "evidence": [
+        {
+          "qa_id": "qa17",
+          "confidence": 0.85,
+          "original_modifier": 0.9
+        }
+      ],
+      "modifier": 0.765,
+      "source_label": "Effective and accessible treatments",
+      "target_label": "Support for healthcare",
+      "explanation": "Effective and accessible treatments increase trust in the system, which in turn strengthens support for healthcare.",
+      "direction": "positive",
+      "strength": 0.9
+    },
+    "e18": {
+      "source": "n52",
+      "target": "n1",
+      "aggregate_confidence": 1.0,
+      "evidence": [
+        {
+          "qa_id": "qa18",
+          "confidence": 1.0,
+          "original_modifier": 1.0
+        }
+      ],
+      "modifier": 1.0,
+      "source_label": "Changes in patient care",
+      "target_label": "Support for healthcare",
+      "explanation": "Improved patient care leads to increased trust and positive perceptions, which in turn boost support for healthcare.",
+      "direction": "positive",
+      "strength": 1.0
+    },
+    "e19": {
+      "source": "n60",
+      "target": "n76",
+      "aggregate_confidence": 0.8,
+      "evidence": [
+        {
+          "qa_id": "qa19",
+          "confidence": 0.8,
+          "original_modifier": 0.7
+        }
+      ],
+      "modifier": 0.5599999999999999,
+      "source_label": "Long-term benefits of universal care",
+      "target_label": "Time to develop effects",
+      "explanation": "The answer suggests that long-term benefits take time to show, implying a positive relationship between the existence of long-term benefits and the time required for effects to develop.",
+      "direction": "positive",
+      "strength": 0.7
+    },
+    "e20": {
+      "source": "n62",
+      "target": "n1",
+      "aggregate_confidence": 0.85,
+      "evidence": [
+        {
+          "qa_id": "qa20",
+          "confidence": 0.85,
+          "original_modifier": 0.9
+        }
+      ],
+      "modifier": 0.765,
+      "source_label": "Reduced emergency care costs",
+      "target_label": "Support for healthcare",
+      "explanation": "Lower emergency care costs reduce financial barriers, making people more likely to seek care, which in turn increases support for healthcare systems.",
+      "direction": "positive",
+      "strength": 0.9
+    }
+  },
+  "qa_history": {
+    "qa1": {
+      "question": "To what extent do you support or oppose universal healthcare policies that provide government-funded healthcare coverage for all citizens? Please explain your reasoning.",
+      "answer": "I support universal healthcare policies because I believe everyone deserves access to quality care. From what I've seen, hospitals play a key role in treating people, but they often struggle with resources. If the government funded healthcare, it could help ease the burden on hospitals and make treatment more accessible. I think reforming how we handle treatment through better funding and support is essential. It’s about making sure no one is left behind when they need help.",
+      "shortText": "Stance on universal healthcare",
+      "timestamp": 1758708240
+    },
+    "qa2": {
+      "question": "What do you think are the most significant impacts, positive or negative, of implementing a universal healthcare system?",
+      "answer": "I think a universal healthcare system could be a big step forward, especially if it's tied to better treatment reforms. Hospitals should be at the center of that change because they're where people actually get care. If we reform how treatments are delivered, hospitals can become more efficient and patient-focused. But I worry about how it's implemented—without real changes in treatment practices, it might not fix the deeper issues. I believe hospitals have the power to support treatment reform, but only if they’re given the right tools and focus.",
+      "shortText": "Healthcare system impacts",
+      "timestamp": 1758708256
+    },
+    "qa3": {
+      "question": "How do you think universal healthcare policies might affect healthcare quality and accessibility?",
+      "answer": "I think universal healthcare would make a big difference, especially if we focus on treatment reform. Right now, hospitals are stretched thin, and it's hard for people to get the care they need. If we have a system that supports treatment reform, it could help hospitals provide better care to more people. Accessibility would improve because everyone could get the treatment they deserve, not just those who can afford it. I believe hospitals should be at the center of this change, working to make healthcare more efficient and fair for all. It’s about giving people real options and better outcomes.",
+      "shortText": "Quality and accessibility",
+      "timestamp": 1758708271
+    },
+    "qa4": {
+      "question": "What impact do you believe a universal healthcare system might have on medical innovation and research?",
+      "answer": "I think a universal healthcare system could really help medical innovation. If more people have access to care, there's more data and more patients to study. Hospitals would have more resources to invest in research. Plus, treatment reform needs support, and a universal system could push for better, more affordable treatments. I believe hospitals play a big role in driving progress, so if they're supported, that could lead to real breakthroughs. It’s all connected—access, research, and better treatments. I’m hopeful it could make healthcare more effective for everyone.",
+      "shortText": "Medical innovation",
+      "timestamp": 1758708291
+    },
+    "qa5": {
+      "question": "How do you think universal healthcare might affect the economic burden on individuals and families?",
+      "answer": "I think universal healthcare would really help with the economic burden on families. If everyone had access to care without worrying about high costs, people wouldn’t face devastating medical bills. Hospitals play a big role here — if they support treatment reform, it could lead to more affordable and efficient care. That means less stress for individuals and more stability for families. It’s about making sure healthcare is a right, not a privilege. I believe that when the system works better, everyone benefits, especially those who need it most.",
+      "shortText": "Economic burden",
+      "timestamp": 1758708311
+    },
+    "qa6": {
+      "question": "What role do you believe government should play in healthcare delivery and financing?",
+      "answer": "I think the government should play a big role in healthcare, especially when it comes to treatment reform. Hospitals are key, and they need support to provide better care. The government can help by funding hospitals and pushing for changes that make treatments more effective and accessible. I believe if the government supports hospitals, it can lead to better outcomes for everyone. It's not just about money—it's about making sure people get the care they need. I've seen how important hospital support is, and I think that's where the government should focus its efforts.",
+      "shortText": "Government role",
+      "timestamp": 1758708331
+    },
+    "qa7": {
+      "question": "How might healthcare provider concerns factor into decisions about universal healthcare implementation?",
+      "answer": "I think healthcare providers, especially those in hospitals, are really important when it comes to implementing universal healthcare. From what I've seen, hospitals are on the front lines, dealing with patients every day. If they support treatment reform, then their concerns should be taken seriously. They know what's working and what's not. Their input could help shape a system that's more effective and fair. After all, if the people delivering care are involved, it might lead to better outcomes for everyone. I believe their insights are crucial for making sure universal healthcare actually helps people.",
+      "shortText": "Provider concerns",
+      "timestamp": 1758708350
+    },
+    "qa8": {
+      "question": "What economic effects, both positive and negative, might result from transitioning to a universal healthcare system?",
+      "answer": "Transitioning to a universal healthcare system could have both positive and negative economic effects. On the positive side, it might reduce the financial burden on individuals and families, especially those with limited resources. Hospitals could benefit from more consistent funding and better patient outcomes. However, there might be short-term costs for the government and taxpayers. I believe that hospitals should support treatment reform, so I think the long-term benefits of universal care—like a healthier workforce and reduced emergency care costs—outweigh the initial challenges. It’s about investing in people’s health for a stronger economy.",
+      "shortText": "Economic effects",
+      "timestamp": 1758708373
+    },
+    "qa9": {
+      "question": "Does Access to quality care have a positive or negative effect on Support for healthcare, and how significant is this effect? Does it have a positive effect (increasing it) or a negative effect (decreasing it)? How strong is this effect?",
+      "answer": "I think access to quality care definitely has a positive effect on support for healthcare. If people can get good treatment, they're more likely to trust and support the system. But if care is poor or hard to get, that could hurt support. From what I've seen, hospitals play a big role here. If hospitals are well-run and support treatment reform, that strengthens public confidence. I'd say the effect is pretty strong—because when people see real improvement, they back it more. It's all connected.",
+      "shortText": "Relationship: Access to quality care → Support for healthcare",
+      "timestamp": 1758708397
+    },
+    "qa10": {
+      "question": "Is the effect of Treatment reforms on Support for healthcare immediate, or does it take time to develop? Does it have a positive effect (increasing it) or a negative effect (decreasing it)? How strong is this effect?",
+      "answer": "I think treatment reforms take time to show their effects. At first, people might not see big changes, but over time, if the reforms improve care, support for healthcare should grow. I believe the hospital plays a key role in making these reforms work. If hospitals are involved and support the changes, it can strengthen public confidence. The effect isn't immediate, but it's positive and can be strong if done right. I’ve seen how important it is for hospitals to back these changes.",
+      "shortText": "Relationship: Treatment reforms → Support for healthcare",
+      "timestamp": 1758708435
+    },
+    "qa11": {
+      "question": "Is the effect of Hospitals on Support for healthcare immediate, or does it take time to develop? Does it have a positive effect (increasing it) or a negative effect (decreasing it)? How strong is this effect?",
+      "answer": "I think hospitals have a big role in supporting treatment reform, but it doesn’t happen overnight. It takes time for changes to take root. Hospitals are where people see the real impact of healthcare policies. If they’re open to reform, it can really boost support. But if they resist, it might slow things down. I believe the effect is positive, but it’s not instant. It depends on how willing hospitals are to change and how effective their reforms are. The stronger the hospital's commitment, the more it can help build public support over time.",
+      "shortText": "Relationship: Hospitals → Support for healthcare",
+      "timestamp": 1758708495
+    },
+    "qa12": {
+      "question": "How confident are you that changes in Healthcare accessibility lead to changes in Support for healthcare? Does it have a positive effect (increasing it) or a negative effect (decreasing it)? How strong is this effect?",
+      "answer": "I think making healthcare more accessible definitely boosts support for it. If people can actually get the care they need, they’re more likely to trust and back the system. From what I’ve seen, hospitals play a big role in that—when they improve access, it strengthens the push for treatment reform. I’d say the effect is pretty strong. When people feel supported, they’re more confident in the whole system. It’s all connected.",
+      "shortText": "Relationship: Healthcare accessibility → Support for healthcare",
+      "timestamp": 1758708553
+    },
+    "qa13": {
+      "question": "Does Economic burden on families have a positive or negative effect on Support for healthcare, and how significant is this effect? Does it have a positive effect (increasing it) or a negative effect (decreasing it)? How strong is this effect?",
+      "answer": "In my view, the economic burden on families definitely has a negative effect on support for healthcare. When families struggle financially, they often can't afford proper care, which makes them more supportive of treatment reform. The effect is pretty strong because money issues make people realize how broken the system is. Hospitals, in particular, are seen as part of the problem, so when families can't get the care they need, they push harder for change. It's a big driver for reform.",
+      "shortText": "Relationship: Economic burden on families → Support for healthcare",
+      "timestamp": 1758708630
+    },
+    "qa14": {
+      "question": "How would you describe the relationship between Affordable care and Support for healthcare? Is it a strong or weak connection? Does it have a positive effect (increasing it) or a negative effect (decreasing it)? How strong is this effect?",
+      "answer": "I think Affordable Care and Support for healthcare are closely linked. If care is affordable, more people can access it, which strengthens support. But if it's too expensive, support might weaken because people can't get the help they need. I believe this connection is strong and has a positive effect. When care is affordable, it builds trust and support for the whole system. I've seen how hospitals struggle when people can't afford treatment, so I think making care affordable is key to supporting healthcare overall.",
+      "shortText": "Relationship: Affordable care → Support for healthcare",
+      "timestamp": 1758708697
+    },
+    "qa15": {
+      "question": "Does Healthcare as a right have a positive or negative effect on Support for healthcare, and how significant is this effect? Does it have a positive effect (increasing it) or a negative effect (decreasing it)? How strong is this effect?",
+      "answer": "I think healthcare as a right is super important. If people believe it's a right, they're more likely to support better healthcare systems. That includes things like hospitals being well-funded and reforming treatments. I feel like when people see healthcare as a right, it strengthens support for changes that improve care. The effect is pretty strong because it shifts how people view access and quality. Hospitals play a big role here, so supporting treatment reform makes sense. It’s all connected—when you value healthcare as a right, you back the changes that make it better.",
+      "shortText": "Relationship: Healthcare as a right → Support for healthcare",
+      "timestamp": 1758708766
+    },
+    "qa16": {
+      "question": "How confident are you that changes in Funding hospitals lead to changes in Support for healthcare? Does it have a positive effect (increasing it) or a negative effect (decreasing it)? How strong is this effect?",
+      "answer": "I think funding hospitals definitely affects support for healthcare. If hospitals get more money, they can offer better treatment, which makes people trust the system more. That should increase support. I believe the effect is pretty strong because hospitals are a big part of healthcare. If they're well-funded, it shows the system is working, which makes people more confident. But if they’re underfunded, it can lead to frustration. So yes, funding hospitals has a positive effect on overall support for healthcare.",
+      "shortText": "Relationship: Funding hospitals → Support for healthcare",
+      "timestamp": 1758708844
+    },
+    "qa17": {
+      "question": "How would you describe the relationship between Effective and accessible treatments and Support for healthcare? Is it a strong or weak connection? Does it have a positive effect (increasing it) or a negative effect (decreasing it)? How strong is this effect?",
+      "answer": "I think effective and accessible treatments go hand in hand with support for healthcare. If hospitals are supporting treatment reform, that means they're working to make care better and more available. I see it as a strong connection—when treatments are effective, people trust the system more, and that builds support. It definitely has a positive effect. Without good treatments, support might weaken. But with reform and better access, the whole system gets stronger. It's all connected.",
+      "shortText": "Relationship: Effective and accessible treatments → Support for healthcare",
+      "timestamp": 1758708906
+    },
+    "qa18": {
+      "question": "How confident are you that changes in Patient care lead to changes in Support for healthcare? Does it have a positive effect (increasing it) or a negative effect (decreasing it)? How strong is this effect?",
+      "answer": "I think changes in patient care definitely boost support for healthcare. If hospitals improve how they treat people, patients and their families are more likely to trust and support the system. I’ve seen it firsthand—when care is better, people talk positively about it. It’s a strong effect. Hospitals play a big role in shaping public opinion, so if they push for treatment reforms, that builds confidence. It’s all connected. Better care means more support, and that’s a positive cycle.",
+      "shortText": "Relationship: Patient care → Support for healthcare",
+      "timestamp": 1758708963
+    },
+    "qa19": {
+      "question": "Is the effect of Long-term benefits of universal care on Support for healthcare immediate, or does it take time to develop? Does it have a positive effect (increasing it) or a negative effect (decreasing it)? How strong is this effect?",
+      "answer": "I think the long-term benefits of universal care take time to show. At first, it might not seem like much, but over years, people start to see better health and more trust in the system. Since hospitals support treatment reform, I believe universal care would strengthen that support. It's a slow build, but the effect is positive and gets stronger as more people benefit. I don't think it's immediate, but once it takes hold, it really helps. The effect is pretty strong in the long run.",
+      "shortText": "Relationship: Long-term benefits of universal care → Support for healthcare",
+      "timestamp": 1758709019
+    },
+    "qa20": {
+      "question": "Does Reduced emergency care costs have a positive or negative effect on Support for healthcare, and how significant is this effect? Does it have a positive effect (increasing it) or a negative effect (decreasing it)? How strong is this effect?",
+      "answer": "Reduced emergency care costs should definitely support healthcare, especially when it comes to treatment reform. If people don’t have to worry as much about the cost, they’re more likely to seek care when needed. That helps the whole system, and hospitals benefit from more accessible care. I think it’s a strong positive effect because lower costs mean better access, which aligns with my belief that hospitals should support treatment reform. It’s not just about money—it’s about making sure care is available for everyone.",
+      "shortText": "Relationship: Reduced emergency care costs → Support for healthcare",
+      "timestamp": 1758709063
+    }
+  },
+  "stance_node_id": "n1",
+  "step": "node_discovery",
+  "anchor_queue": [
+    "n1",
+    "n2",
+    "n3",
+    "n11",
+    "n12",
+    "n13",
+    "n20",
+    "n33",
+    "n36",
+    "n38",
+    "n44",
+    "n45",
+    "n48",
+    "n52",
+    "n55",
+    "n60",
+    "n62",
+    "n68",
+    "n70",
+    "n71",
+    "n76",
+    "n80",
+    "n67",
+    "n85",
+    "n102"
+  ],
+  "node_counter": 122,
+  "edge_counter": 20,
+  "qa_counter": 20
+}
