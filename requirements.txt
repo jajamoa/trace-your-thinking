@@ -31,3 +31,4 @@ gensim>=4.0.0
 # Development dependencies
 # pytest>=6.0.0  # Uncomment for testing
 # jupyter>=1.0.0  # Uncomment for data analysis notebooks
+
