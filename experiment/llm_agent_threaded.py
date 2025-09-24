@@ -169,10 +169,14 @@ class ThreadSafeLLMAgent(BaseAgent):
                 # Handle rate limiting specifically
                 if response.status_code == 429:
                     retry_after = response.headers.get('Retry-After', '60')
-                    wait_time = min(int(retry_after), 60)  # Cap at 60 seconds
+                    base_wait_time = min(int(retry_after), 60)  # Cap at 60 seconds
                     
                     if attempt < retry_count - 1:  # Don't wait on last attempt
-                        print(f"Rate limited, waiting {wait_time}s before retry {attempt + 1}/{retry_count}")
+                        # Add jitter to prevent all processes waiting exactly the same time
+                        jitter = random.uniform(0.1, 0.5) * base_wait_time
+                        wait_time = base_wait_time + jitter
+                        
+                        print(f"Rate limited, waiting {wait_time:.1f}s before retry {attempt + 1}/{retry_count}")
                         time.sleep(wait_time)
                         continue
                     else:

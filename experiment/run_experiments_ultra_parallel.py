@@ -302,6 +302,12 @@ def process_single_agent_topic_ultra(args):
     # Suppress INFO logs in worker processes
     logging.getLogger().setLevel(logging.ERROR)
     
+    # Add random startup delay to prevent thundering herd
+    import random
+    import time
+    startup_delay = random.uniform(0, 3.0)  # 0-3 second random delay
+    time.sleep(startup_delay)
+    
     try:
         # Check if already processed (unless force is enabled)
         cbn_capture_file = Path(agent_data_path) / "cbn_capture" / f"captured_cbn_{topic}.json"
