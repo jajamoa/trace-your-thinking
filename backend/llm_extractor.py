@@ -530,6 +530,11 @@ RESPONSE (JSON ONLY):
                     error_message = f"LLM API error: {response.status_code}, {response.message}"
                     logger.error(error_message)
                     
+                    # Check if it's an account access issue
+                    if response.status_code == 400 and "Access denied" in str(response.message):
+                        logger.error("API Access denied - account may have issues. Skipping further retries.")
+                        return {}
+                    
                     # Return empty dict on final attempt
                     if attempt == max_retries - 1:
                         return {}
