@@ -35,7 +35,11 @@ class SemanticSimilarityEngine:
             from nltk_setup import check_nltk_data, ensure_nltk_data
             # Only download if not already present
             if not check_nltk_data():
-                ensure_nltk_data()
+                try:
+                    ensure_nltk_data()
+                except Exception as e:
+                    self.logger.warning(f"NLTK setup failed, continuing without WordNet: {e}")
+                    self.use_wordnet = False
         
         # Load word vectors if available and requested
         if use_word_vectors and word_vectors_path and os.path.exists(word_vectors_path):
