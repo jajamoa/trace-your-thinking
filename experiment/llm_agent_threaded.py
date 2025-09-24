@@ -136,8 +136,11 @@ class ThreadSafeLLMAgent(BaseAgent):
         else:
             return self._generate_template_survey_response(question_data)
     
-    def _llm_request(self, messages, max_tokens=200, temperature=0.8):
-        """Make thread-safe LLM request"""
+    def _llm_request(self, messages, max_tokens=200, temperature=0.8, retry_count=3):
+        """Make thread-safe LLM request with retry and rate limiting"""
+        import time
+        import random
+        
         session = self._get_session()
         
         data = {
@@ -152,19 +155,55 @@ class ThreadSafeLLMAgent(BaseAgent):
             }
         }
         
-        response = session.post(self.api_url, json=data, timeout=30)
-        response.raise_for_status()
+        last_error = None
         
-        result = response.json()
-        if 'output' in result:
-            output = result['output']
-            # Handle both API response formats
-            if 'text' in output:
-                return output['text'].strip()
-            elif 'choices' in output and output['choices']:
-                return output['choices'][0]['message']['content'].strip()
+        for attempt in range(retry_count):
+            try:
+                # Add small random delay to avoid thundering herd
+                if attempt > 0:
+                    delay = random.uniform(0.5, 2.0) * (attempt + 1)
+                    time.sleep(delay)
+                
+                response = session.post(self.api_url, json=data, timeout=30)
+                
+                # Handle rate limiting specifically
+                if response.status_code == 429:
+                    retry_after = response.headers.get('Retry-After', '60')
+                    wait_time = min(int(retry_after), 60)  # Cap at 60 seconds
+                    
+                    if attempt < retry_count - 1:  # Don't wait on last attempt
+                        print(f"Rate limited, waiting {wait_time}s before retry {attempt + 1}/{retry_count}")
+                        time.sleep(wait_time)
+                        continue
+                    else:
+                        raise Exception(f"Rate limit exceeded after {retry_count} attempts")
+                
+                response.raise_for_status()
+                
+                result = response.json()
+                if 'output' in result:
+                    output = result['output']
+                    # Handle both API response formats
+                    if 'text' in output:
+                        return output['text'].strip()
+                    elif 'choices' in output and output['choices']:
+                        return output['choices'][0]['message']['content'].strip()
+                
+                raise Exception(f"Unexpected API response format: {result}")
+                
+            except Exception as e:
+                last_error = e
+                if attempt < retry_count - 1:
+                    # Exponential backoff for other errors
+                    delay = min(2 ** attempt + random.uniform(0, 1), 10)
+                    time.sleep(delay)
+                    continue
+                else:
+                    # Last attempt failed
+                    break
         
-        raise Exception(f"Unexpected API response format: {result}")
+        # All retries failed
+        raise last_error
     
     def _generate_llm_answer(self, question_text):
         """Generate answer using LLM with CBN context"""
