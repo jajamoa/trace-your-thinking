@@ -530,10 +530,20 @@ RESPONSE (JSON ONLY):
                     error_message = f"LLM API error: {response.status_code}, {response.message}"
                     logger.error(error_message)
                     
-                    # Check if it's an account access issue
-                    if response.status_code == 400 and "Access denied" in str(response.message):
-                        logger.error("API Access denied - account may have issues. Skipping further retries.")
-                        return {}
+                    # Check for specific error types that shouldn't be retried
+                    if response.status_code == 400:
+                        if "Access denied" in str(response.message):
+                            logger.error("API Access denied - account may have issues. Skipping further retries.")
+                            return {}
+                        elif "inappropriate content" in str(response.message).lower():
+                            logger.warning("Content flagged as inappropriate - using fallback response.")
+                            # Return a safe fallback response instead of empty dict
+                            return {
+                                "nodes": {},
+                                "edges": {},
+                                "content_filtered": True,
+                                "fallback_reason": "Content flagged as inappropriate"
+                            }
                     
                     # Return empty dict on final attempt
                     if attempt == max_retries - 1:

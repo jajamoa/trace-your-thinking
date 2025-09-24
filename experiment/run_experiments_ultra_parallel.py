@@ -192,6 +192,36 @@ def _get_stance_value_from_agent(agent):
     return stance_value
 
 
+def _detect_template_responses(transcript_data):
+    """Detect if responses are template-based"""
+    template_patterns = [
+        "I generally support this",
+        "I have concerns about this", 
+        "I have mixed feelings about this",
+        "I need more time to think",
+        "This is a complex issue that requires careful consideration",
+        "There are multiple factors to consider",
+        "I need to think more about this question"
+    ]
+    
+    template_count = 0
+    total_responses = 0
+    
+    # Skip header rows and count actual Q&A pairs
+    for row in transcript_data[9:]:  # Skip CSV header and metadata
+        if len(row) >= 3:  # Question Number, Question, Answer
+            answer = row[2] if len(row) > 2 else ""
+            if answer and answer.strip():
+                total_responses += 1
+                # Check if answer matches template patterns
+                for pattern in template_patterns:
+                    if pattern.lower() in answer.lower():
+                        template_count += 1
+                        break
+    
+    return template_count, total_responses
+
+
 def _generate_reasons_for_opinions(opinions, survey_questions, reverse_mapping, reasons, agent):
     """Generate reasons based on opinions"""
     stance_value = _get_stance_value_from_agent(agent)
@@ -267,15 +297,15 @@ def _generate_reasons_for_opinions(opinions, survey_questions, reverse_mapping, 
 
 def process_single_agent_topic_ultra(args):
     """Process a single agent-topic combination with ultra parallelization"""
-    agent_id, topic, agent_data_path, max_qa_count, verbose = args
+    agent_id, topic, agent_data_path, max_qa_count, verbose, force = args
     
     # Suppress INFO logs in worker processes
     logging.getLogger().setLevel(logging.ERROR)
     
     try:
-        # Check if already processed
+        # Check if already processed (unless force is enabled)
         cbn_capture_file = Path(agent_data_path) / "cbn_capture" / f"captured_cbn_{topic}.json"
-        if cbn_capture_file.exists():
+        if not force and cbn_capture_file.exists():
             return {
                 "agent_id": agent_id,
                 "topic": topic,
@@ -389,6 +419,29 @@ def process_single_agent_topic_ultra(args):
             for row in transcript_data:
                 writer.writerow(row)
         
+        # Detect template responses
+        template_count, total_responses = _detect_template_responses(transcript_data)
+        
+        # If more than 5 template responses, mark as needs rerun
+        if template_count > 5:
+            print(f"WARNING: {agent_id} - {topic}: {template_count}/{total_responses} template responses detected (>5), marking as needs rerun")
+            # Remove CBN capture file to force rerun
+            cbn_file = Path(agent_data_path) / "cbn_capture" / f"captured_cbn_{file_topic}.json"
+            if cbn_file.exists():
+                cbn_file.unlink()
+            
+            return {
+                "agent_id": agent_id,
+                "topic": topic,
+                "qa_count": round_num,
+                "transcript_file": str(transcript_file),
+                "template_count": template_count,
+                "total_responses": total_responses,
+                "status": "needs_rerun",
+                "error": f"Too many template responses ({template_count}/{total_responses})",
+                "timestamp": datetime.now().isoformat()
+            }
+        
         # Save captured CBN
         cbn_dir = Path(agent_data_path) / "cbn_capture"
         cbn_dir.mkdir(parents=True, exist_ok=True)
@@ -407,6 +460,8 @@ def process_single_agent_topic_ultra(args):
             "transcript_file": str(transcript_file),
             "cbn_file": str(cbn_file),
             "survey_file": survey_results.get("file") if survey_results else None,
+            "template_count": template_count,
+            "total_responses": total_responses,
             "status": "success",
             "timestamp": datetime.now().isoformat()
         }
@@ -428,7 +483,7 @@ class UltraParallelExperimentRunner:
     
     def __init__(self, agent_data_dir="agent_data/synthetic_agents", 
                  topics=None, max_qa_count=20, verbose=True, max_workers=None,
-                 specific_agents=None, llm_threads=8):
+                 specific_agents=None, llm_threads=8, force=False):
         """
         Initialize ultra-parallel experiment runner
         
@@ -440,6 +495,7 @@ class UltraParallelExperimentRunner:
             max_workers: Maximum number of parallel workers (default: CPU count)
             specific_agents: List of specific agent IDs to process (default: all)
             llm_threads: Number of threads for LLM requests (default: 8)
+            force: Force overwrite existing results (default: False)
         """
         self.agent_data_dir = Path(agent_data_dir)
         self.topics = topics or ["zoning", "healthcare", "surveillance"]
@@ -448,6 +504,7 @@ class UltraParallelExperimentRunner:
         self.max_workers = max_workers or multiprocessing.cpu_count()
         self.specific_agents = specific_agents
         self.llm_threads = llm_threads
+        self.force = force
         
         # Initialize the shared LLM thread pool
         if os.getenv('DASHSCOPE_API_KEY'):
@@ -481,6 +538,10 @@ class UltraParallelExperimentRunner:
         print(f"Max QA pairs per conversation: {self.max_qa_count}")
         print(f"Using {self.max_workers} parallel processes")
         print(f"Using {self.llm_threads} LLM request threads")
+        if self.force:
+            print("Force mode: ENABLED (will overwrite existing results)")
+        else:
+            print("Force mode: DISABLED (will skip existing results)")
         print("=" * 60)
         
         # Prepare all agent-topic combinations
@@ -488,10 +549,10 @@ class UltraParallelExperimentRunner:
         for agent_dir in agent_dirs:
             agent_id = agent_dir.name
             for topic in self.topics:
-                tasks.append((agent_id, topic, str(agent_dir), self.max_qa_count, False))
+                tasks.append((agent_id, topic, str(agent_dir), self.max_qa_count, False, self.force))
         
-        print(f"\nProcessing {len(tasks)} agent-topic combinations with ultra parallelization...")
-        print("-" * 60)
+        print(f"\nProcessing {len(tasks)} agent-topic combinations with ultra parallelization...", flush=True)
+        print("-" * 60, flush=True)
         
         # Progress tracking
         start_time = time.time()
@@ -501,6 +562,7 @@ class UltraParallelExperimentRunner:
         successful = 0
         failed = 0
         skipped = 0
+        needs_rerun = 0
         completed = 0
         total_tasks = len(tasks)
         
@@ -515,13 +577,13 @@ class UltraParallelExperimentRunner:
         try:
             with ProcessPoolExecutor(max_workers=self.max_workers) as executor:
                 # Submit all tasks
-                print(f"Submitting {len(tasks)} tasks to {self.max_workers} processes...")
+                print(f"Submitting {len(tasks)} tasks to {self.max_workers} processes...", flush=True)
                 future_to_task = {}
                 for i, task in enumerate(tasks):
                     future = executor.submit(process_single_agent_topic_ultra, task)
                     future_to_task[future] = task
                 
-                print("All tasks submitted, processing results...")
+                print("All tasks submitted, processing results...", flush=True)
                 
                 # Process completed tasks
                 try:
@@ -541,18 +603,23 @@ class UltraParallelExperimentRunner:
                             
                             if result["status"] == "success":
                                 successful += 1
-                                print(f"SUCCESS: {agent_id} - {topic} (QA: {result['qa_count']}) [{completed}/{total_tasks} {progress_pct:.1f}%]")
+                                template_info = f" (T:{result.get('template_count', 0)}/{result.get('total_responses', 0)})" if result.get('template_count', 0) > 0 else ""
+                                print(f"SUCCESS: {agent_id} - {topic} (QA: {result['qa_count']}{template_info}) [{completed}/{total_tasks} {progress_pct:.1f}%]", flush=True)
                             elif result["status"] == "skipped":
                                 skipped += 1
-                                print(f"SKIP: {agent_id} - {topic} (already processed) [{completed}/{total_tasks} {progress_pct:.1f}%]")
+                                print(f"SKIP: {agent_id} - {topic} (already processed) [{completed}/{total_tasks} {progress_pct:.1f}%]", flush=True)
+                            elif result["status"] == "needs_rerun":
+                                needs_rerun += 1
+                                template_info = f"T:{result.get('template_count', 0)}/{result.get('total_responses', 0)}"
+                                print(f"RERUN: {agent_id} - {topic} ({template_info} templates) [{completed}/{total_tasks} {progress_pct:.1f}%]", flush=True)
                             else:
                                 failed += 1
                                 error_msg = result.get('error', 'Unknown error')
-                                print(f"ERROR: {agent_id} - {topic}: {error_msg} [{completed}/{total_tasks} {progress_pct:.1f}%]")
+                                print(f"ERROR: {agent_id} - {topic}: {error_msg} [{completed}/{total_tasks} {progress_pct:.1f}%]", flush=True)
                                 
                         except TimeoutError:
                             failed += 1
-                            print(f"TIMEOUT: {agent_id} - {topic} (exceeded 3 minutes) [{completed}/{total_tasks} {progress_pct:.1f}%]")
+                            print(f"TIMEOUT: {agent_id} - {topic} (exceeded 3 minutes) [{completed}/{total_tasks} {progress_pct:.1f}%]", flush=True)
                             results.append({
                                 "agent_id": agent_id,
                                 "topic": topic,
@@ -562,7 +629,7 @@ class UltraParallelExperimentRunner:
                             })
                         except Exception as e:
                             failed += 1
-                            print(f"ERROR: {agent_id} - {topic}: {str(e)} [{completed}/{total_tasks} {progress_pct:.1f}%]")
+                            print(f"ERROR: {agent_id} - {topic}: {str(e)} [{completed}/{total_tasks} {progress_pct:.1f}%]", flush=True)
                             results.append({
                                 "agent_id": agent_id,
                                 "topic": topic,
@@ -576,7 +643,7 @@ class UltraParallelExperimentRunner:
                             avg_time_per_task = elapsed_time / completed
                             estimated_remaining = (total_tasks - completed) * avg_time_per_task
                             throughput = completed / elapsed_time
-                            print(f"Progress: {completed}/{total_tasks} ({progress_pct:.1f}%) - Est. remaining: {estimated_remaining/60:.1f}min - Throughput: {throughput:.2f} tasks/sec")
+                            print(f"Progress: {completed}/{total_tasks} ({progress_pct:.1f}%) - Est. remaining: {estimated_remaining/60:.1f}min - Throughput: {throughput:.2f} tasks/sec", flush=True)
                 
                 except KeyboardInterrupt:
                     print("\nShutting down executor...")
@@ -596,7 +663,9 @@ class UltraParallelExperimentRunner:
         # Final summary
         total_time = time.time() - start_time
         print("\n" + "=" * 60)
-        print(f"Completed: {successful} successful, {failed} failed, {skipped} skipped")
+        print(f"Completed: {successful} successful, {failed} failed, {skipped} skipped, {needs_rerun} need rerun")
+        if needs_rerun > 0:
+            print(f"NOTE: {needs_rerun} experiments marked for rerun due to excessive template responses (>5)")
         print(f"Total time: {total_time/60:.1f} minutes ({total_time:.1f} seconds)")
         if successful > 0:
             print(f"Average time per successful task: {total_time/successful:.1f} seconds")
@@ -657,6 +726,8 @@ def main():
                       help='Specific agent IDs to process (default: all)')
     parser.add_argument('--quiet', action='store_true',
                       help='Reduce output verbosity')
+    parser.add_argument('--force', action='store_true',
+                      help='Force overwrite existing results (no skip)')
     
     args = parser.parse_args()
     
@@ -676,7 +747,8 @@ def main():
         verbose=not args.quiet,
         max_workers=args.workers,
         specific_agents=args.agents,
-        llm_threads=args.llm_threads
+        llm_threads=args.llm_threads,
+        force=args.force
     )
     
     results = runner.run_all_experiments()

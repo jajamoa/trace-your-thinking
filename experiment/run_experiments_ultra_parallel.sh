@@ -9,6 +9,21 @@ PURPLE='\033[0;35m'
 CYAN='\033[0;36m'
 NC='\033[0m' # No Color
 
+# Parse command line arguments
+FORCE_FLAG=""
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        --force)
+            FORCE_FLAG="--force"
+            shift
+            ;;
+        *)
+            # Unknown option, keep for python script
+            break
+            ;;
+    esac
+done
+
 # Setup NLTK data first to avoid repeated downloads
 echo -e "\n${YELLOW}Setting up NLTK data...${NC}"
 if python setup_nltk.py; then
@@ -36,20 +51,13 @@ echo -e "${PURPLE}====================================${NC}"
 
 # Run experiments with ultra-parallel processing and colored output
 # Use stdbuf to force line buffering for real-time output
-# Choose the best available method for real-time output
-if command -v stdbuf >/dev/null 2>&1; then
-    CMD_PREFIX="stdbuf -oL -eL"
-elif command -v unbuffer >/dev/null 2>&1; then
-    CMD_PREFIX="unbuffer"
-else
-    CMD_PREFIX=""
-fi
-
-$CMD_PREFIX python run_experiments_ultra_parallel.py \
+# Use Python unbuffered mode for real-time output
+python -u run_experiments_ultra_parallel.py \
     --topics zoning healthcare surveillance \
     --max-qa 20 \
-    --workers 12 \
-    --llm-threads 16 \
+    --workers 16 \
+    --llm-threads 24 \
+    $FORCE_FLAG \
     2>&1 | while IFS= read -r line; do
         case "$line" in
             *"Found"*"synthetic agents"*)
@@ -65,6 +73,9 @@ $CMD_PREFIX python run_experiments_ultra_parallel.py \
                 echo -e "${RED}$line${NC}"
                 ;;
             *"SKIP"*|*" - skipped"*)
+                echo -e "${YELLOW}$line${NC}"
+                ;;
+            *"RERUN"*|*"need rerun"*)
                 echo -e "${YELLOW}$line${NC}"
                 ;;
             *"Progress:"*|*"Completed:"*)

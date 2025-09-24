@@ -145,11 +145,15 @@ Respond naturally and conversationally, as if you're talking to a researcher. Ke
             raise Exception(f"Unexpected API response format: {result}")
                 
         except Exception as e:
-            # Check for account access issues
-            if "Access denied" in str(e) or "account" in str(e).lower():
+            # Check for specific API issues
+            error_str = str(e).lower()
+            if "access denied" in error_str or "account" in error_str:
                 print(f"LLM API access issue: {e}")
                 # Disable LLM for this agent
                 self.use_llm = False
+            elif "inappropriate content" in error_str:
+                print(f"Content filtered by API: {e}")
+                # Don't disable LLM, just use template for this question
             else:
                 print(f"LLM generation failed: {e}, falling back to template")
             return self._generate_template_answer(question_text)
@@ -400,11 +404,15 @@ Provide a brief, authentic response (under 100 words) based on your beliefs."""
             raise Exception(f"Unexpected API response format: {result}")
                 
         except Exception as e:
-            # Check for account access issues
-            if "Access denied" in str(e) or "account" in str(e).lower():
+            # Check for specific API issues
+            error_str = str(e).lower()
+            if "access denied" in error_str or "account" in error_str:
                 print(f"Survey LLM API access issue: {e}")
                 # Disable LLM for this agent
                 self.use_llm = False
+            elif "inappropriate content" in error_str:
+                print(f"Survey content filtered by API: {e}")
+                # Don't disable LLM, just use template for this question
             else:
                 print(f"Survey LLM generation failed: {e}, falling back to template")
             return self._generate_template_survey_response({"text": question_text, "type": question_type, "options": options, "scale": scale})
@@ -459,11 +467,11 @@ Provide a brief, authentic response (under 100 words) based on your beliefs."""
             stance_label = nodes[stance_node_id].get("label", "").lower()
             
             if "support" in stance_label:
-                return f"I generally support this. Based on my understanding, {stance_label} is important for our community."
+                return f"I generally support this. Based on my understanding, this issue is important for our community."
             elif "oppose" in stance_label:
-                return f"I have concerns about this. I think {stance_label} could have negative impacts."
+                return f"I have concerns about this. I think this approach could have negative impacts."
             else:
-                return f"I have mixed feelings about this. While {stance_label}, there are multiple factors to consider."
+                return f"I have mixed feelings about this. There are multiple factors to consider before making a decision."
         
         return "This is a complex issue that requires careful consideration of various factors."
 
