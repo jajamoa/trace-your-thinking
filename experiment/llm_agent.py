@@ -1,4 +1,4 @@
-"""
+../llm_agent.py"""
 LLM-Powered Synthetic Agent
 Uses actual LLM to generate responses based on CBN beliefs
 """
