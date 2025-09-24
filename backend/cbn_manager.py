@@ -32,8 +32,10 @@ class SemanticSimilarityEngine:
         
         # Prepare NLTK resources if using WordNet
         if use_wordnet:
-            from nltk_setup import ensure_nltk_data
-            ensure_nltk_data()
+            from nltk_setup import check_nltk_data, ensure_nltk_data
+            # Only download if not already present
+            if not check_nltk_data():
+                ensure_nltk_data()
         
         # Load word vectors if available and requested
         if use_word_vectors and word_vectors_path and os.path.exists(word_vectors_path):
