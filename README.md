@@ -4,6 +4,8 @@
 
 A sophisticated interview collection and analysis tool designed for research studies, focusing on capturing and analyzing thought processes.
 
+This is the data collection pipeline behind **[HugAgent](https://github.com/jajamoa/HugAgent)**, a benchmark for individual-level reasoning ([EMNLP 2026](https://arxiv.org/abs/2510.15144)).
+
 ## Overview
 
 Trace Your Thinking is a modern web application that enables researchers to conduct, record, and analyze interviews with enhanced features for tracking thought processes. The application provides a seamless experience for both researchers and participants.
