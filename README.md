@@ -5,7 +5,7 @@
 
 [Paper](https://arxiv.org/abs/2510.15144) · [HugAgent benchmark](https://github.com/jajamoa/HugAgent) · [Project page](https://jajamoa.github.io/HugAgent/) · [Interview website](https://trace-your-thinking.com) · [Quick start](#quick-start) · [Citation](#citation)
 
-![Trace Your Thinking interview framework](assets/tyt_banner.png)
+![Trace Your Thinking interview framework](assets/tyt_banner_v3.png)
 
 > From understanding a person to simulating how they think.
 
