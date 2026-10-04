@@ -9,7 +9,7 @@
 
 > From understanding a person to simulating how they think.
 
-**Trace Your Thinking** is an open-source framework for **human simulation through semi-structured interviews**. It captures what a person believes, why they believe it, and how they weigh competing considerations—collecting the individual reasoning behind their answers.
+**Trace Your Thinking** is an open-source framework for **human simulation through semi-structured interviews**. It captures what a person believes, why they believe it, and how they weigh competing considerations. These interviews capture the individual reasoning behind their answers.
 
 An AI interviewer follows up on each participant’s responses and maps the relationships between their beliefs. The resulting interviews support research on **digital twins, personalized agents, and how people would respond to situations they have never been asked about**.
 
