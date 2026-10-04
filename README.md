@@ -1,5 +1,5 @@
 # Trace Your Thinking
-### An Adaptive Think-Aloud Interview Framework for Individual-Level Reasoning
+### A Semi-Structured Interview Framework for Human Simulation
 
 **Interview and data collection framework for HugAgent · EMNLP 2026, main conference (oral)**
 
@@ -7,9 +7,11 @@
 
 ![Trace Your Thinking interview framework](assets/tyt_banner.png)
 
-> From what a person believes to the reasons behind it.
+> Understanding people through the way they reason.
 
-**Trace Your Thinking** is an open-source framework for collecting think-aloud interviews and organizing a participant’s stated reasoning into a **causal belief network (CBN)**. It combines a browser-based interview workspace, LLM-based concept and relationship extraction, and graph-guided follow-up questions to help researchers elicit individual beliefs, perceived causal relationships, and the considerations behind a stance.
+**Trace Your Thinking** is an open-source framework for **semi-structured interviews and human simulation research**. It helps researchers capture how individuals understand the world, form beliefs, and reason about decisions—providing a foundation for studying and modeling human reasoning at the individual level.
+
+The framework turns think-aloud conversations into structured, evidence-linked representations of a participant’s expressed beliefs. A browser-based interview workspace combines researcher-authored questions with adaptive follow-ups, while a **causal belief network (CBN)** organizes the concepts and relationships that emerge from each interview.
 
 This repository provides the interview and data collection pipeline behind **[HugAgent: A Human Simulation Benchmark for Individual-Level Reasoning](https://github.com/jajamoa/HugAgent)**, selected for an **oral presentation at EMNLP 2026**. The companion repository contains the released benchmark data, processing pipeline, and model evaluation code.
 
