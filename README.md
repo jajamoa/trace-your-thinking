@@ -1,23 +1,23 @@
 # Trace Your Thinking
-### A Semi-Structured Interview Framework for Human Simulation
+### From Human Interviews to Human Simulation
 
-**Interview and data collection framework for HugAgent · EMNLP 2026, main conference (oral)**
+**HugAgent · EMNLP 2026, main conference (oral)**
 
 [Paper](https://arxiv.org/abs/2510.15144) · [HugAgent benchmark](https://github.com/jajamoa/HugAgent) · [Project page](https://jajamoa.github.io/HugAgent/) · [Interview website](https://trace-your-thinking.com) · [Quick start](#quick-start) · [Citation](#citation)
 
 ![Trace Your Thinking interview framework](assets/tyt_banner.png)
 
-> Understanding people through the way they reason.
+> From understanding a person to simulating how they think.
 
-**Trace Your Thinking** is an open-source framework for **semi-structured interviews and human simulation research**. It helps researchers capture how individuals understand the world, form beliefs, and reason about decisions—providing a foundation for studying and modeling human reasoning at the individual level.
+**Trace Your Thinking** is an open-source framework for **human simulation through semi-structured interviews**. It captures what a person believes, why they believe it, and how they weigh competing considerations—collecting the individual reasoning behind their answers.
 
-The framework turns think-aloud conversations into structured, evidence-linked representations of a participant’s expressed beliefs. A browser-based interview workspace combines researcher-authored questions with adaptive follow-ups, while a **causal belief network (CBN)** organizes the concepts and relationships that emerge from each interview.
+An AI interviewer follows up on each participant’s responses and maps the relationships between their beliefs. The resulting interviews support research on **digital twins, personalized agents, and how people would respond to situations they have never been asked about**.
 
-This repository provides the interview and data collection pipeline behind **[HugAgent: A Human Simulation Benchmark for Individual-Level Reasoning](https://github.com/jajamoa/HugAgent)**, selected for an **oral presentation at EMNLP 2026**. The companion repository contains the released benchmark data, processing pipeline, and model evaluation code.
+The interview framework behind **[HugAgent](https://github.com/jajamoa/HugAgent)** (**EMNLP 2026 Oral**). See the companion repository for benchmark data and model evaluation.
 
 ## Research workflow
 
-A fixed questionnaire captures answers to predefined questions. Trace Your Thinking also uses the evolving belief graph to select follow-ups about concepts and relationships the participant has introduced.
+The interview develops around each participant’s answers, using an evolving belief graph to guide the next question.
 
 1. **Elicit:** begin with researcher-authored guiding questions; participants respond by typing or recording speech.
 2. **Extract:** use Qwen to identify concepts and perceived causal relationships from question–answer pairs.
