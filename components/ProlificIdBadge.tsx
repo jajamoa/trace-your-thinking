@@ -13,7 +13,7 @@ export default function ProlificIdBadge() {
       initial={{ opacity: 0, y: -10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
-      className="bg-[#f5f2eb] border border-[#e0ddd5] rounded-full px-3 py-1 text-xs font-mono"
+      className="bg-sky-50 text-sky-800 border border-sky-100 rounded-full px-3 py-1 text-xs font-mono"
     >
       ID: {prolificId}
     </motion.div>

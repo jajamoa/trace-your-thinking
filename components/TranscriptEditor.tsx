@@ -96,8 +96,8 @@ export default function TranscriptEditor({ highlightEmptyAnswers = [] }: Transcr
 
   if (qaPairs.length === 0) {
     return (
-      <div className="bg-white backdrop-blur-md rounded-3xl p-8 shadow-subtle border border-[#e0ddd5] text-center">
-        <p className="text-gray-500 font-light">No interview data available.</p>
+      <div className="dream-panel bg-white rounded-3xl p-5 sm:p-8 text-center">
+        <p className="text-gray-500 font-normal">No interview data available.</p>
       </div>
     )
   }
@@ -107,10 +107,10 @@ export default function TranscriptEditor({ highlightEmptyAnswers = [] }: Transcr
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
-      className="bg-white backdrop-blur-md rounded-3xl p-8 shadow-subtle border border-[#e0ddd5]"
+      className="dream-panel bg-white rounded-3xl p-5 sm:p-8"
     >
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-xl font-light tracking-wide">Edit Responses</h2>
+        <h2 className="text-xl font-normal tracking-wide">Edit Responses</h2>
         <div className="text-xs text-gray-500">
           {isSaving ? (
             <span className="italic">Saving changes...</span>
@@ -130,26 +130,26 @@ export default function TranscriptEditor({ highlightEmptyAnswers = [] }: Transcr
               key={pair.id}
               value={pair.id}
               className={`border rounded-xl overflow-hidden ${
-                isHighlighted ? "border-amber-300 bg-amber-50" : "border-[#e0ddd5]"
+                isHighlighted ? "border-amber-300 bg-amber-50" : "border-[#d3e8e9]"
               }`}
               id={`answer-${pair.id}`}
             >
               <AccordionTrigger
                 onClick={() => handleAccordionChange(pair.id)}
-                className={`px-5 py-4 hover:bg-[#f5f2eb] text-left ${
+                className={`px-5 py-4 hover:bg-[#eef8fc] text-left ${
                   isHighlighted ? "bg-amber-50 hover:bg-amber-100" : ""
                 }`}
               >
                 <div className="flex items-start gap-3 w-full">
                   <div
                     className={`flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-xs font-medium mt-0.5 ${
-                      isHighlighted ? "bg-amber-300 text-amber-800" : "bg-[#e0ddd5] text-gray-700"
+                      isHighlighted ? "bg-amber-300 text-amber-800" : "bg-[#d3e8e9] text-gray-700"
                     }`}
                   >
                     {index + 1}
                   </div>
                   <div className="flex flex-col gap-1 flex-grow pr-6">
-                    <div className="font-light">{pair.question}</div>
+                    <div className="font-normal">{pair.question}</div>
                     {isEmpty && (
                       <div className="text-amber-500 flex items-center gap-1 text-xs font-medium">
                         <AlertCircle className="h-3.5 w-3.5" />
@@ -160,17 +160,17 @@ export default function TranscriptEditor({ highlightEmptyAnswers = [] }: Transcr
                 </div>
               </AccordionTrigger>
               <AccordionContent
-                className={`px-5 py-4 border-t ${isHighlighted ? "border-amber-300" : "border-[#e0ddd5]"}`}
+                className={`px-5 py-4 border-t ${isHighlighted ? "border-amber-300" : "border-[#d3e8e9]"}`}
               >
                 <div className="pl-9">
                   <div className="text-sm text-gray-500 mb-2">Response:</div>
                   <Textarea
                     value={pair.answer}
                     onChange={(e) => handleAnswerChange(pair.id, e.target.value)}
-                    className={`min-h-[100px] resize-none font-light ${
+                    className={`min-h-[100px] resize-none font-normal ${
                       isHighlighted
                         ? "bg-amber-50 border-amber-300 focus:ring-amber-400"
-                        : "bg-[#f5f2eb] border-[#e0ddd5] focus:ring-blue-400"
+                        : "bg-[#eef8fc] border-[#d3e8e9] focus:ring-blue-400"
                     }`}
                     placeholder={isEmpty ? "This question requires an answer" : "Enter your answer..."}
                     aria-label={`Answer to question ${index + 1}`}

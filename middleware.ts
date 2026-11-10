@@ -11,7 +11,7 @@ function isMobileDevice(userAgent: string) {
 }
 
 // Paths that mobile devices are allowed to access
-const ALLOWED_MOBILE_PATHS = ['/', '/about', '/mit-logo.svg', '/og-image.png']
+const ALLOWED_MOBILE_PATHS = ['/', '/about', '/mit-logo.svg', '/og-image.png', '/images/thinking-neighborhood.jpg']
 
 // Paths that should be excluded from session checks and other middleware processing
 // But still subject to mobile device restrictions

@@ -6,9 +6,10 @@ import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { useRouter } from "next/navigation"
-import { motion } from "framer-motion"
-import { ArrowRight, AlertCircle } from "lucide-react"
-import GridBackground from "@/components/GridBackground"
+import { ArrowRight, AlertCircle, MessageCircle, Sparkles, Smile, Check, ShieldCheck, LoaderCircle } from "lucide-react"
+import Image from "next/image"
+import Link from "next/link"
+import DreamBrand from "@/components/DreamBrand"
 import { z } from "zod"
 import { useStore } from "@/lib/store"
 import Footer from "@/components/Footer"
@@ -170,134 +171,65 @@ export default function Home() {
     }
   }
 
-  // If not mounted or on mobile, show appropriate content
-  if (!isMounted) {
-    return (
-      <main className="relative min-h-screen overflow-hidden">
-        <div className="absolute inset-0 z-0 bg-[#f5f2eb]">
-          <GridBackground />
-        </div>
-        
-        <div className="container relative z-10 mx-auto px-4 py-24 flex flex-col items-center justify-center min-h-screen">
-          <div className="text-center max-w-3xl mx-auto">
-            <h1 className="text-5xl md:text-6xl font-light mb-4 tracking-tight">
-              Trace Your <span className="font-normal text-blue-600">Thinking</span>
-            </h1>
-            
-            <p className="text-lg md:text-xl text-gray-600 mb-12 max-w-xl mx-auto leading-relaxed">
-              We're building a map of public reasoning — your perspective matters.
-            </p>
-            
-            <div className="bg-white p-8 rounded-3xl shadow-subtle max-w-md mx-auto border border-[#e0ddd5] flex items-center justify-center">
-              <div className="flex flex-col items-center justify-center py-8">
-                <div className="w-8 h-8 border-t-2 border-b-2 border-[#333333] rounded-full animate-spin mb-4"></div>
-                <p className="text-[#333333] text-lg font-light">Loading application...</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </main>
-    )
-  }
-  
-  if (isMobile) {
-    return <MobileRedirect />
-  }
+  if (isMounted && isMobile) return <MobileRedirect />
 
-  // Desktop view
   return (
-    <main className="relative min-h-screen overflow-hidden">
-      {/* Debug Panel - Only shown when debug UI is enabled via environment variable */}
-      {process.env.NEXT_PUBLIC_DEBUG_UI === 'true' && (
-        <DebugPanel data={{
-          researchTopic,
-          isMounted,
-          existingProlificId: existingProlificId || 'none',
-          status: status || 'none',
-        }} />
+    <main className="dream-page dream-home">
+      <a href="#welcome" className="dream-skip">Skip to sign in</a>
+      {process.env.NEXT_PUBLIC_DEBUG_UI === "true" && (
+        <DebugPanel data={{ researchTopic, isMounted, status }} />
       )}
-      
-      {/* Grid Background */}
-      <div className="absolute inset-0 z-0 bg-[#f5f2eb]">
-        <GridBackground />
-      </div>
+      <header className="dream-nav">
+        <DreamBrand />
+        <Link href="/about" className="dream-about">About the study <ArrowRight size={16} aria-hidden="true" /></Link>
+      </header>
 
-      {/* Content */}
-      <div 
-        className="container relative z-10 mx-auto px-4 py-24 flex flex-col items-center justify-center min-h-screen"
-      >
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, ease: [0.4, 0, 0.2, 1] }}
-          className="text-center max-w-3xl mx-auto"
-        >
-          <h1 className="text-5xl md:text-6xl font-light mb-4 tracking-tight">
-            Trace Your <span className="font-normal text-blue-600">Thinking</span>
-            {researchTopic && researchTopic !== "general" && (
-              <span className="font-light block text-2xl md:text-3xl mt-2 text-gray-700">
-                {researchTopic.charAt(0).toUpperCase() + researchTopic.slice(1)} Research
-              </span>
-            )}
-          </h1>
+      <div className="dream-home-content">
+        <section className="dream-intro" aria-labelledby="home-title">
+          <div className="dream-eyebrow"><Sparkles size={15} aria-hidden="true" /> BIG IDEAS START WITH YOU</div>
+          <h1 id="home-title">A little conversation.<br /><span>A world of perspectives.</span></h1>
+          <p>Everyone sees the world a little differently.<br />Let’s discover what makes your thinking, yours.</p>
+          {researchTopic && researchTopic !== "general" && (
+            <span className="dream-topic">{researchTopic.charAt(0).toUpperCase() + researchTopic.slice(1)} Research</span>
+          )}
+        </section>
 
-          <p className="text-lg md:text-xl text-gray-600 mb-12 max-w-xl mx-auto leading-relaxed">
-            We're building a map of public reasoning — your perspective matters.
-          </p>
+        <div className="dream-main-grid">
+          <div className="dream-world">
+            <div className="dream-photo">
+              <Image src="/images/thinking-neighborhood.jpg" alt="Three cheerful neighbors sharing ideas in a colorful seaside town" width={1536} height={1024} priority sizes="(max-width: 900px) 90vw, 650px" />
+              <div className="dream-photo-caption"><span className="dream-live-dot" /> A place for every perspective</div>
+            </div>
+            <div className="dream-sticker"><MessageCircle size={20} aria-hidden="true" /><span>Your voice belongs here.</span></div>
+          </div>
 
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2, duration: 0.5 }}
-            className="bg-white p-8 rounded-3xl shadow-subtle max-w-md mx-auto border border-[#e0ddd5]"
-          >
-            <h2 className="text-2xl font-light mb-6">Welcome</h2>
-
-            <form onSubmit={handleSubmit} className="space-y-6">
-              <div className="space-y-2">
-                <label htmlFor="prolificId" className="block text-sm font-medium text-gray-700">
-                  Please enter your Prolific ID
-                </label>
-                <Input
-                  id="prolificId"
-                  type="text"
-                  value={prolificId}
-                  onChange={(e) => validateInput(e.target.value)}
-                  placeholder="e.g. 5f8d7e6c9b2a1c3d4e5f6g7h"
-                  className={`bg-[#f5f2eb] border-[#e0ddd5] focus:ring-blue-400 ${
-                    error ? "border-red-300 focus:ring-red-400" : ""
-                  }`}
-                  minLength={4}
-                />
-                {error && (
-                  <div className="flex items-center gap-2 text-red-500 text-sm mt-1">
-                    <AlertCircle className="h-4 w-4" />
-                    <span>{error}</span>
-                  </div>
-                )}
-              </div>
-
-              <motion.div 
-                whileTap={{ scale: 0.96 }} 
-                transition={{ duration: 0.2, ease: [0.4, 0, 0.2, 1] }}
-              >
-                <Button
-                  type="submit"
-                  size="lg"
-                  disabled={!prolificId || prolificId.length < 4 || isLoading}
-                  className="bg-[#333333] hover:bg-[#222222] text-white px-8 py-6 text-base rounded-full shadow-subtle transition-all duration-300 w-full disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {isLoading ? "Creating session..." : "Begin"}
-                  {!isLoading && <ArrowRight className="ml-2 h-5 w-5" />}
-                </Button>
-              </motion.div>
+          <section id="welcome" className="dream-welcome" aria-labelledby="welcome-title">
+            <div className="dream-card-tab"><Smile size={17} aria-hidden="true" /> NICE TO MEET YOU!</div>
+            <div className="dream-welcome-icon" aria-hidden="true"><MessageCircle size={30} strokeWidth={2.5} /><span>✦</span></div>
+            <h2 id="welcome-title">Come on in.</h2>
+            <p className="dream-card-description">Your perspective is the missing piece.<br />Ready to share a little of your world?</p>
+            <form onSubmit={handleSubmit} className="dream-form" aria-busy={isLoading}>
+              <label htmlFor="prolificId">Your Prolific ID</label>
+              <Input id="prolificId" type="text" value={prolificId} onChange={(e) => validateInput(e.target.value)} placeholder="Enter your participant ID" className="dream-input" minLength={4} maxLength={24} required autoComplete="off" spellCheck={false} aria-invalid={!!error} aria-describedby={error ? "prolific-error" : "prolific-hint"} disabled={isLoading} />
+              {error ? (
+                <p id="prolific-error" role="alert" className="dream-error"><AlertCircle size={16} aria-hidden="true" />{error}</p>
+              ) : <p id="prolific-hint" className="dream-input-hint">You’ll find this in your Prolific account.</p>}
+              <Button type="submit" disabled={!isMounted || prolificId.length < 4 || isLoading} className="dream-button dream-begin">
+                {!isMounted ? "Getting ready…" : isLoading ? "Creating your session…" : "Let’s get started"}
+                {isLoading || !isMounted ? <LoaderCircle className="animate-spin" size={20} aria-hidden="true" /> : <ArrowRight size={20} aria-hidden="true" />}
+              </Button>
             </form>
-          </motion.div>
-        </motion.div>
-      </div>
+            <div className="dream-privacy"><ShieldCheck size={16} aria-hidden="true" /> Your responses are confidential.</div>
+          </section>
+        </div>
 
-      {/* Footer */}
-      <Footer showAboutLink={true} />
+        <section className="dream-steps" aria-label="How the study works">
+          <div><span className="dream-step-icon step-blue"><MessageCircle size={21} aria-hidden="true" /></span><div><h3>A friendly conversation</h3><p>Share your thoughts, in your own words.</p></div></div>
+          <div><span className="dream-step-icon step-yellow"><Smile size={21} aria-hidden="true" /></span><div><h3>Simply be yourself</h3><p>We’re interested in your point of view.</p></div></div>
+          <div><span className="dream-step-icon step-green"><Check size={21} aria-hidden="true" /></span><div><h3>Make it yours</h3><p>Review your answers before submitting.</p></div></div>
+        </section>
+      </div>
+      <Footer />
     </main>
   )
 }

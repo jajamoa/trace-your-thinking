@@ -30,11 +30,11 @@ export default function ElegantProgressBar({ progress, processingCount }: Elegan
   return (
     <div className="w-full py-4">
       <div className="flex justify-between items-center mb-2">
-        <span className="text-sm font-light text-gray-600">Interview Progress</span>
+        <span className="text-xs font-semibold text-slate-600">Interview Progress</span>
         <div className="flex items-center">
           {activeRequests > 0 && (
-            <div className="text-xs text-gray-600 mr-3 py-1 px-2 bg-[#f0eeea] rounded-full flex items-center">
-              <span className="animate-pulse inline-block h-2 w-2 rounded-full bg-[#555555] mr-1"></span>
+            <div className="text-xs text-gray-600 mr-3 py-1 px-2 bg-sky-50 rounded-full flex items-center">
+              <span className="animate-pulse inline-block h-2 w-2 rounded-full bg-sky-600 mr-1"></span>
               {activeRequests === 1 
                 ? "Processing 1 question" 
                 : `Processing ${activeRequests} questions`}
@@ -46,13 +46,13 @@ export default function ElegantProgressBar({ progress, processingCount }: Elegan
 
       <div className="relative">
         {/* Background track */}
-        <div className="h-2 bg-[#e0ddd5] rounded-full overflow-hidden">
+        <div className="dream-progress-track" role="progressbar" aria-label="Interview progress" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.floor(percentage)}>
           {/* Progress fill */}
           <motion.div
             initial={{ width: 0 }}
             animate={{ width: `${percentage}%` }}
             transition={{ duration: 0.5, ease: [0.4, 0, 0.2, 1] }}
-            className="h-full bg-[#333333] rounded-full"
+            className="dream-progress-fill"
           />
         </div>
       </div>

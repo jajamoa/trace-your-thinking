@@ -99,7 +99,8 @@ export default function ChatPanel() {
                 <Textarea
                   value={editText}
                   onChange={(e) => setEditText(e.target.value)}
-                  className="min-h-[100px] p-3 focus:ring-1 focus:ring-gray-400"
+                  aria-label="Edit your answer"
+                  className="min-h-[100px] p-3 focus:ring-1 focus:ring-sky-500"
                   autoFocus
                 />
                 <div className="flex justify-end space-x-2">
@@ -131,7 +132,7 @@ export default function ChatPanel() {
                     onClick={() => handleEditStart(message)}
                     size="icon"
                     variant="ghost"
-                    className="absolute top-0 right-0 h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity"
+                    className="absolute top-0 right-0 h-8 w-8 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 focus-visible:opacity-100 transition-opacity"
                     aria-label="Edit message"
                   >
                     <Edit2 className="h-4 w-4" />

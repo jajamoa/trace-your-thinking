@@ -397,7 +397,7 @@ export default function AnswerInput({ onSendMessage, isProcessing = false }: Ans
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.2, ease: [0.4, 0, 0.2, 1] }}
-      className="sticky bottom-0 border-t border-[#e0ddd5] bg-[#f5f2eb]/80 backdrop-blur-lg p-4 z-20"
+      className="dream-answer-input sticky bottom-0 p-4 z-20"
     >
       <div className="flex gap-2 max-w-4xl mx-auto">
         {inputMode === "voice" ? (
@@ -408,7 +408,7 @@ export default function AnswerInput({ onSendMessage, isProcessing = false }: Ans
                 size="icon"
                 variant={isRecording ? "destructive" : "outline"}
                 onClick={toggleRecording}
-                className="h-10 w-10 rounded-full border-[#e0ddd5]"
+                className="h-10 w-10 rounded-full border-[#d3e6ed]"
                 aria-label={isRecording ? "Stop recording" : "Start recording"}
                 disabled={isTranscribing || isQuestionLoading || isAnyProcessing}
               >
@@ -437,7 +437,7 @@ export default function AnswerInput({ onSendMessage, isProcessing = false }: Ans
                 type="button"
                 size="icon"
                 onClick={toggleInputMode}
-                className="h-10 w-10 rounded-full bg-[#e0ddd5] hover:bg-[#d5d2ca] text-[#333333]"
+                className="h-10 w-10 rounded-full bg-sky-50 hover:bg-sky-100 text-sky-800"
                 aria-label="Switch to text input"
                 disabled={isTranscribing || isAnyProcessing}
               >
@@ -452,7 +452,7 @@ export default function AnswerInput({ onSendMessage, isProcessing = false }: Ans
                 type="button"
                 size="icon"
                 onClick={toggleInputMode}
-                className="h-10 w-10 rounded-full bg-[#e0ddd5] hover:bg-[#d5d2ca] text-[#333333]"
+                className="h-10 w-10 rounded-full bg-sky-50 hover:bg-sky-100 text-sky-800"
                 aria-label="Switch to voice input"
                 disabled={isAnyProcessing || isQuestionLoading}
               >
@@ -462,7 +462,7 @@ export default function AnswerInput({ onSendMessage, isProcessing = false }: Ans
 
             {/* Text mode prompt information */}
             {(isAnyProcessing || isQuestionLoading) ? (
-              <div className="flex-1 flex items-center justify-center h-10 bg-white border border-[#e0ddd5] rounded-xl">
+              <div className="flex-1 flex items-center justify-center h-10 bg-white border border-[#d3e6ed] rounded-xl">
                 <div className="text-sm text-gray-600 font-light">
                   {isAIProcessingInBackground
                     ? `AI is processing ${processingCount} question${processingCount !== 1 ? 's' : ''} in the background...`
@@ -479,7 +479,7 @@ export default function AnswerInput({ onSendMessage, isProcessing = false }: Ans
                 value={text}
                 onChange={(e) => setText(e.target.value)}
                 placeholder="Type your answer..."
-                className="min-h-10 h-10 resize-none bg-white border-[#e0ddd5] rounded-xl focus:ring-blue-400 font-light"
+                className="min-h-10 h-10 resize-none bg-white border-[#d3e6ed] rounded-xl focus:ring-sky-400 font-normal"
                 aria-label="Answer input"
                 disabled={isAnyProcessing || isQuestionLoading}
               />
@@ -491,7 +491,7 @@ export default function AnswerInput({ onSendMessage, isProcessing = false }: Ans
                   type="button"
                   size="icon"
                   onClick={() => setText("")}
-                  className="h-10 w-10 rounded-full bg-[#e0ddd5] hover:bg-[#d5d2ca] text-[#333333]"
+                  className="h-10 w-10 rounded-full bg-sky-50 hover:bg-sky-100 text-sky-800"
                   aria-label="Clear text"
                   disabled={isAnyProcessing || isQuestionLoading}
                 >
@@ -506,7 +506,7 @@ export default function AnswerInput({ onSendMessage, isProcessing = false }: Ans
                 size="icon"
                 onClick={handleSend}
                 disabled={!text.trim() || isAnyProcessing || isQuestionLoading}
-                className="h-10 w-10 rounded-full bg-[#333333] hover:bg-[#222222] text-white"
+                className="h-10 w-10 rounded-full dream-button"
                 aria-label="Send message"
               >
                 <Send className="h-5 w-5" />
