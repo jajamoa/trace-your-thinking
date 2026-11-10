@@ -134,10 +134,11 @@ export default function MessageBubble({
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.2, ease: [0.4, 0, 0.2, 1] }}
         className={cn(
-          "max-w-[80%] rounded-2xl px-5 py-4 shadow-subtle font-light",
-          role === "user" ? "bg-[#333333] text-white" : "bg-white border border-[#e0ddd5] text-[#333333]",
+          "dream-bubble",
+          role === "user" ? "dream-bubble-user" : "dream-bubble-bot",
         )}
       >
+        <span className="dream-speaker">{role === "user" ? "YOU" : "YOUR CONVERSATION GUIDE"}</span>
         <p className="whitespace-pre-wrap break-words leading-relaxed">
           {role === "user" || isClient ? displayText : text}
           {/* Only show cursor on client-side rendering and when appropriate */}

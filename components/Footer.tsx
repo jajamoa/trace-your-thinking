@@ -13,8 +13,8 @@ export default function Footer({ showLogo = true, showAboutLink = false }: Foote
   const currentYear = useMemo(() => new Date().getFullYear(), [])
   
   return (
-    <footer className="absolute bottom-0 left-0 right-0 p-4 text-xs text-gray-500 flex justify-between items-center z-10">
-      <div className="flex items-center gap-2">
+    <footer className="dream-footer absolute bottom-0 left-0 right-0 p-4 text-xs text-gray-500 flex justify-between items-center z-10">
+      <div className="flex flex-wrap items-center gap-2">
         <span>© {currentYear} MIT · COUHES Protocol E-6512</span>
         {showAboutLink && (
           <>

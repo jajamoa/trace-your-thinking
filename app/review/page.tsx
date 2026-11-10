@@ -1,5 +1,8 @@
 "use client"
 
+import useHydrated from "@/hooks/useHydrated"
+import LoadingTransition from "@/components/LoadingTransition"
+
 import { useEffect, useState, useCallback } from "react"
 import { useRouter } from "next/navigation"
 import { motion } from "framer-motion"
@@ -21,6 +24,7 @@ import {
 } from "@/components/ui/dialog"
 
 export default function ReviewPage() {
+  const isHydrated = useHydrated()
   const router = useRouter()
   const {
     messages,
@@ -273,16 +277,18 @@ export default function ReviewPage() {
     }
   }
 
+  if (!isHydrated) return <LoadingTransition />
+
   return (
-    <div className="min-h-screen relative bg-[#f5f2eb]">
+    <div className="dream-page min-h-screen relative">
       <motion.div
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.12, ease: [0.4, 0, 0.2, 1] }}
-        className="container mx-auto px-4 py-16 max-w-3xl relative"
+        className="container mx-auto px-4 pt-16 pb-28 max-w-3xl relative"
       >
         <div className="flex items-center justify-between mb-10">
-          <h1 className="text-3xl font-light tracking-tight text-[#333333]">Review Your Thinking</h1>
+          <h1 className="text-3xl font-medium tracking-tight text-[#233e53]">Review Your Thinking</h1>
           <ProlificIdBadge />
         </div>
 
@@ -303,7 +309,7 @@ export default function ReviewPage() {
               onClick={handleSubmitClick}
               size="lg"
               disabled={isSubmitting}
-              className="bg-[#333333] hover:bg-[#222222] text-white rounded-full shadow-subtle"
+              className="dream-button rounded-full shadow-subtle"
             >
               {isSubmitting ? "Submitting..." : "Submit Interview"}
               <Send className="ml-2 h-4 w-4" />
@@ -329,7 +335,7 @@ export default function ReviewPage() {
                 value={confirmProlificId}
                 onChange={(e) => validateConfirmProlificId(e.target.value)}
                 placeholder="e.g. 5f8d7e6c9b2a1c3d4e5f6g7h"
-                className={`bg-[#f5f2eb] border-[#e0ddd5] focus:ring-blue-400 ${
+                className={`bg-[#eef8fc] border-[#d3e8e9] focus:ring-blue-400 ${
                   confirmError ? "border-red-300 focus:ring-red-400" : ""
                 }`}
                 minLength={4}
@@ -341,7 +347,7 @@ export default function ReviewPage() {
                 </div>
               )}
             </div>
-            <div className="bg-[#f5f2eb] p-3 rounded-md">
+            <div className="bg-[#eef8fc] p-3 rounded-md">
               <div className="flex items-center gap-2 text-sm text-gray-600">
                 <Check className="h-4 w-4 text-green-500" />
                 <span>By submitting, you confirm that your responses are complete and ready for analysis.</span>
@@ -353,7 +359,7 @@ export default function ReviewPage() {
               type="button"
               variant="outline"
               onClick={() => setShowConfirmDialog(false)}
-              className="border-[#e0ddd5]"
+              className="border-[#d3e8e9]"
             >
               Cancel
             </Button>
@@ -361,7 +367,7 @@ export default function ReviewPage() {
               type="button" 
               onClick={handleConfirmIdCheck} 
               disabled={confirmProlificId.length < 4 || Boolean(confirmError)}
-              className="bg-[#333333] hover:bg-[#222222] text-white disabled:opacity-50 disabled:cursor-not-allowed"
+              className="dream-button disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Confirm & Submit
             </Button>
@@ -380,7 +386,7 @@ export default function ReviewPage() {
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div className="space-y-2">
-              <div className="flex items-start gap-3 p-3 bg-[#f5f2eb] rounded-md">
+              <div className="flex items-start gap-3 p-3 bg-[#eef8fc] rounded-md">
                 <AlertCircle className="h-5 w-5 text-amber-500 flex-shrink-0 mt-0.5" />
                 <div className="text-sm">
                   <p className="font-medium mb-1">Original ID:</p>
@@ -402,14 +408,14 @@ export default function ReviewPage() {
                 setShowIdMismatchDialog(false)
                 setShowConfirmDialog(true)
               }}
-              className="border-[#e0ddd5] w-full sm:w-auto"
+              className="border-[#d3e8e9] w-full sm:w-auto"
             >
               Use Original ID
             </Button>
             <Button
               type="button"
               onClick={handleUseDifferentId}
-              className="bg-[#333333] hover:bg-[#222222] text-white w-full sm:w-auto"
+              className="dream-button w-full sm:w-auto"
             >
               Use New ID
             </Button>

@@ -55,24 +55,6 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <head>
-        {/* Force visibility script to prevent blank page issues */}
-        <script 
-          dangerouslySetInnerHTML={{ 
-            __html: `
-              // Force content visibility after a delay
-              setTimeout(function() {
-                document.body.style.visibility = 'visible';
-                var elements = document.querySelectorAll('div, main, section');
-                elements.forEach(function(el) {
-                  el.style.opacity = '1';
-                  el.style.transform = 'none';
-                });
-              }, 2000);
-            `
-          }}
-        />
-      </head>
       <body className={`${inter.variable} font-sans antialiased bg-[#f5f2eb] text-[#333333] min-h-screen`}>
         <noscript>
           <div style={{

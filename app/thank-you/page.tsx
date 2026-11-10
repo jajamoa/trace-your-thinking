@@ -1,5 +1,8 @@
 "use client"
 
+import useHydrated from "@/hooks/useHydrated"
+import LoadingTransition from "@/components/LoadingTransition"
+
 import { useEffect, useState } from "react"
 import { motion } from "framer-motion"
 import { Button } from "@/components/ui/button"
@@ -11,6 +14,7 @@ import Link from "next/link"
 import Footer from "@/components/Footer"
 
 export default function ThankYouPage() {
+  const isHydrated = useHydrated()
   const { resetStore, prolificId } = useStore()
   const router = useRouter()
   const [prolificCompletionUrl, setProlificCompletionUrl] = useState<string | null>(null)
@@ -59,8 +63,10 @@ export default function ThankYouPage() {
     window.location.href = "/";
   }
 
+  if (!isHydrated) return <LoadingTransition />
+
   return (
-    <div className="min-h-screen relative bg-[#f5f2eb]">
+    <div className="dream-page min-h-screen relative">
       <motion.div
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
@@ -73,7 +79,7 @@ export default function ThankYouPage() {
           initial={{ scale: 0.9, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           transition={{ delay: 0.3, duration: 0.5, ease: [0.4, 0, 0.2, 1] }}
-          className="bg-white backdrop-blur-md rounded-3xl p-12 shadow-subtle max-w-2xl mx-auto border border-[#e0ddd5]"
+          className="dream-panel bg-white backdrop-blur-md rounded-3xl p-6 sm:p-12 shadow-subtle max-w-2xl mx-auto border border-[#d3e8e9]"
         >
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -89,10 +95,10 @@ export default function ThankYouPage() {
               xmlns="http://www.w3.org/2000/svg"
               className="mx-auto"
             >
-              <circle cx="24" cy="24" r="24" fill="#2563EB" fillOpacity="0.1" />
+              <circle cx="24" cy="24" r="24" fill="#87c63c" fillOpacity="0.1" />
               <path
                 d="M32 18L22 28L16 22"
-                stroke="#333333"
+                stroke="#467421"
                 strokeWidth="2"
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -100,13 +106,13 @@ export default function ThankYouPage() {
             </svg>
           </motion.div>
 
-          <h1 className="text-4xl font-light mb-6 tracking-tight text-[#333333]">Thank You</h1>
+          <h1 className="text-4xl font-medium mb-6 tracking-tight text-[#233e53]">Thank You</h1>
 
-          <div className="text-lg text-gray-600 mb-8 leading-relaxed font-light">
+          <div className="text-lg text-gray-600 mb-8 leading-relaxed font-medium">
             <p className="mb-4">
               Your responses have been successfully submitted. Thank you for contributing to our map of public reasoning.
             </p>
-            <div className="inline-block bg-[#f5f2eb] px-4 py-2 rounded-lg">
+            <div className="inline-block bg-[#eef8fc] px-4 py-2 rounded-lg">
               <span className="font-medium">Prolific ID:</span> <span className="font-mono">{prolificId}</span>
             </div>
           </div>
@@ -137,7 +143,7 @@ export default function ThankYouPage() {
                 >
                   <Button
                     size="lg"
-                    className="bg-[#1E40AF] hover:bg-[#1E3A8A] text-white px-8 py-6 rounded-xl shadow-md w-full font-medium text-lg flex items-center justify-center gap-2"
+                    className="dream-button px-8 py-6 rounded-xl shadow-md w-full font-medium text-lg flex items-center justify-center gap-2"
                   >
                     Complete on Prolific
                     <ExternalLink className="h-5 w-5" />
@@ -156,7 +162,7 @@ export default function ThankYouPage() {
                 <Button
                   onClick={handleReturnHome}
                   size="lg"
-                  className="bg-[#333333] hover:bg-[#222222] text-white px-8 py-5 rounded-lg shadow-sm w-full"
+                  className="dream-button px-8 py-5 rounded-lg shadow-sm w-full"
                 >
                   Return to Home
                   <ArrowLeft className="ml-2 h-5 w-5" />
@@ -172,7 +178,7 @@ export default function ThankYouPage() {
                   <Button
                     variant="outline"
                     size="lg"
-                    className="border-[#e0ddd5] hover:bg-[#f5f2eb] px-8 py-5 rounded-lg shadow-sm w-full"
+                    className="border-[#d3e8e9] hover:bg-[#eef8fc] px-8 py-5 rounded-lg shadow-sm w-full"
                   >
                     About This Study
                     <Info className="ml-2 h-5 w-5" />

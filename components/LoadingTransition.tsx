@@ -23,12 +23,12 @@ export default function LoadingTransition({ message = "Preparing your data..." }
   }, [])
   
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#f5f2eb]">
+    <div className="dream-page fixed inset-0 z-50 flex items-center justify-center">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, ease: [0.4, 0, 0.2, 1] }}
-        className="text-center"
+        className="dream-panel text-center" role="status" aria-live="polite"
       >
         <div className="flex flex-col items-center justify-center space-y-6">
           {/* Loading spinner */}
@@ -36,7 +36,7 @@ export default function LoadingTransition({ message = "Preparing your data..." }
             <motion.div
               animate={{ rotate: 360 }}
               transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
-              className="absolute inset-0 rounded-full border-4 border-gray-200 border-t-gray-800"
+              className="absolute inset-0 rounded-full border-4 border-sky-100 border-t-sky-500"
             />
           </div>
           

@@ -1,5 +1,7 @@
 "use client"
 
+import useHydrated from "@/hooks/useHydrated"
+
 import { useState, useEffect, useRef, useMemo } from "react"
 import { useRouter } from "next/navigation"
 import { motion } from "framer-motion"
@@ -17,6 +19,7 @@ import { InterviewSettingsService } from "@/lib/interview-settings-service"
 import { v4 as uuidv4 } from "uuid"
 import LoadingTransition from "@/components/LoadingTransition"
 import React from "react"
+import DreamBrand from "@/components/DreamBrand"
 
 // Create a memoized AnswerInput component to prevent unnecessary re-renders
 const MemoizedAnswerInput = React.memo(
@@ -39,6 +42,7 @@ const debounce = (fn: Function, ms = 1000) => {
 }
 
 export default function InterviewPage() {
+  const isHydrated = useHydrated()
   const router = useRouter()
   const [isNavigating, setIsNavigating] = useState(false)
   const [navigatingMessage, setNavigatingMessage] = useState("")
@@ -449,8 +453,8 @@ export default function InterviewPage() {
   }, [pendingRequests, progress, qaPairs.length, isNavigating]);
 
   // Show loading transition when navigating
-  if (isNavigating) {
-    return <LoadingTransition message={navigatingMessage} />
+  if (!isHydrated || isNavigating) {
+    return <LoadingTransition message={navigatingMessage || "Getting your conversation ready…"} />
   }
 
   return (
@@ -458,23 +462,23 @@ export default function InterviewPage() {
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.12, ease: [0.4, 0, 0.2, 1] }}
-      className="flex h-screen overflow-hidden bg-[#f5f2eb] relative"
+      className="dream-page dream-interview flex overflow-hidden relative"
     >
-      <div className="flex-1 flex flex-col max-w-4xl mx-auto w-full">
-        <div className="sticky top-0 z-10 bg-[#f5f2eb]/80 backdrop-blur-lg pt-6 px-4">
+      <div className="dream-conversation flex-1 flex flex-col max-w-4xl mx-auto w-full">
+        <div className="dream-interview-header sticky top-0 z-10">
           <div className="flex justify-between items-center mb-4">
-            <h1 className="text-xl font-light">Trace Your Thinking</h1>
+            <h1><DreamBrand /></h1>
             <ProlificIdBadge />
           </div>
           {currentQuestion && (
-            <div className="mb-4">
-              <div className="text-sm text-gray-500 mb-1">Current Question</div>
-              <div className="text-lg font-light">{currentQuestion.question}</div>
+            <div className="dream-question mb-2">
+              <div className="dream-question-label">Current Question</div>
+              <div className="text-base font-medium">{currentQuestion.question}</div>
             </div>
           )}
           <ElegantProgressBar progress={displayProgress} processingCount={processingCount} />
         </div>
-        <div className="flex-1 overflow-y-auto pt-6">
+        <div className="flex-1 min-h-0 overflow-y-auto px-4 pt-2">
           <ChatPanel />
         </div>
         <MemoizedAnswerInput onSendMessage={handleAnswerSubmit} isProcessing={isProcessing} />
